@@ -13,7 +13,10 @@ namespace MeetSpot.Core.Entities
         public decimal Balance { get; set; } = 0;
         public bool IsEmailConfirmed { get; set; } = false;
         public bool IsActive { get; set; } = true;
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
 
+        
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public Subscription? Subscription { get; set; }
     }
