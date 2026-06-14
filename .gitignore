@@ -478,6 +478,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+**/obj/
+**/bin/
+
 # Vim temporary swap files
 *.swp
 **/appsettings.json
