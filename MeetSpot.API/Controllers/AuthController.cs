@@ -44,11 +44,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto dto)
     {
         try
         {
-            var result = await _authService.RefreshTokenAsync(refreshToken);
+            var result = await _authService.RefreshTokenAsync(dto.AccessToken, dto.RefreshToken);
             return Ok(result);
         }
         catch (Exception ex)
@@ -56,6 +56,7 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
     [HttpGet("confirm-email")]
     public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
     {
@@ -71,12 +72,12 @@ public class AuthController : ControllerBase
     }
 
 
-    [HttpPost("forgot-password")]
-    public async Task<IActionResult> ForgotPassword([FromBody] string email)
+   [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
         try
         {
-            await _authService.ForgotPasswordAsync(email);
+            await _authService.ForgotPasswordAsync(dto.Email);
             return Ok(new { message = "Password reset email sent" });
         }
         catch (Exception ex)
@@ -86,11 +87,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword([FromQuery] string token, [FromBody] string newPassword)
-    {
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {   
         try
         {
-            await _authService.ResetPasswordAsync(token, newPassword);
+            await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
             return Ok(new { message = "Password reset successfully" });
         }
         catch (Exception ex)

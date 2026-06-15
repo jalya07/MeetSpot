@@ -3,6 +3,8 @@ using MeetSpot.Core.DTOs.Auth;
 using MeetSpot.Core.Entities;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MeetSpot.Infrastructure.Services;
 
@@ -79,6 +81,9 @@ public class AuthService : IAuthService
 
         if (!user.IsActive)
             throw new Exception("Account is disabled");
+        
+        if (!user.IsEmailConfirmed)
+            throw new Exception("Please confirm your email before logging in");
 
         var accessToken = _jwtService.GenerateToken(
             user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
@@ -99,10 +104,15 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
+    public async Task<AuthResponseDto> RefreshTokenAsync(string accessToken, string refreshToken)
     {
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(accessToken);
+        var email = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken
+            .FirstOrDefaultAsync(u => u.Email == email
+                && u.RefreshToken == refreshToken
                 && u.RefreshTokenExpiry > DateTime.UtcNow);
 
         if (user == null)
@@ -178,6 +188,8 @@ public class AuthService : IAuthService
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
+        if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+            throw new Exception("New password cannot be the same as the old password");
         await _context.SaveChangesAsync();
     }
 }
