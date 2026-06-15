@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Infrastructure.Data;
 using System.Text;
+using MeetSpot.Core.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MeetSpot.Core.Interfaces;
@@ -44,6 +45,26 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<MeetSpotAppDbContext>();
+    
+    if (!context.Users.Any(u => u.Role == UserRole.Admin))
+    {
+        context.Users.Add(new User
+        {
+            FirstName = "Admin",
+            LastName = "MeetSpot",
+            Email = "admin@meetspot.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            Role = UserRole.Admin,
+            Type = UserType.Regular,
+            IsEmailConfirmed = true,
+            IsActive = true
+        });
+        context.SaveChanges();
+    }
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
