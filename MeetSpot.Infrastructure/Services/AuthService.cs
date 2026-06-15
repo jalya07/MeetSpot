@@ -10,11 +10,13 @@ public class AuthService : IAuthService
 {
     private readonly MeetSpotAppDbContext _context;
     private readonly IJwtService _jwtService;
+    private readonly IEmailService _emailService;
 
-    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService)
+    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService, IEmailService emailService)
     {
         _context = context;
         _jwtService = jwtService;
+        _emailService = emailService;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -49,7 +51,13 @@ public class AuthService : IAuthService
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _context.SaveChangesAsync();
+        var confirmToken = Guid.NewGuid().ToString();
+        user.EmailConfirmationToken = confirmToken;
+        user.EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
+        await _context.SaveChangesAsync();
 
+        var confirmLink = $"http://localhost:5249/api/auth/confirm-email?token={confirmToken}&email={user.Email}";
+        await _emailService.SendEmailConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", confirmLink);
         return new AuthResponseDto
         {
             AccessToken = accessToken,
@@ -117,5 +125,59 @@ public class AuthService : IAuthService
             Role = user.Role.ToString(),
             UserType = user.Type.ToString()
         };
+    }
+
+    public async Task ConfirmEmailAsync(string email, string token)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        if (user.EmailConfirmationToken != token)
+            throw new Exception("Invalid confirmation token");
+
+        if (user.EmailConfirmationTokenExpiry < DateTime.UtcNow)
+            throw new Exception("Confirmation token has expired");
+
+        user.IsEmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        user.EmailConfirmationTokenExpiry = null;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ForgotPasswordAsync(string email)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        var resetToken = Guid.NewGuid().ToString();
+        user.PasswordResetToken = resetToken;
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+        await _context.SaveChangesAsync();
+
+        var resetLink = $"http://localhost:5249/api/auth/reset-password?token={resetToken}&email={email}";
+        await _emailService.SendPasswordResetAsync(user.Email, $"{user.FirstName} {user.LastName}", resetLink);
+    }
+
+    public async Task ResetPasswordAsync(string token, string newPassword)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.PasswordResetToken == token);
+
+        if (user == null)
+            throw new Exception("Invalid reset token");
+
+        if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            throw new Exception("Reset token has expired");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+        await _context.SaveChangesAsync();
     }
 }

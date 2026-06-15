@@ -15,8 +15,12 @@ namespace MeetSpot.Core.Entities
         public bool IsActive { get; set; } = true;
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
-
         
+        public string? EmailConfirmationToken { get; set; }
+        public DateTime? EmailConfirmationTokenExpiry { get; set; }
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public Subscription? Subscription { get; set; }
     }
