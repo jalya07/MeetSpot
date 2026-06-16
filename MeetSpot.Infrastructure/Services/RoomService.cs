@@ -9,24 +9,40 @@ namespace MeetSpot.Infrastructure.Services;
 public class RoomService : IRoomService
 {
     private readonly MeetSpotAppDbContext _context;
+    private readonly ICacheService _cacheService;
 
-    public RoomService(MeetSpotAppDbContext context)
+    public RoomService(MeetSpotAppDbContext context, ICacheService cacheService)
     {
         _context = context;
+        _cacheService = cacheService;
     }
 
    public async Task<List<RoomResponseDto>> GetAllAsync(string? type, int? capacity, int? floor)
     {
-            var query = _context.Rooms
-                .Include(r => r.Equipment)
-                .Where(r => r.IsActive);
-            if (!string.IsNullOrEmpty(type) && Enum.TryParse<RoomType>(type, true, out var roomType))
-                query = query.Where(r => r.Type == roomType);
-            if (capacity.HasValue)
-                query = query.Where(r => r.Capacity >= capacity.Value);
-            if (floor.HasValue)
-                query = query.Where(r => r.Floor == floor.Value);   
-            return await query.Select(r => ToDto(r)).ToListAsync();
+        var cacheKey = $"rooms_{type}_{capacity}_{floor}";
+
+        var cached = await _cacheService.GetAsync<List<RoomResponseDto>>(cacheKey);
+        if (cached != null) 
+            return cached;
+
+        var query = _context.Rooms
+            .Include(r => r.Equipment)
+            .Where(r => r.IsActive);
+
+        if (!string.IsNullOrEmpty(type) && Enum.TryParse<RoomType>(type, true, out var roomType))
+            query = query.Where(r => r.Type == roomType);
+
+        if (capacity.HasValue)
+            query = query.Where(r => r.Capacity >= capacity.Value);
+
+        if (floor.HasValue)
+            query = query.Where(r => r.Floor == floor.Value);
+
+        var result = await query.Select(r => ToDto(r)).ToListAsync();
+        
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5));
+        
+        return result;
 
     }
 
@@ -67,6 +83,7 @@ public class RoomService : IRoomService
 
         _context.Rooms.Add(room);
         await _context.SaveChangesAsync();
+        await _cacheService.RemoveAsync($"rooms___");
 
         return ToDto(room);
     }
@@ -103,6 +120,7 @@ public class RoomService : IRoomService
         }
 
         await _context.SaveChangesAsync();
+        await _cacheService.RemoveAsync($"rooms___");
         return ToDto(room);
     }
 
@@ -116,6 +134,7 @@ public class RoomService : IRoomService
         room.IsActive = false;
         room.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
+        await _cacheService.RemoveAsync($"rooms___");
     }
 
     public async Task<List<RoomResponseDto>> GetAvailableRoomsAsync(DateTime startTime, DateTime endTime, int? capacity)
