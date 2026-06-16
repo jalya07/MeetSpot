@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Infrastructure.Data;
 using System.Text;
+using MeetSpot.API.Hubs;
+using MeetSpot.API.Services;
 using MeetSpot.Core.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +39,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IBookingNotificationService, BookingNotificationService>();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
@@ -81,6 +85,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<BookingHub>("/hubs/booking");
 
 app.MapControllers();
 

@@ -11,11 +11,13 @@ public class BookingService : IBookingService
 {
     private readonly MeetSpotAppDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IBookingNotificationService _notificationService;
 
-    public BookingService(MeetSpotAppDbContext context, IEmailService emailService)
+    public BookingService(MeetSpotAppDbContext context, IEmailService emailService, IBookingNotificationService notificationService)
     {
         _context = context;
         _emailService = emailService;
+        _notificationService = notificationService;
     }
 
     public async Task<BookingResponseDto> CreateAsync(CreateBookingDto dto, int userId)
@@ -108,6 +110,8 @@ public class BookingService : IBookingService
         var bookingDetails = $"<p><b>Room:</b> {room.Name}</p><p><b>Date:</b> {dto.StartTime:dd MMM yyyy}</p><p><b>Time:</b> {dto.StartTime:HH:mm} - {dto.EndTime:HH:mm}</p><p><b>Total:</b> ${totalPrice}</p>";
         await _emailService.SendBookingConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", bookingDetails);
 
+        await _notificationService.NotifyBookingCreated(room.Id, room.Name, dto.StartTime, dto.EndTime);
+
         return await ToDto(booking.Id);
     }
 
@@ -193,6 +197,8 @@ public class BookingService : IBookingService
             });
         }
 
+        await _notificationService.NotifyBookingCancelled(booking.RoomId, booking.Room.Name);
+        
         await _context.SaveChangesAsync();
     }
 
