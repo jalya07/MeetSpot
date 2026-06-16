@@ -15,22 +15,19 @@ public class RoomService : IRoomService
         _context = context;
     }
 
-    public async Task<List<RoomResponseDto>> GetAllAsync(string? type, int? capacity, int? floor)
+   public async Task<List<RoomResponseDto>> GetAllAsync(string? type, int? capacity, int? floor)
     {
-        var query = _context.Rooms
-            .Include(r => r.Equipment)
-            .Where(r => r.IsActive);
+            var query = _context.Rooms
+                .Include(r => r.Equipment)
+                .Where(r => r.IsActive);
+            if (!string.IsNullOrEmpty(type) && Enum.TryParse<RoomType>(type, true, out var roomType))
+                query = query.Where(r => r.Type == roomType);
+            if (capacity.HasValue)
+                query = query.Where(r => r.Capacity >= capacity.Value);
+            if (floor.HasValue)
+                query = query.Where(r => r.Floor == floor.Value);   
+            return await query.Select(r => ToDto(r)).ToListAsync();
 
-        if (!string.IsNullOrEmpty(type) && Enum.TryParse<RoomType>(type, true, out var roomType))
-            query = query.Where(r => r.Type == roomType);
-
-        if (capacity.HasValue)
-            query = query.Where(r => r.Capacity >= capacity.Value);
-
-        if (floor.HasValue)
-            query = query.Where(r => r.Floor == floor.Value);
-
-        return await query.Select(r => ToDto(r)).ToListAsync();
     }
 
     public async Task<RoomResponseDto> GetByIdAsync(int id)

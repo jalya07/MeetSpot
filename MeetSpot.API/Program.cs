@@ -9,12 +9,19 @@ using Microsoft.IdentityModel.Tokens;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Services;
 using Scalar.AspNetCore;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<MeetSpotAppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"];
+    options.InstanceName = "MeetSpot_";
+});
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -40,6 +47,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IBookingNotificationService, BookingNotificationService>();
+builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
