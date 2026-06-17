@@ -21,11 +21,11 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _authService.RegisterAsync(dto);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Registration successful"));
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(ApiResponse<AuthResponseDto>.Fail(ex.Message));
         }
     }
 
@@ -35,11 +35,11 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _authService.LoginAsync(dto);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Login successful"));
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return Unauthorized(ApiResponse<AuthResponseDto>.Fail(ex.Message));
         }
     }
 
@@ -63,11 +63,11 @@ public class AuthController : ControllerBase
         try
         {
             await _authService.ConfirmEmailAsync(email, token);
-            return Ok(new { message = "Email confirmed successfully" });
+            return Ok(ApiResponse<string>.Ok("Email confirmed successfully"));
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(ApiResponse<string>.Fail(ex.Message));
         }
     }
 
