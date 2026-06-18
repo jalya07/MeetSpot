@@ -5,6 +5,7 @@ using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MeetSpot.Core.Exceptions;
 
 namespace MeetSpot.Infrastructure.Services;
 
@@ -27,7 +28,7 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
         if (existingUser != null)
-            throw new Exception("User with this email already exists");
+            throw new ConflictException("User with this email already exists");
 
         var userType = Enum.Parse<UserType>(dto.UserType, true);
 
@@ -77,13 +78,13 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            throw new Exception("Invalid email or password");
+            throw new UnauthorizedException("Invalid email or password");
 
         if (!user.IsActive)
-            throw new Exception("Account is disabled");
-        
+            throw new UnauthorizedException("Account is disabled");
+
         if (!user.IsEmailConfirmed)
-            throw new Exception("Please confirm your email before logging in");
+            throw new UnauthorizedException("Please confirm your email before logging in");
 
         var accessToken = _jwtService.GenerateToken(
             user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
@@ -116,7 +117,7 @@ public class AuthService : IAuthService
                 && u.RefreshTokenExpiry > DateTime.UtcNow);
 
         if (user == null)
-            throw new Exception("Invalid or expired refresh token");
+            throw new BadRequestException("Invalid or expired refresh token");
 
         var newAccessToken = _jwtService.GenerateToken(
             user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
@@ -143,13 +144,13 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
-            throw new Exception("User not found");
+            throw new NotFoundException("User not found");
 
         if (user.EmailConfirmationToken != token)
-            throw new Exception("Invalid confirmation token");
+            throw new BadRequestException("Invalid confirmation token");
 
         if (user.EmailConfirmationTokenExpiry < DateTime.UtcNow)
-            throw new Exception("Confirmation token has expired");
+            throw new BadRequestException("Confirmation token has expired");
 
         user.IsEmailConfirmed = true;
         user.EmailConfirmationToken = null;
@@ -163,7 +164,7 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
-            throw new Exception("User not found");
+            throw new NotFoundException("User not found");
 
         var resetToken = Guid.NewGuid().ToString();
         user.PasswordResetToken = resetToken;
@@ -180,13 +181,13 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.PasswordResetToken == token);
 
         if (user == null)
-            throw new Exception("Invalid reset token");
+            throw new BadRequestException("Invalid reset token");
 
         if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
-            throw new Exception("Reset token has expired");
+            throw new BadRequestException("Reset token has expired");
 
-         if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
-            throw new Exception("New password cannot be the same as the old password");
+        if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+            throw new BadRequestException("New password cannot be the same as the old password");
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;

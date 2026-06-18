@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Core.DTOs.Room;
 using MeetSpot.Core.Entities;
+using MeetSpot.Core.Exceptions;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
 
@@ -53,7 +54,7 @@ public class RoomService : IRoomService
             .FirstOrDefaultAsync(r => r.Id == id && r.IsActive);
 
         if (room == null)
-            throw new Exception("Room not found");
+            throw new NotFoundException("Room not found");
 
         return ToDto(room);
     }
@@ -95,7 +96,7 @@ public class RoomService : IRoomService
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (room == null)
-            throw new Exception("Room not found");
+            throw new NotFoundException("Room not found");
 
         if (dto.Name != null) room.Name = dto.Name;
         if (dto.Description != null) room.Description = dto.Description;
@@ -129,7 +130,7 @@ public class RoomService : IRoomService
         var room = await _context.Rooms.FindAsync(id);
 
         if (room == null)
-            throw new Exception("Room not found");
+            throw new NotFoundException("Room not found");
 
         room.IsActive = false;
         room.UpdatedAt = DateTime.UtcNow;

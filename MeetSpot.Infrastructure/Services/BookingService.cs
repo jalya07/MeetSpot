@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.Entities;
+using MeetSpot.Core.Exceptions;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
 using QRCoder;
@@ -30,15 +31,15 @@ public class BookingService : IBookingService
                 && b.EndTime > dto.StartTime);
 
         if (conflict)
-            throw new Exception("Room is already booked for this time slot");
+            throw new ConflictException("Room is already booked for this time slot");
 
         var room = await _context.Rooms.FindAsync(dto.RoomId);
         if (room == null)
-            throw new Exception("Room not found");
+            throw new NotFoundException("Room not found");
 
         var user = await _context.Users.FindAsync(userId);
         if (user == null)
-            throw new Exception("User not found");
+            throw new NotFoundException("User not found");
 
         // Booking rules by role
         var minDaysAhead = user.Type switch
@@ -60,7 +61,7 @@ public class BookingService : IBookingService
         if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
         {
             if (user.Balance < totalPrice)
-                throw new Exception("Insufficient balance");
+                throw new BadRequestException("Insufficient balance");
         }
 
         // Generate QR
@@ -122,10 +123,10 @@ public class BookingService : IBookingService
             .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
 
         if (booking == null)
-            throw new Exception("Booking not found");
+            throw new NotFoundException("Booking not found");
 
         if (booking.Status != BookingStatus.Active)
-            throw new Exception("Cannot update a cancelled or completed booking");
+            throw new BadRequestException("Cannot update a cancelled or completed booking");
 
         if (dto.StartTime.HasValue) booking.StartTime = dto.StartTime.Value;
         if (dto.EndTime.HasValue) booking.EndTime = dto.EndTime.Value;
@@ -151,14 +152,14 @@ public class BookingService : IBookingService
             .FirstOrDefaultAsync(b => b.Id == id);
 
         if (booking == null)
-            throw new Exception("Booking not found");
+            throw new NotFoundException("Booking not found");
 
         var isAdmin = booking.User.Role == UserRole.Admin;
         if (!isAdmin && booking.UserId != userId)
-            throw new Exception("Unauthorized");
+            throw new UnauthorizedException("Unauthorized");
 
         if (booking.Status != BookingStatus.Active)
-            throw new Exception("Booking is already cancelled or completed");
+            throw new BadRequestException("Booking is already cancelled or completed");
 
         var user = booking.User;
         var hoursUntilStart = (booking.StartTime - DateTime.UtcNow).TotalHours;
@@ -198,7 +199,7 @@ public class BookingService : IBookingService
         }
 
         await _notificationService.NotifyBookingCancelled(booking.RoomId, booking.Room.Name);
-        
+
         await _context.SaveChangesAsync();
     }
 
@@ -249,10 +250,10 @@ public class BookingService : IBookingService
             .FirstOrDefaultAsync(b => b.Id == bookingId);
 
         if (booking == null)
-            throw new Exception("Booking not found");
+            throw new NotFoundException("Booking not found");
 
         if (booking.Status != BookingStatus.Active)
-            throw new Exception("Booking is not active");
+            throw new BadRequestException("Booking is not active");
 
         booking.IsCheckedIn = true;
         booking.CheckInTime = DateTime.UtcNow;
