@@ -385,6 +385,10 @@
               "target": "Package",
               "version": "[4.2.0, )"
             },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
             "MailKit": {
               "target": "Package",
               "version": "[4.17.0, )"
