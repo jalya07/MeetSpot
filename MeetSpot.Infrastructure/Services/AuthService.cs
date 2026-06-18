@@ -185,11 +185,12 @@ public class AuthService : IAuthService
         if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
             throw new Exception("Reset token has expired");
 
+         if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+            throw new Exception("New password cannot be the same as the old password");
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
-        if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
-            throw new Exception("New password cannot be the same as the old password");
+       
         await _context.SaveChangesAsync();
     }
 }
