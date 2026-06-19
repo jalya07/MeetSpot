@@ -2,6 +2,7 @@ using AutoMapper;
 using MeetSpot.Core.DTOs.Auth;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.DTOs.Room;
+using MeetSpot.Core.DTOs.Subscription;
 using MeetSpot.Core.Entities;
 
 namespace MeetSpot.Core.Mappings;
@@ -49,5 +50,8 @@ public class MappingProfile : Profile
                 src.Status.ToString()))
             .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => 
                 src.Participants.Select(p => p.Email).ToList()));
+        //subscription mappings
+        CreateMap<Subscription, SubscriptionResponseDto>()
+            .ForMember(dest => dest.Plan, opt => opt.MapFrom(src => src.Plan.ToString()));
     }
 }
