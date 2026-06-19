@@ -3,6 +3,7 @@ using MeetSpot.Core.DTOs.Auth;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.DTOs.Room;
 using MeetSpot.Core.DTOs.Subscription;
+using MeetSpot.Core.DTOs.User;
 using MeetSpot.Core.Entities;
 
 namespace MeetSpot.Core.Mappings;
@@ -27,6 +28,9 @@ public class MappingProfile : Profile
                 src.Type.ToString()))
             .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
             .ForMember(dest => dest.RefreshToken, opt => opt.Ignore());
+        CreateMap<User, UserProfileDto>()
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
+            .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()));
 
         // Room mappings
         CreateMap<CreateRoomDto, Room>()
