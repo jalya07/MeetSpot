@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.Entities;
@@ -13,12 +14,14 @@ public class BookingService : IBookingService
     private readonly MeetSpotAppDbContext _context;
     private readonly IEmailService _emailService;
     private readonly IBookingNotificationService _notificationService;
+    private readonly IMapper _mapper;
 
-    public BookingService(MeetSpotAppDbContext context, IEmailService emailService, IBookingNotificationService notificationService)
+    public BookingService(MeetSpotAppDbContext context, IEmailService emailService, IBookingNotificationService notificationService, IMapper mapper)
     {
         _context = context;
         _emailService = emailService;
         _notificationService = notificationService;
+        _mapper = mapper;
     }
 
     public async Task<BookingResponseDto> CreateAsync(CreateBookingDto dto, int userId)
@@ -113,7 +116,13 @@ public class BookingService : IBookingService
 
         await _notificationService.NotifyBookingCreated(room.Id, room.Name, dto.StartTime, dto.EndTime);
 
-        return await ToDto(booking.Id);
+       var bookingWithDetails = await _context.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.User)
+            .Include(b => b.Participants)
+            .FirstOrDefaultAsync(b => b.Id == booking.Id);
+
+        return _mapper.Map<BookingResponseDto>(bookingWithDetails!);
     }
 
     public async Task<BookingResponseDto> UpdateAsync(int id, UpdateBookingDto dto, int userId)
@@ -141,7 +150,13 @@ public class BookingService : IBookingService
         }
 
         await _context.SaveChangesAsync();
-        return await ToDto(id);
+        var updatedBooking = await _context.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.User)
+            .Include(b => b.Participants)
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        return _mapper.Map<BookingResponseDto>(updatedBooking!);
     }
 
     public async Task CancelAsync(int id, int userId, string? reason)
@@ -206,41 +221,41 @@ public class BookingService : IBookingService
     public async Task<List<BookingResponseDto>> GetMyBookingsAsync(int userId)
     {
         var bookings = await _context.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.User)
+            .Include(b => b.Participants)
             .Where(b => b.UserId == userId)
             .OrderByDescending(b => b.StartTime)
             .ToListAsync();
 
-        var result = new List<BookingResponseDto>();
-        foreach (var b in bookings)
-            result.Add(await ToDto(b.Id));
-        return result;
+        return bookings.Select(b => _mapper.Map<BookingResponseDto>(b)).ToList();
     }
 
     public async Task<List<BookingResponseDto>> GetAllAsync()
     {
         var bookings = await _context.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.User)
+            .Include(b => b.Participants)
             .OrderByDescending(b => b.StartTime)
             .ToListAsync();
 
-        var result = new List<BookingResponseDto>();
-        foreach (var b in bookings)
-            result.Add(await ToDto(b.Id));
-        return result;
+        return bookings.Select(b => _mapper.Map<BookingResponseDto>(b)).ToList();
     }
 
     public async Task<List<BookingResponseDto>> GetRoomCalendarAsync(int roomId, DateTime date)
     {
         var bookings = await _context.Bookings
+            .Include(b => b.Room)
+            .Include(b => b.User)
+            .Include(b => b.Participants)
             .Where(b => b.RoomId == roomId
                 && b.Status == BookingStatus.Active
                 && b.StartTime.Date == date.Date)
             .OrderBy(b => b.StartTime)
             .ToListAsync();
 
-        var result = new List<BookingResponseDto>();
-        foreach (var b in bookings)
-            result.Add(await ToDto(b.Id));
-        return result;
+    return bookings.Select(b => _mapper.Map<BookingResponseDto>(b)).ToList();
     }
 
     public async Task CheckInAsync(int bookingId)
@@ -269,30 +284,5 @@ public class BookingService : IBookingService
         return Convert.ToBase64String(bytes);
     }
 
-    private async Task<BookingResponseDto> ToDto(int bookingId)
-    {
-        var b = await _context.Bookings
-            .Include(b => b.Room)
-            .Include(b => b.User)
-            .Include(b => b.Participants)
-            .FirstOrDefaultAsync(b => b.Id == bookingId);
 
-        return new BookingResponseDto
-        {
-            Id = b!.Id,
-            Title = b.Title,
-            StartTime = b.StartTime,
-            EndTime = b.EndTime,
-            TotalPrice = b.TotalPrice,
-            Status = b.Status.ToString(),
-            QrCode = b.QrCode,
-            IsCheckedIn = b.IsCheckedIn,
-            RoomId = b.RoomId,
-            RoomName = b.Room.Name,
-            UserId = b.UserId,
-            UserFullName = $"{b.User.FirstName} {b.User.LastName}",
-            Participants = b.Participants.Select(p => p.Email).ToList(),
-            CreatedAt = b.CreatedAt
-        };
-    }
 }
