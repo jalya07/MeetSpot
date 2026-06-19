@@ -1,6 +1,8 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MeetSpot.Core.DTOs.Booking;
+using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
 using System.Security.Claims;
 
@@ -9,114 +11,85 @@ namespace MeetSpot.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class BookingController : ControllerBase
+public class BookingController(
+    IBookingService bookingService,
+    IValidator<CreateBookingDto> createBookingValidator,
+    IValidator<UpdateBookingDto> updateBookingValidator) : ControllerBase
 {
-    private readonly IBookingService _bookingService;
-
-    public BookingController(IBookingService bookingService)
-    {
-        _bookingService = bookingService;
-    }
-
     private int GetUserId() =>
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpPost]
+    [ProducesResponseType(typeof(ResponseModelHelper<BookingResponseDto>), 201)]
+    [ProducesResponseType(typeof(ResponseModelHelper<BookingResponseDto>), 400)]
+    [ProducesResponseType(typeof(ResponseModelHelper<BookingResponseDto>), 409)]
     public async Task<IActionResult> Create([FromBody] CreateBookingDto dto)
     {
-        try
-        {
-            var result = await _bookingService.CreateAsync(dto, GetUserId());
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var validation = await createBookingValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<BookingResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
+        var result = await bookingService.CreateAsync(dto, GetUserId());
+        return StatusCode(201, ResponseModelHelper<BookingResponseDto>.CreatedResult(result));
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ResponseModelHelper<BookingResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<BookingResponseDto>), 404)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBookingDto dto)
     {
-        try
-        {
-            var result = await _bookingService.UpdateAsync(id, dto, GetUserId());
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var validation = await updateBookingValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<BookingResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+                    
+        var result = await bookingService.UpdateAsync(id, dto, GetUserId());
+        return Ok(ResponseModelHelper<BookingResponseDto>.SuccessResult(result));
     }
 
     [HttpPost("{id}/cancel")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> Cancel(int id, [FromBody] string? reason)
     {
-        try
-        {
-            await _bookingService.CancelAsync(id, GetUserId(), reason);
-            return Ok(new { message = "Booking cancelled successfully" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        await bookingService.CancelAsync(id, GetUserId(), reason);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Booking cancelled successfully"));
     }
 
     [HttpGet("my")]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<BookingResponseDto>>), 200)]
     public async Task<IActionResult> GetMyBookings()
     {
-        try
-        {
-            var result = await _bookingService.GetMyBookingsAsync(GetUserId());
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await bookingService.GetMyBookingsAsync(GetUserId());
+        return Ok(ResponseModelHelper<List<BookingResponseDto>>.SuccessResult(result));
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<BookingResponseDto>>), 200)]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var result = await _bookingService.GetAllAsync();
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await bookingService.GetAllAsync();
+        return Ok(ResponseModelHelper<List<BookingResponseDto>>.SuccessResult(result));
     }
 
     [HttpGet("room/{roomId}/calendar")]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<BookingResponseDto>>), 200)]
     public async Task<IActionResult> GetRoomCalendar(int roomId, [FromQuery] DateTime date)
     {
-        try
-        {
-            var result = await _bookingService.GetRoomCalendarAsync(roomId, date);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await bookingService.GetRoomCalendarAsync(roomId, date);
+        return Ok(ResponseModelHelper<List<BookingResponseDto>>.SuccessResult(result));
     }
 
     [HttpPost("{id}/checkin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> CheckIn(int id)
     {
-        try
-        {
-            await _bookingService.CheckInAsync(id);
-            return Ok(new { message = "Check-in successful" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        await bookingService.CheckInAsync(id);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Check-in successful"));
     }
 }

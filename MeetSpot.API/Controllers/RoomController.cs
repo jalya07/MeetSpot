@@ -1,111 +1,88 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MeetSpot.Core.DTOs.Room;
+using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
 
 namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RoomController : ControllerBase
+public class RoomController(
+    IRoomService roomService,
+    IValidator<CreateRoomDto> createRoomValidator,
+    IValidator<UpdateRoomDto> updateRoomValidator) : ControllerBase
 {
-    private readonly IRoomService _roomService;
-
-    public RoomController(IRoomService roomService)
-    {
-        _roomService = roomService;
-    }
-
     [HttpGet]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<RoomResponseDto>>), 200)]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? type,
         [FromQuery] int? capacity,
         [FromQuery] int? floor)
     {
-        try
-        {
-            var rooms = await _roomService.GetAllAsync(type, capacity, floor);
-            return Ok(rooms);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var rooms = await roomService.GetAllAsync(type, capacity, floor);
+        return Ok(ResponseModelHelper<List<RoomResponseDto>>.SuccessResult(rooms));
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 404)]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var room = await _roomService.GetByIdAsync(id);
-            return Ok(room);
-        }
-        catch (Exception ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
+        var room = await roomService.GetByIdAsync(id);
+        return Ok(ResponseModelHelper<RoomResponseDto>.SuccessResult(room));
     }
 
     [HttpGet("available")]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<RoomResponseDto>>), 200)]
     public async Task<IActionResult> GetAvailable(
         [FromQuery] DateTime startTime,
         [FromQuery] DateTime endTime,
         [FromQuery] int? capacity)
     {
-        try
-        {
-            var rooms = await _roomService.GetAvailableRoomsAsync(startTime, endTime, capacity);
-            return Ok(rooms);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var rooms = await roomService.GetAvailableRoomsAsync(startTime, endTime, capacity);
+        return Ok(ResponseModelHelper<List<RoomResponseDto>>.SuccessResult(rooms));
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 201)]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 400)]
     public async Task<IActionResult> Create([FromBody] CreateRoomDto dto)
     {
-        try
-        {
-            var room = await _roomService.CreateAsync(dto);
-            return Ok(room);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var validation = await createRoomValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<RoomResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
+        var room = await roomService.CreateAsync(dto);
+        return StatusCode(201, ResponseModelHelper<RoomResponseDto>.CreatedResult(room));
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<RoomResponseDto>), 404)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateRoomDto dto)
     {
-        try
-        {
-            var room = await _roomService.UpdateAsync(id, dto);
-            return Ok(room);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var validation = await updateRoomValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<RoomResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+        var room = await roomService.UpdateAsync(id, dto);
+        return Ok(ResponseModelHelper<RoomResponseDto>.SuccessResult(room));
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 404)]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await _roomService.DeleteAsync(id);
-            return Ok(new { message = "Room deleted successfully" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        await roomService.DeleteAsync(id);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Room deleted successfully"));
     }
 }

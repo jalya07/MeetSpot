@@ -1,13 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "VDBVKrtCCCc=",
+  "dgSpecHash": "Bat94ogH+ho=",
   "success": true,
   "projectFilePath": "/Users/jalyahesenli/MeetSpot/MeetSpot.API/MeetSpot.API.csproj",
   "expectedPackageFiles": [
+    "/Users/jalyahesenli/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
+    "/Users/jalyahesenli/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/azure.core/1.47.1/azure.core.1.47.1.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/azure.identity/1.14.2/azure.identity.1.14.2.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/bcrypt.net-next/4.2.0/bcrypt.net-next.4.2.0.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/bouncycastle.cryptography/2.6.2/bouncycastle.cryptography.2.6.2.nupkg.sha512",
+    "/Users/jalyahesenli/.nuget/packages/fluentvalidation/12.1.1/fluentvalidation.12.1.1.nupkg.sha512",
+    "/Users/jalyahesenli/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
+    "/Users/jalyahesenli/.nuget/packages/fluentvalidation.dependencyinjectionextensions/11.11.0/fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/mailkit/4.17.0/mailkit.4.17.0.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.9/microsoft.aspnetcore.authentication.jwtbearer.10.0.9.nupkg.sha512",
@@ -31,6 +36,7 @@
     "/Users/jalyahesenli/.nuget/packages/microsoft.entityframeworkcore.relational/10.0.9/microsoft.entityframeworkcore.relational.10.0.9.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.entityframeworkcore.sqlserver/10.0.9/microsoft.entityframeworkcore.sqlserver.10.0.9.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.extensions.caching.stackexchangeredis/10.0.9/microsoft.extensions.caching.stackexchangeredis.10.0.9.nupkg.sha512",
+    "/Users/jalyahesenli/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/2.1.0/microsoft.extensions.dependencyinjection.abstractions.2.1.0.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.extensions.dependencymodel/10.0.9/microsoft.extensions.dependencymodel.10.0.9.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.identity.client/4.73.1/microsoft.identity.client.4.73.1.nupkg.sha512",
     "/Users/jalyahesenli/.nuget/packages/microsoft.identity.client.extensions.msal/4.73.1/microsoft.identity.client.extensions.msal.4.73.1.nupkg.sha512",
@@ -76,6 +82,18 @@
       "warningLevel": 1,
       "filePath": "/Users/jalyahesenli/MeetSpot/MeetSpot.API/MeetSpot.API.csproj",
       "libraryId": "Microsoft.AspNetCore.SignalR",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'AutoMapper' 12.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
+      "projectPath": "/Users/jalyahesenli/MeetSpot/MeetSpot.API/MeetSpot.API.csproj",
+      "warningLevel": 1,
+      "filePath": "/Users/jalyahesenli/MeetSpot/MeetSpot.API/MeetSpot.API.csproj",
+      "libraryId": "AutoMapper",
       "targetGraphs": [
         "net10.0"
       ]

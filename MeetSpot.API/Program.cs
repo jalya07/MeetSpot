@@ -1,13 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Infrastructure.Data;
 using System.Text;
+using FluentValidation;
 using MeetSpot.API.BackgroundServices;
 using MeetSpot.API.Hubs;
+using MeetSpot.API.Middleware;
 using MeetSpot.API.Services;
 using MeetSpot.Core.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MeetSpot.Core.Interfaces;
+using MeetSpot.Core.Mappings;
 using MeetSpot.Infrastructure.Services;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
@@ -50,6 +53,8 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IBookingNotificationService, BookingNotificationService>();
 builder.Services.AddScoped<ICacheService, CacheService>();
 builder.Services.AddHostedService<BookingAutoReleaseService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddValidatorsFromAssemblyContaining<MeetSpot.Core.Validators.RegisterValidator>();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
@@ -92,6 +97,7 @@ app.MapScalarApiReference();
 app.UseHttpsRedirection();
 
 // app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,102 +1,96 @@
+using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using MeetSpot.Core.DTOs.Auth;
+using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
 
 namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(
+    IAuthService authService,
+    IValidator<RegisterDto> registerValidator,
+    IValidator<LoginDto> loginValidator,
+    IValidator<ForgotPasswordDto> forgotPasswordValidator,
+    IValidator<ResetPasswordDto> resetPasswordValidator) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto dto)
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 400)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 409)]
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        try
-        {
-            var result = await _authService.RegisterAsync(dto);
-            return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Registration successful"));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<AuthResponseDto>.Fail(ex.Message));
-        }
+        var validation = await registerValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<AuthResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
+        var result = await authService.RegisterAsync(dto);
+        return Ok(ResponseModelHelper<AuthResponseDto>.SuccessResult(result));
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto dto)
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 400)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        try
-        {
-            var result = await _authService.LoginAsync(dto);
-            return Ok(ApiResponse<AuthResponseDto>.Ok(result, "Login successful"));
-        }
-        catch (Exception ex)
-        {
-            return Unauthorized(ApiResponse<AuthResponseDto>.Fail(ex.Message));
-        }
+        var validation = await loginValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<AuthResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
+        var result = await authService.LoginAsync(dto);
+        return Ok(ResponseModelHelper<AuthResponseDto>.SuccessResult(result));
     }
 
     [HttpPost("refresh")]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto dto)
     {
-        try
-        {
-            var result = await _authService.RefreshTokenAsync(dto.AccessToken, dto.RefreshToken);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await authService.RefreshTokenAsync(dto.AccessToken, dto.RefreshToken);
+        return Ok(ResponseModelHelper<AuthResponseDto>.SuccessResult(result));
     }
 
     [HttpGet("confirm-email")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
     {
-        try
-        {
-            await _authService.ConfirmEmailAsync(email, token);
-            return Ok(ApiResponse<string>.Ok("Email confirmed successfully"));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<string>.Fail(ex.Message));
-        }
+        await authService.ConfirmEmailAsync(email, token);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Email confirmed successfully"));
     }
 
-
-   [HttpPost("forgot-password")]
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 404)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
-        try
-        {
-            await _authService.ForgotPasswordAsync(dto.Email);
-            return Ok(new { message = "Password reset email sent" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+         var validation = await forgotPasswordValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<string>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+        await authService.ForgotPasswordAsync(dto.Email);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Password reset email sent"));
     }
 
     [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
-    {   
-        try
-        {
-            await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
-            return Ok(new { message = "Password reset successfully" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+    {
+         var validation = await resetPasswordValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<string>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+        await authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+        return Ok(ResponseModelHelper<string>.SuccessResult("Password reset successfully"));
     }
 }
