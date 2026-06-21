@@ -1,6 +1,7 @@
 using AutoMapper;
 using MeetSpot.Core.DTOs.Auth;
 using MeetSpot.Core.DTOs.Balance;
+using MeetSpot.Core.DTOs.Blog;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.DTOs.Company;
 using MeetSpot.Core.DTOs.Room;
@@ -66,5 +67,10 @@ public class MappingProfile : Profile
         //company mappings
         CreateMap<CreateCompanyDto, Company>();
         CreateMap<Company, CompanyResponseDto>();
+
+        CreateMap<CreateBlogPostDto, BlogPost>();
+        CreateMap<BlogPost, BlogPostResponseDto>()
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => 
+                $"{src.Author.FirstName} {src.Author.LastName}"));
     }
 }
