@@ -14,12 +14,14 @@ public class AuthService : IAuthService
     private readonly MeetSpotAppDbContext _context;
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
+    private readonly ICompanyService _companyService;
 
-    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService, IEmailService emailService)
+    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService, IEmailService emailService, ICompanyService companyService)
     {
         _context = context;
         _jwtService = jwtService;
         _emailService = emailService;
+        _companyService = companyService;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -31,6 +33,20 @@ public class AuthService : IAuthService
             throw new ConflictException("User with this email already exists");
 
         var userType = Enum.Parse<UserType>(dto.UserType, true);
+
+        if (userType == UserType.Corporate)
+        {
+            if (string.IsNullOrEmpty(dto.CompanyDomain))
+                throw new BadRequestException("Company domain is required for corporate accounts");
+
+            var emailDomain = dto.Email.Split('@').LastOrDefault();
+            if (emailDomain != dto.CompanyDomain)
+                throw new BadRequestException("Your email domain must match your company domain");
+
+            var isRegistered = await _companyService.IsDomainRegisteredAsync(dto.CompanyDomain);
+            if (!isRegistered)
+                throw new BadRequestException("Your company does not have a contract with MeetSpot");
+        }
 
         var user = new User
         {
