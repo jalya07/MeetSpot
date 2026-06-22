@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Core.DTOs.User;
+using MeetSpot.Core.Entities;
 using MeetSpot.Core.Exceptions;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
@@ -42,5 +43,26 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
 
         return _mapper.Map<UserProfileDto>(user);
+    }
+    public async Task<List<UserListItemDto>> GetAllUsersAsync()
+    {
+        var users = await _context.Users
+            .Where(u => u.Role != UserRole.Admin)
+            .OrderByDescending(u => u.CreatedAt)
+            .ToListAsync();
+
+        return users.Select(u => _mapper.Map<UserListItemDto>(u)).ToList();
+    }
+
+    public async Task ToggleUserStatusAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null)
+            throw new NotFoundException("User not found");
+
+        user.IsActive = !user.IsActive;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
     }
 }

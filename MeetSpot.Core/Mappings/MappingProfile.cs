@@ -35,6 +35,11 @@ public class MappingProfile : Profile
         CreateMap<User, UserProfileDto>()
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
             .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()));
+        CreateMap<User, UserListItemDto>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => 
+                $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
+            .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()));
 
         // Room mappings
         CreateMap<CreateRoomDto, Room>()

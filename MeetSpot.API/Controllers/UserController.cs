@@ -30,4 +30,23 @@ public class UserController(IUserService userService) : ControllerBase
         var result = await userService.UpdateProfileAsync(GetUserId(), dto);
         return Ok(ResponseModelHelper<UserProfileDto>.SuccessResult(result));
     }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<List<UserListItemDto>>), 200)]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var result = await userService.GetAllUsersAsync();
+    return Ok(ResponseModelHelper<List<UserListItemDto>>.SuccessResult(result));
+    }
+
+    [HttpPost("{id}/toggle-status")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<string>), 404)]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        await userService.ToggleUserStatusAsync(id);
+        return Ok(ResponseModelHelper<string>.SuccessResult("User status updated successfully"));
+    }
 }

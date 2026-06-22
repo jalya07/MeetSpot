@@ -56,9 +56,12 @@ public class AnalyticsService : IAnalyticsService
             .ToList();
 
         var totalRoomHours = totalRooms * 24 * 30; 
-        var bookedHours = await _context.Bookings
+        var bookingTimes = await _context.Bookings
             .Where(b => b.Status == BookingStatus.Active || b.Status == BookingStatus.Completed)
-            .SumAsync(b => (b.EndTime - b.StartTime).TotalHours);
+            .Select(b => new { b.StartTime, b.EndTime })
+            .ToListAsync();
+
+        var bookedHours = bookingTimes.Sum(b => (b.EndTime - b.StartTime).TotalHours);
 
         var occupancyRate = totalRoomHours > 0
             ? Math.Round((bookedHours / totalRoomHours) * 100, 2)
