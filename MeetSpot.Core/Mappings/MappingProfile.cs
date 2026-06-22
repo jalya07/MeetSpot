@@ -4,6 +4,7 @@ using MeetSpot.Core.DTOs.Balance;
 using MeetSpot.Core.DTOs.Blog;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.DTOs.Company;
+using MeetSpot.Core.DTOs.Contact;
 using MeetSpot.Core.DTOs.Room;
 using MeetSpot.Core.DTOs.Subscription;
 using MeetSpot.Core.DTOs.User;
@@ -72,5 +73,12 @@ public class MappingProfile : Profile
         CreateMap<BlogPost, BlogPostResponseDto>()
             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => 
                 $"{src.Author.FirstName} {src.Author.LastName}"));
+
+        CreateMap<CreateContactMessageDto, ContactMessage>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 
+                Enum.Parse<MessageType>(src.Type, true)));
+
+        CreateMap<ContactMessage, ContactMessageResponseDto>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
     }
 }
