@@ -88,12 +88,12 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+    public async Task<LoginResponseDto> LoginAsync(LoginDto dto)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == dto.Email);
+        .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             throw new UnauthorizedException("Invalid email or password");
 
         if (!user.IsActive)
@@ -101,6 +101,42 @@ public class AuthService : IAuthService
 
         if (!user.IsEmailConfirmed)
             throw new UnauthorizedException("Please confirm your email before logging in");
+
+        if (!user.TwoFactorEnabled)
+        {
+            throw new BadRequestException("Two-factor authentication is required but disabled. Contact support.");
+        }
+
+        var code = _jwtService.GenerateTwoFactorCode();
+        user.TwoFactorCode = code;
+        user.TwoFactorCodeExpiry = DateTime.UtcNow.AddMinutes(10);
+        await _context.SaveChangesAsync();
+
+        await _emailService.SendTwoFactorCodeAsync(user.Email, $"{user.FirstName} {user.LastName}", code);
+
+        return new LoginResponseDto
+        {
+            RequiresTwoFactor = true,
+            Message = "A verification code has been sent to your email"
+        };
+    }
+
+    public async Task<AuthResponseDto> VerifyTwoFactorAsync(VerifyTwoFactorDto dto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+        if (user == null)
+            throw new NotFoundException("User not found");
+
+        if (user.TwoFactorCode != dto.Code)
+            throw new UnauthorizedException("Invalid verification code");
+
+        if (user.TwoFactorCodeExpiry < DateTime.UtcNow)
+            throw new UnauthorizedException("Verification code has expired");
+
+        user.TwoFactorCode = null;
+        user.TwoFactorCodeExpiry = null;
 
         var accessToken = _jwtService.GenerateToken(
             user.Id, user.Email, user.Role.ToString(), user.Type.ToString());

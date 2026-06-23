@@ -4,4 +4,5 @@ public interface IJwtService
 {
     string GenerateToken(int userId, string email, string role, string userType);
     string GenerateRefreshToken();
+    string GenerateTwoFactorCode();
 }

@@ -5,7 +5,8 @@ namespace MeetSpot.Core.Interfaces;
 public interface IAuthService
 {
     Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
-    Task<AuthResponseDto> LoginAsync(LoginDto dto);
+    Task<LoginResponseDto> LoginAsync(LoginDto dto);
+    Task<AuthResponseDto> VerifyTwoFactorAsync(VerifyTwoFactorDto dto);
     Task<AuthResponseDto> RefreshTokenAsync(string accessToken, string refreshToken);
     Task ConfirmEmailAsync(string email, string token);
     Task ForgotPasswordAsync(string email);

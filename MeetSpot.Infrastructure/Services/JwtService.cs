@@ -49,4 +49,9 @@ public class JwtService : IJwtService
         rng.GetBytes(randomBytes);
         return Convert.ToBase64String(randomBytes);
     }
+
+    public string GenerateTwoFactorCode()
+    {
+        return Random.Shared.Next(100000, 999999).ToString();
+    }
 }

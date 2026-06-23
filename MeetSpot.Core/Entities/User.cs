@@ -21,6 +21,11 @@ namespace MeetSpot.Core.Entities
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetTokenExpiry { get; set; }
 
+        public string? TwoFactorCode { get; set; }
+        public DateTime? TwoFactorCodeExpiry { get; set; }
+        public bool TwoFactorEnabled { get; set; } = true;
+
+        
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public Subscription? Subscription { get; set; }
     }

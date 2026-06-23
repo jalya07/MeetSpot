@@ -78,4 +78,16 @@ public class EmailService : IEmailService
 
         await SendAsync(toEmail, fullName, "MeetSpot Booking Confirmation", html);
     }
+
+    public async Task SendTwoFactorCodeAsync(string toEmail, string fullName, string code)
+    {
+        var html = $"""
+            <h2>Your verification code</h2>
+            <p>Hi {fullName}, here is your login verification code:</p>
+            <h1 style="letter-spacing: 8px; font-size: 36px;">{code}</h1>
+            <p>This code expires in 10 minutes.</p>
+        """;
+
+        await SendAsync(toEmail, fullName, "Your MeetSpot verification code", html);
+    }
 }

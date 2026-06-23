@@ -33,18 +33,26 @@ public class AuthController(
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
-    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 400)]
-    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    [ProducesResponseType(typeof(ResponseModelHelper<LoginResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<LoginResponseDto>), 401)]
+    public async Task<IActionResult> Login([FromBody] LoginDto dto) 
     {
         var validation = await loginValidator.ValidateAsync(dto);
         if (!validation.IsValid)
-            return BadRequest(ResponseModelHelper<AuthResponseDto>
-                .BadRequestResult(validation.Errors
-                    .Select(e => e.ErrorMessage).ToArray()));
+            return BadRequest(ResponseModelHelper<LoginResponseDto>
+            .BadRequestResult(validation.Errors
+                .Select(e => e.ErrorMessage).ToArray()));
 
         var result = await authService.LoginAsync(dto);
+        return Ok(ResponseModelHelper<LoginResponseDto>.SuccessResult(result));
+    }
+
+    [HttpPost("verify-2fa")]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
+    [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
+    public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTwoFactorDto dto)
+    {
+        var result = await authService.VerifyTwoFactorAsync(dto);
         return Ok(ResponseModelHelper<AuthResponseDto>.SuccessResult(result));
     }
 
