@@ -14,7 +14,8 @@ public class AuthController(
     IValidator<RegisterDto> registerValidator,
     IValidator<LoginDto> loginValidator,
     IValidator<ForgotPasswordDto> forgotPasswordValidator,
-    IValidator<ResetPasswordDto> resetPasswordValidator) : ControllerBase
+    IValidator<ResetPasswordDto> resetPasswordValidator,
+    IValidator<VerifyTwoFactorDto> verifyTwoFactorValidator) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
@@ -52,6 +53,12 @@ public class AuthController(
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
     public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTwoFactorDto dto)
     {
+        var validation = await verifyTwoFactorValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<AuthResponseDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
         var result = await authService.VerifyTwoFactorAsync(dto);
         return Ok(ResponseModelHelper<AuthResponseDto>.SuccessResult(result));
     }

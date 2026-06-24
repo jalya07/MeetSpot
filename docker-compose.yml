@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: meetspot-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=CodeWithArjun123
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - meetspot-network
+
+  redis:
+    image: redis:latest
+    container_name: meetspot-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - meetspot-network
+
+  api:
+    build:
+      context: .
+      dockerfile: MeetSpot.API/Dockerfile
+    container_name: meetspot-api
+    ports:
+      - "5249:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MeetSpotDb;User Id=sa;Password=MeetSpot123!;TrustServerCertificate=True;
+      - Redis__ConnectionString=redis:6379
+    networks:
+      - meetspot-network
+
+volumes:
+  sqldata:
+
+networks:
+  meetspot-network:
+    driver: bridge

@@ -2,5 +2,6 @@
   <Project Path="MeetSpot.API/MeetSpot.API.csproj" />
   <Project Path="MeetSpot.Core/MeetSpot.Core.csproj" />
   <Project Path="MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj" />
+  <Project Path="MeetSpot.Tests/MeetSpot.Tests.csproj" />
   <Project Path="MeetSpot.Web/MeetSpot.Web.csproj" />
 </Solution>

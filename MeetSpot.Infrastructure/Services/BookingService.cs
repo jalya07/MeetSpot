@@ -54,7 +54,7 @@ public class BookingService : IBookingService
         };
 
         if (dto.StartTime < DateTime.UtcNow.AddDays(minDaysAhead))
-            throw new Exception($"Your account type requires booking at least {minDaysAhead} days in advance");
+            throw new BadRequestException($"Your account type requires booking at least {minDaysAhead} days in advance");
 
         // Calculate price
         var hours = (decimal)(dto.EndTime - dto.StartTime).TotalHours;

@@ -83,7 +83,7 @@ using (var scope = app.Services.CreateScope())
         {
             FirstName = "Admin",
             LastName = "MeetSpot",
-            Email = "admin@meetspot.com",
+            Email = "jalavh@code.edu.az",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
             Role = UserRole.Admin,
             Type = UserType.Regular,

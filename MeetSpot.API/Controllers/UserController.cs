@@ -4,13 +4,14 @@ using MeetSpot.Core.DTOs.User;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
 using System.Security.Claims;
+using FluentValidation;
 
 namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UserController(IUserService userService) : ControllerBase
+public class UserController(IUserService userService,IValidator<UpdateProfileDto> updateProfileValidator) : ControllerBase
 {
     private int GetUserId() =>
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -27,6 +28,12 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(typeof(ResponseModelHelper<UserProfileDto>), 200)]
     public async Task<IActionResult> UpdateMe([FromBody] UpdateProfileDto dto)
     {
+        var validation = await updateProfileValidator.ValidateAsync(dto);
+        if (!validation.IsValid)
+            return BadRequest(ResponseModelHelper<UserProfileDto>
+                .BadRequestResult(validation.Errors
+                    .Select(e => e.ErrorMessage).ToArray()));
+
         var result = await userService.UpdateProfileAsync(GetUserId(), dto);
         return Ok(ResponseModelHelper<UserProfileDto>.SuccessResult(result));
     }
