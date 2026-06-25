@@ -1,14 +1,23 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MeetSpot.Web.Models;
+using MeetSpot.Web.Services;
 
 namespace MeetSpot.Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly RoomApiService _roomApiService;
+
+    public HomeController(RoomApiService roomApiService)
     {
-        return View();
+        _roomApiService = roomApiService;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var rooms = await _roomApiService.GetAllRoomsAsync();
+        return View(rooms);
     }
 
     public IActionResult Privacy()

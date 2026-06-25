@@ -1,7 +1,17 @@
+using MeetSpot.Web.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient("MeetSpotAPI", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5249/");
+});
+
+builder.Services.AddScoped<RoomApiService>();
 
 var app = builder.Build();
 
