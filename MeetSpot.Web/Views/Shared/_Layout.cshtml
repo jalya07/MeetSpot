@@ -7,44 +7,87 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MeetSpot.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MeetSpot.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+   <header class="site-header">
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <span class="top-bar-tagline">Book a meeting room in seconds</span>
+            <div class="top-bar-actions">
+                <a href="#" class="top-bar-link">EN</a>
+                <a href="/Account/Login" class="top-bar-link">Log in</a>
+                <a href="/Account/Register" class="top-bar-link top-bar-cta">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="main-nav">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <a href="/" class="brand">MeetSpot</a>
+
+        <ul class="main-nav-links">
+            <li><a href="/Room">Rooms</a></li>
+            <li><a href="/Company">Companies</a></li>
+            <li><a href="/Blog">Blog</a></li>
+            <li><a href="/Home/About">About</a></li>
+            <li><a href="/Home/Contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="mega-menu" id="megaMenu">
+        <div class="mega-menu-overlay" id="megaMenuOverlay"></div>
+        <div class="mega-menu-panel">
+            <button class="mega-menu-close" id="megaMenuClose">×</button>
+            <div class="mega-menu-columns">
+                <div class="mega-menu-col">
+                    <h4>Product</h4>
+                    <a href="/Room">Browse rooms</a>
+                    <a href="/Home/HowItWorks">How it works</a>
+                    <a href="/Home/Pricing">Pricing</a>
+                </div>
+                <div class="mega-menu-col">
+                    <h4>Solutions</h4>
+                    <a href="/Home/Industries">Industries</a>
+                    <a href="/Company">For companies</a>
+                    <a href="/Home/Mentors">Mentors hub</a>
+                </div>
+                <div class="mega-menu-col">
+                    <h4>Resources</h4>
+                    <a href="/Blog">Blog</a>
+                    <a href="/Home/Help">Help center</a>
+                    <a href="/Home/About">About us</a>
+                </div>
+                <div class="mega-menu-col">
+                    <h4>Account</h4>
+                    <a href="/Account/Login">Log in</a>
+                    <a href="/Account/Register">Sign up</a>
+                    <a href="/Home/Contact">Contact us</a>
                 </div>
             </div>
-        </nav>
-    </header>
+        </div>
+    </div>
+</header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 - MeetSpot.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/home.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 </body>
 </html>

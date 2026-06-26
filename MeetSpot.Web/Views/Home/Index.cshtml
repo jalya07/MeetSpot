@@ -1,1 +1,72 @@
-﻿
+﻿@model List<MeetSpot.Web.Services.RoomResponseDto>
+@{
+    ViewData["Title"] = "MeetSpot — Book your meeting room";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" />
+}
+
+<section class="hero">
+    <div class="hero-slideshow">
+        <div class="hero-slide active" style="background-image: url('/images/hero/hero1.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('/images/hero/hero2.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('/images/hero/hero3.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('/images/hero/hero4.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('/images/hero/hero5.jpg')"></div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <span class="hero-eyebrow">Meeting rooms, on demand</span>
+        <h1 class="hero-title">Find the right room.<br>Book it in seconds.</h1>
+        <p class="hero-subtitle">
+            MeetSpot connects you to available meeting spaces across the building —
+            see what's free right now, reserve it, and walk in.
+        </p>
+        <div class="hero-actions">
+            <a href="/Room" class="btn btn-primary">Browse rooms</a>
+            <a href="/Account/Register" class="btn btn-secondary">Create account</a>
+        </div>
+    </div>
+</section>
+
+<section class="rooms-preview">
+    <div class="section-header">
+        <h2>Available right now</h2>
+        <a href="/Room" class="see-all">See all rooms →</a>
+    </div>
+
+    <div class="rooms-filters">
+        <button class="filter-btn active" data-filter="all">All rooms</button>
+        <button class="filter-btn" data-filter="vip">Premium / VIP</button>
+        <button class="filter-btn" data-filter="large">10+ people</button>
+        <button class="filter-btn" data-filter="cheap">Under $20/hr</button>
+    </div>
+
+    <div class="rooms-grid" id="roomsGrid">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var room in Model.Take(6))
+            {
+                <div class="room-card"
+                     data-type="@room.Type.ToLower()"
+                     data-capacity="@room.Capacity"
+                     data-price="@room.PricePerHour">
+                    <div class="room-card-header">
+                        <span class="room-type-badge room-type-@room.Type.ToLower()">@room.Type</span>
+                        <span class="room-floor">Floor @room.Floor</span>
+                    </div>
+                    <h3 class="room-name">@room.Name</h3>
+                    <p class="room-description">@room.Description</p>
+                    <div class="room-meta">
+                        <span class="room-capacity">@room.Capacity people</span>
+                        <span class="room-price">$@room.PricePerHour/hr</span>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="empty-state">No rooms available yet.</p>
+        }
+    </div>
+</section>
