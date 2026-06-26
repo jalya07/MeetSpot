@@ -17,6 +17,7 @@ public class MeetSpotAppDbContext : DbContext
     public DbSet<Company> Companies { get; set; }
     public DbSet<BlogPost> BlogPosts { get; set; }
     public DbSet<ContactMessage> ContactMessages { get; set; }
+    public DbSet<RoomImage> RoomImages { get; set; }    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,5 +73,11 @@ public class MeetSpotAppDbContext : DbContext
             .WithOne(u => u.Subscription)
             .HasForeignKey<Subscription>(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RoomImage>()
+        .HasOne(ri => ri.Room)
+        .WithMany(r => r.Images)
+        .HasForeignKey(ri => ri.RoomId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

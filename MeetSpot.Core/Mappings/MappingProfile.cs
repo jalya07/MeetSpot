@@ -48,10 +48,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Equipment, opt => opt.Ignore());
 
         CreateMap<Room, RoomResponseDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 
-                src.Type.ToString()))
-            .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => 
-                src.Equipment.Select(e => e.Name).ToList()));
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+            .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment.Select(e => e.Name).ToList()))
+            .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => 
+                src.Images.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList()));
 
         // Booking mappings
         CreateMap<Booking, BookingResponseDto>()

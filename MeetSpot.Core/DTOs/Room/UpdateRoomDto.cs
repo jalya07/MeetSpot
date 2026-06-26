@@ -8,6 +8,6 @@ public class UpdateRoomDto
     public int? Capacity { get; set; }
     public decimal? PricePerHour { get; set; }
     public string? Type { get; set; }
-    public string? ImageUrl { get; set; }
     public List<string>? Equipment { get; set; }
+    public List<string>? ImageUrls { get; set; }
 }

@@ -13,6 +13,8 @@ public class Room : BaseEntity
 
     public ICollection<RoomEquipment> Equipment { get; set; } = new List<RoomEquipment>();
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+    public ICollection<RoomImage> Images { get; set; } = new List<RoomImage>();
 }
 
 public enum RoomType

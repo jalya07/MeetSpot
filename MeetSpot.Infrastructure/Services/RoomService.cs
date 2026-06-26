@@ -34,7 +34,7 @@ public class RoomService : IRoomService
     }
     else
     {
-        var query = _context.Rooms.Include(r => r.Equipment).Where(r => r.IsActive);
+        var query = _context.Rooms.Include(r => r.Equipment).Include(r => r.Images).Where(r => r.IsActive);
         allRooms = await query.Select(r => _mapper.Map<RoomResponseDto>(r)).ToListAsync();
         await _cacheService.SetAsync(cacheKey, allRooms, TimeSpan.FromMinutes(5));
     }
@@ -57,6 +57,7 @@ public class RoomService : IRoomService
     {
         var room = await _context.Rooms
             .Include(r => r.Equipment)
+            .Include(r => r.Images)
             .FirstOrDefaultAsync(r => r.Id == id && r.IsActive);
 
         if (room == null)
@@ -75,10 +76,16 @@ public class RoomService : IRoomService
             Capacity = dto.Capacity,
             PricePerHour = dto.PricePerHour,
             Type = Enum.Parse<RoomType>(dto.Type, true),
-            ImageUrl = dto.ImageUrl,
             IsActive = true
         };
-
+        foreach (var (url, index) in dto.ImageUrls.Select((url, i) => (url, i)))
+        {
+            room.Images.Add(new RoomImage
+            {
+                ImageUrl = url,
+                DisplayOrder = index
+            });
+        }
         foreach (var eq in dto.Equipment)
         {
             room.Equipment.Add(new RoomEquipment
@@ -99,6 +106,7 @@ public class RoomService : IRoomService
     {
         var room = await _context.Rooms
             .Include(r => r.Equipment)
+            .Include(r => r.Images)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (room == null)
@@ -109,7 +117,6 @@ public class RoomService : IRoomService
         if (dto.Floor.HasValue) room.Floor = dto.Floor.Value;
         if (dto.Capacity.HasValue) room.Capacity = dto.Capacity.Value;
         if (dto.PricePerHour.HasValue) room.PricePerHour = dto.PricePerHour.Value;
-        if (dto.ImageUrl != null) room.ImageUrl = dto.ImageUrl;
         if (dto.Type != null) room.Type = Enum.Parse<RoomType>(dto.Type, true);
         room.UpdatedAt = DateTime.UtcNow;
 
@@ -123,6 +130,14 @@ public class RoomService : IRoomService
                     Name = eq,
                     Type = EquipmentType.Other
                 });
+            }
+        }
+        if (dto.ImageUrls != null)
+        {
+            _context.RoomImages.RemoveRange(room.Images);
+            foreach (var (url, index) in dto.ImageUrls.Select((url, i) => (url, i)))
+            {
+                room.Images.Add(new RoomImage { ImageUrl = url, DisplayOrder = index });
             }
         }
 
@@ -154,6 +169,7 @@ public class RoomService : IRoomService
             .ToListAsync();
 
         var query = _context.Rooms
+            .Include(r => r.Images)
             .Include(r => r.Equipment)
             .Where(r => r.IsActive && !bookedRoomIds.Contains(r.Id));
 

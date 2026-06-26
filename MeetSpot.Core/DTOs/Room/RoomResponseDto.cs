@@ -10,7 +10,7 @@ public class RoomResponseDto
     public decimal PricePerHour { get; set; }
     public string Type { get; set; } = string.Empty;
     public bool IsActive { get; set; }
-    public string? ImageUrl { get; set; }
     public List<string> Equipment { get; set; } = new();
     public DateTime CreatedAt { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
 }

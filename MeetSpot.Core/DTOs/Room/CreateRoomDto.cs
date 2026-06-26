@@ -8,6 +8,6 @@ public class CreateRoomDto
     public int Capacity { get; set; }
     public decimal PricePerHour { get; set; }
     public string Type { get; set; } = "Standard";
-    public string? ImageUrl { get; set; }
     public List<string> Equipment { get; set; } = new();
+    public List<string> ImageUrls { get; set; } = new();
 }

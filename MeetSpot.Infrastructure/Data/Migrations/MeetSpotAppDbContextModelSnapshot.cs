@@ -312,6 +312,37 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                     b.ToTable("RoomEquipments");
                 });
 
+            modelBuilder.Entity("MeetSpot.Core.Entities.RoomImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomImages");
+                });
+
             modelBuilder.Entity("MeetSpot.Core.Entities.Subscription", b =>
                 {
                     b.Property<int>("Id")
@@ -532,6 +563,17 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("MeetSpot.Core.Entities.RoomImage", b =>
+                {
+                    b.HasOne("MeetSpot.Core.Entities.Room", "Room")
+                        .WithMany("Images")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("MeetSpot.Core.Entities.Subscription", b =>
                 {
                     b.HasOne("MeetSpot.Core.Entities.User", "User")
@@ -570,6 +612,8 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Equipment");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("MeetSpot.Core.Entities.User", b =>
