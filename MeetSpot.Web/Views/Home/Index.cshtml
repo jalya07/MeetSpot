@@ -47,21 +47,37 @@
         {
             @foreach (var room in Model.Take(6))
             {
-                <div class="room-card"
-                     data-type="@room.Type.ToLower()"
-                     data-capacity="@room.Capacity"
-                     data-price="@room.PricePerHour">
-                    <div class="room-card-header">
+               <a href="/Room/Details/@room.Id" class="room-card"
+                    data-type="@room.Type.ToLower()"
+                    data-capacity="@room.Capacity"
+                    data-price="@room.PricePerHour">
+                    <div class="room-photo-wrap">
+                        @if (room.ImageUrls.Count > 0)
+                        {
+                             <img class="room-photo room-photo-primary" src="@room.ImageUrls[0]" alt="@room.Name" />
+                        @if (room.ImageUrls.Count > 1)
+                        {
+                            <img class="room-photo room-photo-secondary" src="@room.ImageUrls[1]" alt="@room.Name" />
+                        }
+                        }
+                        else
+                        {
+                             <div class="room-photo-placeholder"></div>
+                        }
                         <span class="room-type-badge room-type-@room.Type.ToLower()">@room.Type</span>
-                        <span class="room-floor">Floor @room.Floor</span>
-                    </div>
+            </div>
+            <div class="room-card-body">
+                <div class="room-card-header">
                     <h3 class="room-name">@room.Name</h3>
-                    <p class="room-description">@room.Description</p>
-                    <div class="room-meta">
-                        <span class="room-capacity">@room.Capacity people</span>
-                        <span class="room-price">$@room.PricePerHour/hr</span>
-                    </div>
+                    <span class="room-floor">Floor @room.Floor</span>
                 </div>
+                <p class="room-description">@room.Description</p>
+                <div class="room-meta">
+                    <span class="room-capacity">@room.Capacity people</span>
+                    <span class="room-price">$@room.PricePerHour/hr</span>
+                </div>
+            </div>
+            </a>
             }
         }
         else
