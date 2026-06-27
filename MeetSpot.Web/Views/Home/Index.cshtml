@@ -42,26 +42,48 @@
         <button class="filter-btn" data-filter="cheap">Under $20/hr</button>
     </div>
 
-    @{
-        var stats = ViewBag.Stats as MeetSpot.Web.Services.PublicStatsDto;
-    }
-    <div class="stats-grid">
-        <div class="stat-box">
-            <span class="stat-number">@(stats?.TotalBookings ?? 0)</span>
-            <span class="stat-label">Bookings made</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">@(stats?.TotalRooms ?? 0)</span>
-            <span class="stat-label">Rooms available</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">@(stats?.ActiveUsers ?? 0)</span>
-            <span class="stat-label">Active members</span>
-        </div>
-        <div class="stat-box">
-            <span class="stat-number">@(stats?.OccupancyRate ?? 0)%</span>
-            <span class="stat-label">Average occupancy</span>
-        </div>
+    <div class="rooms-grid" id="roomsGrid">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var room in Model.Take(6))
+            {
+               <a href="/Room/Details/@room.Id" class="room-card"
+                    data-type="@room.Type.ToLower()"
+                    data-capacity="@room.Capacity"
+                    data-price="@room.PricePerHour">
+                    <div class="room-photo-wrap">
+                        @if (room.ImageUrls.Count > 0)
+                        {
+                             <img class="room-photo room-photo-primary" src="@room.ImageUrls[0]" alt="@room.Name" />
+                        @if (room.ImageUrls.Count > 1)
+                        {
+                            <img class="room-photo room-photo-secondary" src="@room.ImageUrls[1]" alt="@room.Name" />
+                        }
+                        }
+                        else
+                        {
+                             <div class="room-photo-placeholder"></div>
+                        }
+                        <span class="room-type-badge room-type-@room.Type.ToLower()">@room.Type</span>
+            </div>
+            <div class="room-card-body">
+                <div class="room-card-header">
+                    <h3 class="room-name">@room.Name</h3>
+                    <span class="room-floor">Floor @room.Floor</span>
+                </div>
+                <p class="room-description">@room.Description</p>
+                <div class="room-meta">
+                    <span class="room-capacity">@room.Capacity people</span>
+                    <span class="room-price">$@room.PricePerHour/hr</span>
+                </div>
+            </div>
+            </a>
+            }
+        }
+        else
+        {
+            <p class="empty-state">No rooms available yet.</p>
+        }
     </div>
 </section>
 
