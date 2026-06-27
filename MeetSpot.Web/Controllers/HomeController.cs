@@ -8,15 +8,20 @@ namespace MeetSpot.Web.Controllers;
 public class HomeController : Controller
 {
     private readonly RoomApiService _roomApiService;
+    private readonly AnalyticsApiService _analyticsApiService;
 
-    public HomeController(RoomApiService roomApiService)
+    public HomeController(RoomApiService roomApiService, AnalyticsApiService analyticsApiService)
     {
         _roomApiService = roomApiService;
+        _analyticsApiService = analyticsApiService;
     }
 
     public async Task<IActionResult> Index()
     {
         var rooms = await _roomApiService.GetAllRoomsAsync();
+        var stats = await _analyticsApiService.GetPublicStatsAsync();
+
+        ViewBag.Stats = stats;
         return View(rooms);
     }
 

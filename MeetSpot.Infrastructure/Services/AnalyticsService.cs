@@ -55,7 +55,7 @@ public class AnalyticsService : IAnalyticsService
             .Take(5)
             .ToList();
 
-        var totalRoomHours = totalRooms * 24 * 30; 
+        var totalRoomHours = totalRooms * 24 * 30;
         var bookingTimes = await _context.Bookings
             .Where(b => b.Status == BookingStatus.Active || b.Status == BookingStatus.Completed)
             .Select(b => new { b.StartTime, b.EndTime })
@@ -75,6 +75,31 @@ public class AnalyticsService : IAnalyticsService
             TotalRooms = totalRooms,
             TopRooms = topRooms,
             PeakHours = peakHours,
+            OccupancyRate = occupancyRate
+        };
+    }
+
+    public async Task<PublicStatsDto> GetPublicStatsAsync()
+    {
+        var totalBookings = await _context.Bookings.CountAsync();
+        var totalRooms = await _context.Rooms.Where(r => r.IsActive).CountAsync();
+        var activeUsers = await _context.Users
+            .Where(u => u.Role != UserRole.Admin && u.IsActive)
+            .CountAsync();
+
+        var totalRoomHours = totalRooms * 24 * 30;
+        var bookingTimes = await _context.Bookings
+            .Where(b => b.Status == BookingStatus.Active || b.Status == BookingStatus.Completed)
+            .Select(b => new { b.StartTime, b.EndTime })
+            .ToListAsync();
+        var bookedHours = bookingTimes.Sum(b => (b.EndTime - b.StartTime).TotalHours);
+        var occupancyRate = totalRoomHours > 0 ? Math.Round((bookedHours / totalRoomHours) * 100, 2) : 0;
+
+        return new PublicStatsDto
+        {
+            TotalBookings = totalBookings,
+            TotalRooms = totalRooms,
+            ActiveUsers = activeUsers,
             OccupancyRate = occupancyRate
         };
     }

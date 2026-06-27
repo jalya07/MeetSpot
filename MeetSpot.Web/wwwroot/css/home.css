@@ -269,3 +269,121 @@
 .room-card-body {
     padding: 20px;
 }
+
+/* how it works */
+.how-it-works {
+    padding: 80px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-header.centered {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.section-header.centered h2 {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    color: var(--color-text-muted);
+    font-size: 16px;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+}
+
+.step-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 32px 28px;
+    position: relative;
+}
+
+.step-number {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-coral);
+    background: #FEF3E7;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.step-card h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.step-card p {
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+    .how-it-works {
+        padding: 50px 24px;
+    }
+}
+
+/* reyting */
+.popularity-stats {
+    background: var(--color-ink);
+    padding: 70px 60px;
+}
+
+.popularity-stats .section-header.centered h2 {
+    color: var(--color-white);
+}
+
+.popularity-stats .section-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--color-coral);
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+    .popularity-stats {
+        padding: 50px 24px;
+    }
+}

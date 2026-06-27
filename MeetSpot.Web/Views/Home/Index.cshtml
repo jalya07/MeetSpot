@@ -42,47 +42,76 @@
         <button class="filter-btn" data-filter="cheap">Under $20/hr</button>
     </div>
 
-    <div class="rooms-grid" id="roomsGrid">
-        @if (Model != null && Model.Any())
-        {
-            @foreach (var room in Model.Take(6))
-            {
-               <a href="/Room/Details/@room.Id" class="room-card"
-                    data-type="@room.Type.ToLower()"
-                    data-capacity="@room.Capacity"
-                    data-price="@room.PricePerHour">
-                    <div class="room-photo-wrap">
-                        @if (room.ImageUrls.Count > 0)
-                        {
-                             <img class="room-photo room-photo-primary" src="@room.ImageUrls[0]" alt="@room.Name" />
-                        @if (room.ImageUrls.Count > 1)
-                        {
-                            <img class="room-photo room-photo-secondary" src="@room.ImageUrls[1]" alt="@room.Name" />
-                        }
-                        }
-                        else
-                        {
-                             <div class="room-photo-placeholder"></div>
-                        }
-                        <span class="room-type-badge room-type-@room.Type.ToLower()">@room.Type</span>
-            </div>
-            <div class="room-card-body">
-                <div class="room-card-header">
-                    <h3 class="room-name">@room.Name</h3>
-                    <span class="room-floor">Floor @room.Floor</span>
-                </div>
-                <p class="room-description">@room.Description</p>
-                <div class="room-meta">
-                    <span class="room-capacity">@room.Capacity people</span>
-                    <span class="room-price">$@room.PricePerHour/hr</span>
-                </div>
-            </div>
-            </a>
-            }
-        }
-        else
-        {
-            <p class="empty-state">No rooms available yet.</p>
-        }
+    @{
+        var stats = ViewBag.Stats as MeetSpot.Web.Services.PublicStatsDto;
+    }
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-number">@(stats?.TotalBookings ?? 0)</span>
+            <span class="stat-label">Bookings made</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">@(stats?.TotalRooms ?? 0)</span>
+            <span class="stat-label">Rooms available</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">@(stats?.ActiveUsers ?? 0)</span>
+            <span class="stat-label">Active members</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">@(stats?.OccupancyRate ?? 0)%</span>
+            <span class="stat-label">Average occupancy</span>
+        </div>
+    </div>
+</section>
+
+<section class="popularity-stats">
+    <div class="section-header centered">
+        <h2>Trusted across the building</h2>
+        <p class="section-subtitle">Real numbers from real bookings</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-number" id="statBookings">0</span>
+            <span class="stat-label">Bookings made</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number" id="statRooms">0</span>
+            <span class="stat-label">Rooms available</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number" id="statUsers">0</span>
+            <span class="stat-label">Active members</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number" id="statOccupancy">0%</span>
+            <span class="stat-label">Average occupancy</span>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="section-header centered">
+        <h2>How it works</h2>
+        <p class="section-subtitle">Three simple steps from search to seat</p>
+    </div>
+
+    <div class="steps-grid">
+        <div class="step-card">
+            <span class="step-number">01</span>
+            <h3>Find a room</h3>
+            <p>Browse available spaces by date, time, capacity, or amenities — see what's free in real time.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-number">02</span>
+            <h3>Book instantly</h3>
+            <p>Reserve your spot in seconds. Get a QR code and confirmation sent straight to your inbox.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-number">03</span>
+            <h3>Walk in and meet</h3>
+            <p>Scan your QR at the door, and the room is yours. No waiting, no confusion.</p>
+        </div>
     </div>
 </section>

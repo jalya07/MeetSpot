@@ -5,4 +5,5 @@ namespace MeetSpot.Core.Interfaces;
 public interface IAnalyticsService
 {
     Task<AnalyticsDto> GetDashboardAnalyticsAsync();
+    Task<PublicStatsDto> GetPublicStatsAsync();
 }
