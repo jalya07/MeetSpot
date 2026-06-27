@@ -93,21 +93,24 @@
         <p class="section-subtitle">Real numbers from real bookings</p>
     </div>
 
+    @{
+        var stats = ViewBag.Stats as MeetSpot.Web.Services.PublicStatsDto;
+    }
     <div class="stats-grid">
         <div class="stat-box">
-            <span class="stat-number" id="statBookings">0</span>
+            <span class="stat-number">@(stats?.TotalBookings ?? 0)</span>
             <span class="stat-label">Bookings made</span>
         </div>
         <div class="stat-box">
-            <span class="stat-number" id="statRooms">0</span>
+            <span class="stat-number">@(stats?.TotalRooms ?? 0)</span>
             <span class="stat-label">Rooms available</span>
         </div>
         <div class="stat-box">
-            <span class="stat-number" id="statUsers">0</span>
+            <span class="stat-number">@(stats?.ActiveUsers ?? 0)</span>
             <span class="stat-label">Active members</span>
         </div>
         <div class="stat-box">
-            <span class="stat-number" id="statOccupancy">0%</span>
+            <span class="stat-number">@(stats?.OccupancyRate ?? 0)%</span>
             <span class="stat-label">Average occupancy</span>
         </div>
     </div>
@@ -135,5 +138,86 @@
             <h3>Walk in and meet</h3>
             <p>Scan your QR at the door, and the room is yours. No waiting, no confusion.</p>
         </div>
+    </div>
+</section>
+<section class="account-types">
+    <div class="section-header centered">
+        <h2>Plans and rooms for every team</h2>
+        <p class="section-subtitle">Pick the plan that matches how you work</p>
+    </div>
+
+    <div class="offers-slider">
+        <button class="slider-arrow slider-prev" id="offersPrev">←</button>
+
+        <div class="offers-track" id="offersTrack">
+            <div class="offer-card">
+                <div class="offer-image" style="background-image: url('/images/hero/hero3.jpg')"></div>
+                <div class="offer-content">
+                    <span class="offer-badge">Regular</span>
+                    <h3>Pay as you go</h3>
+                    <p>Sign up free, top up your balance, and book any standard room. Perfect for individuals and small teams getting started.</p>
+                    <ul class="offer-list">
+                        <li>Book 5 days in advance</li>
+                        <li>Standard rooms only</li>
+                        <li>Pay-per-booking from your wallet</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="offer-card">
+                <div class="offer-image" style="background-image: url('/images/hero/hero2.jpg')"></div>
+                <div class="offer-content">
+                    <span class="offer-badge offer-badge-premium">Premium</span>
+                    <h3>Skip the wait</h3>
+                    <p>Upgrade for same-day bookings, VIP room access, and lower cancellation fees — ideal for fast-moving teams.</p>
+                    <ul class="offer-list">
+                        <li>Same-day bookings</li>
+                        <li>Access to VIP rooms</li>
+                        <li>Lower cancellation fees</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="offer-card">
+                <div class="offer-image" style="background-image: url('/images/hero/hero4.jpg')"></div>
+                <div class="offer-content">
+                    <span class="offer-badge offer-badge-corporate">Corporate</span>
+                    <h3>Built for companies</h3>
+                    <p>Your organization covers the bill. Employees book instantly with their work email — no balance, no friction.</p>
+                    <ul class="offer-list">
+                        <li>Same-day bookings, no balance needed</li>
+                        <li>Full VIP access</li>
+                        <li>Free cancellations</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-image" style="background-image: url('/images/hero/hero1.jpg')"></div>
+                <div class="offer-content">
+                    <span class="offer-badge">Standard rooms</span>
+                    <h3>Everyday meeting spaces</h3>
+                    <p>Comfortable, well-equipped rooms for daily standups, calls, and team syncs at accessible prices.</p>
+                    <ul class="offer-list">
+                        <li>Whiteboards & TV screens</li>
+                        <li>2 to 25 person capacity</li>
+                        <li>Lower hourly rates</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-image" style="background-image: url('/images/hero/hero5.jpg')"></div>
+                <div class="offer-content">
+                    <span class="offer-badge offer-badge-premium">VIP rooms</span>
+                    <h3>Make an impression</h3>
+                    <p>Premium spaces with skyline views, video conferencing, and climate control — for the meetings that matter.</p>
+                    <ul class="offer-list">
+                        <li>City views & premium furnishing</li>
+                        <li>Full A/V equipment</li>
+                        <li>Reserved for Premium & Corporate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <button class="slider-arrow slider-next" id="offersNext">→</button>
     </div>
 </section>

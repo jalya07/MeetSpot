@@ -92,3 +92,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+//account-slidshow
+document.addEventListener('DOMContentLoaded', function () {
+    const track = document.getElementById('offersTrack');
+    const prevBtn = document.getElementById('offersPrev');
+    const nextBtn = document.getElementById('offersNext');
+
+    if (!track || !prevBtn || !nextBtn) return;
+
+    const scrollAmount = 344;
+
+    nextBtn.addEventListener('click', function () {
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        if (track.scrollLeft >= maxScroll - 5) {
+            track.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    });
+
+    prevBtn.addEventListener('click', function () {
+        if (track.scrollLeft <= 5) {
+            track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+    });
+});

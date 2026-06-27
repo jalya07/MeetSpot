@@ -387,3 +387,136 @@
         padding: 50px 24px;
     }
 }
+/* account types */
+.account-types {
+    padding: 80px 60px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.offers-slider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.offers-track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    flex: 1;
+    scrollbar-width: none;
+}
+
+.offers-track::-webkit-scrollbar {
+    display: none;
+}
+
+.offer-card {
+    flex: 0 0 calc(33.333% - 16px);
+    min-width: 320px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+}
+
+.offer-image {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+}
+
+.offer-content {
+    padding: 24px;
+}
+
+.offer-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: #EEF2FF;
+    color: #4338CA;
+    margin-bottom: 14px;
+}
+
+.offer-badge-premium {
+    background: #FEF3E7;
+    color: var(--color-coral-dark);
+}
+
+.offer-badge-corporate {
+    background: var(--color-ink);
+    color: var(--color-white);
+}
+
+.offer-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.offer-content p {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.offer-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.offer-list li {
+    font-size: 13px;
+    color: var(--color-ink);
+    padding-left: 20px;
+    position: relative;
+}
+
+.offer-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--color-coral);
+    font-weight: 700;
+}
+
+.slider-arrow {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.slider-arrow:hover {
+    background: var(--color-ink);
+    color: var(--color-white);
+    border-color: var(--color-ink);
+}
+
+@media (max-width: 900px) {
+    .offer-card {
+        flex: 0 0 calc(80% - 16px);
+    }
+    .account-types {
+        padding: 50px 24px;
+    }
+}
