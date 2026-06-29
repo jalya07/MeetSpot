@@ -240,3 +240,79 @@
         <a href="/Room" class="btn btn-primary" style="display: inline-block; margin-top: 8px;">Explore rooms</a>
     </div>
 </section>
+@{
+    var companies = ViewBag.Companies as List<MeetSpot.Web.Services.CompanyResponseDto>;
+}
+<section class="trusted-by">
+    <div class="trusted-by-content">
+        <div class="trusted-by-text">
+            <span class="hero-eyebrow" style="color: var(--color-coral);">Trusted by teams</span>
+            <h2>Companies that book with MeetSpot</h2>
+            <p>From fast-growing startups to established corporations, teams rely on MeetSpot for their daily meeting needs.</p>
+        </div>
+        <div class="logo-columns">
+            <div class="logo-column logo-column-up">
+                @if (companies != null && companies.Any())
+                {
+                    @foreach (var company in companies)
+                    {
+                        <div class="logo-card">
+                            @if (!string.IsNullOrEmpty(company.LogoUrl))
+                            {
+                                <img src="@company.LogoUrl" alt="@company.Name" />
+                            }
+                            else
+                            {
+                                <span class="company-name-fallback">@company.Name</span>
+                            }
+                        </div>
+                    }
+                    @foreach (var company in companies)
+                    {
+                        <div class="logo-card">
+                            @if (!string.IsNullOrEmpty(company.LogoUrl))
+                            {
+                                <img src="@company.LogoUrl" alt="@company.Name" />
+                            }
+                            else
+                            {
+                                <span class="company-name-fallback">@company.Name</span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+            <div class="logo-column logo-column-down">
+                @if (companies != null && companies.Any())
+                {
+                    @foreach (var company in companies.AsEnumerable().Reverse())
+                    {
+                        <div class="logo-card">
+                            @if (!string.IsNullOrEmpty(company.LogoUrl))
+                            {
+                                <img src="@company.LogoUrl" alt="@company.Name" />
+                            }
+                            else
+                            {
+                                <span class="company-name-fallback">@company.Name</span>
+                            }
+                        </div>
+                    }
+                    @foreach (var company in companies.AsEnumerable().Reverse())
+                    {
+                        <div class="logo-card">
+                            @if (!string.IsNullOrEmpty(company.LogoUrl))
+                            {
+                                <img src="@company.LogoUrl" alt="@company.Name" />
+                            }
+                            else
+                            {
+                                <span class="company-name-fallback">@company.Name</span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>

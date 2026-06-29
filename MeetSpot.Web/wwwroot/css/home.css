@@ -594,3 +594,126 @@
         padding: 40px 28px;
     }
 }
+
+/* Trusted by companies */
+.trusted-by {
+    background: var(--color-ink);
+    padding: 80px 60px;
+    overflow: hidden;
+}
+
+.trusted-by-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.trusted-by-text h2 {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--color-white);
+    margin: 14px 0 16px;
+}
+
+.trusted-by-text p {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.logo-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: 420px;
+    overflow: hidden;
+    position: relative;
+}
+
+.logo-columns::before,
+.logo-columns::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.logo-columns::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--color-ink), transparent);
+}
+
+.logo-columns::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--color-ink), transparent);
+}
+
+.logo-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.logo-column-up {
+    animation: scrollUp 18s linear infinite;
+}
+
+.logo-column-down {
+    animation: scrollDown 18s linear infinite;
+}
+
+@keyframes scrollUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+}
+
+@keyframes scrollDown {
+    from { transform: translateY(-50%); }
+    to { transform: translateY(0); }
+}
+
+.logo-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70px;
+}
+
+.company-name-fallback {
+    color: var(--color-ink);
+}
+
+.logo-card img {
+    max-height: 36px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.company-name-fallback {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .trusted-by-content {
+        grid-template-columns: 1fr;
+    }
+    .trusted-by {
+        padding: 50px 24px;
+    }
+    .logo-columns {
+        height: 320px;
+    }
+}

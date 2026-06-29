@@ -9,19 +9,23 @@ public class HomeController : Controller
 {
     private readonly RoomApiService _roomApiService;
     private readonly AnalyticsApiService _analyticsApiService;
+    private readonly CompanyApiService _companyApiService;
 
-    public HomeController(RoomApiService roomApiService, AnalyticsApiService analyticsApiService)
+    public HomeController(RoomApiService roomApiService, AnalyticsApiService analyticsApiService, CompanyApiService companyApiService)
     {
         _roomApiService = roomApiService;
         _analyticsApiService = analyticsApiService;
+        _companyApiService = companyApiService;
     }
 
     public async Task<IActionResult> Index()
     {
         var rooms = await _roomApiService.GetAllRoomsAsync();
         var stats = await _analyticsApiService.GetPublicStatsAsync();
+        var companies = await _companyApiService.GetAllCompaniesAsync();
 
         ViewBag.Stats = stats;
+        ViewBag.Companies = companies;
         return View(rooms);
     }
 
