@@ -28,6 +28,7 @@ namespace MeetSpot.Core.Entities
         
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public Subscription? Subscription { get; set; }
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
     public enum UserRole
     {
