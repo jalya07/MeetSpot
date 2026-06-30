@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<AnalyticsApiService>();
 builder.Services.AddScoped<CompanyApiService>();
+builder.Services.AddScoped<ReviewApiService>();
 
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {

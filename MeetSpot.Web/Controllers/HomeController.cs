@@ -10,12 +10,14 @@ public class HomeController : Controller
     private readonly RoomApiService _roomApiService;
     private readonly AnalyticsApiService _analyticsApiService;
     private readonly CompanyApiService _companyApiService;
+    private readonly ReviewApiService _reviewApiService;
 
-    public HomeController(RoomApiService roomApiService, AnalyticsApiService analyticsApiService, CompanyApiService companyApiService)
+    public HomeController(RoomApiService roomApiService, AnalyticsApiService analyticsApiService, CompanyApiService companyApiService, ReviewApiService reviewApiService)
     {
         _roomApiService = roomApiService;
         _analyticsApiService = analyticsApiService;
         _companyApiService = companyApiService;
+        _reviewApiService = reviewApiService;
     }
 
     public async Task<IActionResult> Index()
@@ -23,9 +25,11 @@ public class HomeController : Controller
         var rooms = await _roomApiService.GetAllRoomsAsync();
         var stats = await _analyticsApiService.GetPublicStatsAsync();
         var companies = await _companyApiService.GetAllCompaniesAsync();
+        var reviews = await _reviewApiService.GetFeaturedAsync();
 
         ViewBag.Stats = stats;
         ViewBag.Companies = companies;
+        ViewBag.Reviews = reviews;
         return View(rooms);
     }
 
