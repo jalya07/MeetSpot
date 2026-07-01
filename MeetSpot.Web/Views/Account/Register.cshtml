@@ -1,0 +1,59 @@
+@model MeetSpot.Web.Services.RegisterRequest
+@{
+    ViewData["Title"] = "Create your account";
+}
+
+<section class="auth-section">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Create your account</h1>
+            <p>Start booking meeting rooms in seconds</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="auth-errors">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <form asp-action="Register" method="post" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="FirstName">First name</label>
+                    <input type="text" id="FirstName" name="FirstName" value="@Model?.FirstName" required />
+                </div>
+                <div class="form-group">
+                    <label for="LastName">Last name</label>
+                    <input type="text" id="LastName" name="LastName" value="@Model?.LastName" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <input type="email" id="Email" name="Email" value="@Model?.Email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" name="Password" required />
+                <span class="form-hint">At least 8 characters, with uppercase, lowercase, number and special character</span>
+            </div>
+
+            <div class="form-group">
+                <label for="UserType">Account type</label>
+                <select id="UserType" name="UserType">
+                    <option value="Regular">Regular — pay as you go</option>
+                    <option value="Corporate">Corporate — company account</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Create account</button>
+        </form>
+
+        <p class="auth-switch">Already have an account? <a href="/Account/Login">Log in</a></p>
+    </div>
+</section>

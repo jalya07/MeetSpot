@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<AnalyticsApiService>();
 builder.Services.AddScoped<CompanyApiService>();
 builder.Services.AddScoped<ReviewApiService>();
+builder.Services.AddScoped<AuthApiService>();
 
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {

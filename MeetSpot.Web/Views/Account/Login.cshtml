@@ -1,0 +1,50 @@
+@model MeetSpot.Web.Services.LoginRequest
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<section class="auth-section">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome back</h1>
+            <p>Log in to manage your bookings</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="auth-success">
+                <p>@TempData["SuccessMessage"]</p>
+            </div>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="auth-errors">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <form asp-action="Login" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <input type="email" id="Email" name="Email" value="@Model?.Email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" name="Password" required />
+            </div>
+
+            <div class="auth-links-row">
+                <a href="/Account/ForgotPassword">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Log in</button>
+        </form>
+
+        <p class="auth-switch">Don't have an account? <a href="/Account/Register">Sign up</a></p>
+    </div>
+</section>
