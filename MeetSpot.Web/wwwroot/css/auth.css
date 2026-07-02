@@ -122,3 +122,35 @@
         padding: 30px 24px;
     }
 }
+/* login */
+.auth-success {
+    background: #F0FDF4;
+    border: 1px solid #86EFAC;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.auth-success p {
+    color: #16A34A;
+    font-size: 13px;
+    margin: 0;
+}
+
+.auth-links-row {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.auth-links-row a {
+    font-size: 13px;
+    color: var(--color-coral);
+    text-decoration: none;
+}
+
+.code-input {
+    text-align: center;
+    font-size: 28px;
+    letter-spacing: 10px;
+    font-weight: 600;
+}
