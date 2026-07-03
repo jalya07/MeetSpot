@@ -18,8 +18,21 @@
             <span class="top-bar-tagline">Book a meeting room in seconds</span>
             <div class="top-bar-actions">
                 <a href="#" class="top-bar-link">EN</a>
-                <a href="/Account/Login" class="top-bar-link">Log in</a>
-                <a href="/Account/Register" class="top-bar-link top-bar-cta">Sign up</a>
+                 @if (ViewBag.IsLoggedIn == true)
+                {
+                    <span class="top-bar-link" style="color: rgba(255,255,255,0.85);">@ViewBag.FullName</span>
+                    @if (ViewBag.UserRole == "Admin")
+                    {
+                        <a href="/Admin/Dashboard" class="top-bar-link">Admin panel</a>
+                    }
+                    <a href="/Dashboard" class="top-bar-link">My account</a>
+                    <a href="/Account/Logout" class="top-bar-link top-bar-cta">Log out</a>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="top-bar-link">Log in</a>
+                    <a href="/Account/Register" class="top-bar-link top-bar-cta">Sign up</a>
+                }
             </div>
         </div>
     </div>

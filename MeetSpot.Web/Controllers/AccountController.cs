@@ -3,7 +3,7 @@ using MeetSpot.Web.Services;
 
 namespace MeetSpot.Web.Controllers;
 
-public class AccountController : Controller
+public class AccountController : BaseController
 {
     private readonly AuthApiService _authApiService;
 
@@ -193,5 +193,12 @@ public class AccountController : Controller
 
         ViewBag.Error = errors.FirstOrDefault() ?? "Confirmation failed";
         return View();
+    }
+    [HttpGet]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("AccessToken");
+        Response.Cookies.Delete("RefreshToken");
+        return RedirectToAction("Index", "Home");
     }
 }

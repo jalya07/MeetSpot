@@ -67,7 +67,8 @@ public class AuthService : IAuthService
         await _context.SaveChangesAsync();
 
         var accessToken = _jwtService.GenerateToken(
-            user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
+            user.Id, user.Email, user.Role.ToString(), user.Type.ToString(),
+            $"{user.FirstName} {user.LastName}");
         var refreshToken = _jwtService.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
@@ -143,7 +144,8 @@ public class AuthService : IAuthService
         user.TwoFactorCodeExpiry = null;
 
         var accessToken = _jwtService.GenerateToken(
-            user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
+            user.Id, user.Email, user.Role.ToString(), user.Type.ToString(),
+            $"{user.FirstName} {user.LastName}");
         var refreshToken = _jwtService.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
@@ -176,7 +178,8 @@ public class AuthService : IAuthService
             throw new BadRequestException("Invalid or expired refresh token");
 
         var newAccessToken = _jwtService.GenerateToken(
-            user.Id, user.Email, user.Role.ToString(), user.Type.ToString());
+            user.Id, user.Email, user.Role.ToString(), user.Type.ToString(),
+            $"{user.FirstName} {user.LastName}");
         var newRefreshToken = _jwtService.GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken;

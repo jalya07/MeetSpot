@@ -5,7 +5,7 @@ using MeetSpot.Web.Services;
 
 namespace MeetSpot.Web.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController
 {
     private readonly RoomApiService _roomApiService;
     private readonly AnalyticsApiService _analyticsApiService;
