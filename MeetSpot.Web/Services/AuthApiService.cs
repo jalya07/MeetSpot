@@ -9,6 +9,7 @@ public class RegisterRequest
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
     public string UserType { get; set; } = "Regular";
 }
 
@@ -30,6 +31,19 @@ public class AuthResponseData
     public string RefreshToken { get; set; } = string.Empty;
     public bool RequiresTwoFactor { get; set; }
     public string? Message { get; set; }
+}
+
+public class ForgotPasswordRequest
+{
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ResetPasswordRequest
+{
+    public string Token { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
 }
 
 public class AuthApiService
@@ -98,5 +112,43 @@ public class AuthApiService
 
         var errorResult = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
         return (false, null, null, errorResult?.Errors ?? new List<string> { "Verification failed" });
+    }
+
+    public async Task<(bool Success, List<string> Errors)> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var json = JsonSerializer.Serialize(request);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("api/auth/forgot-password", content);
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var result = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
+        return response.IsSuccessStatusCode
+            ? (true, new List<string>())
+            : (false, result?.Errors ?? new List<string> { "Request failed" });
+    }
+
+    public async Task<(bool Success, List<string> Errors)> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var json = JsonSerializer.Serialize(request);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync("api/auth/reset-password", content);
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var result = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
+        return response.IsSuccessStatusCode
+            ? (true, new List<string>())
+            : (false, result?.Errors ?? new List<string> { "Reset failed" });
+    }
+
+    public async Task<(bool Success, List<string> Errors)> ConfirmEmailAsync(string token, string email)
+    {
+        var response = await _httpClient.GetAsync($"api/auth/confirm-email?token={token}&email={email}");
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var result = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
+
+        return response.IsSuccessStatusCode
+            ? (true, new List<string>())
+            : (false, result?.Errors ?? new List<string> { "Confirmation failed" });
     }
 }

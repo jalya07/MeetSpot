@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Verify your identity";
+}
+
+<section class="auth-section">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Check your email</h1>
+            <p>We sent a 6-digit code to <strong>@ViewBag.Email</strong></p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="auth-errors">
+                <p>@ViewBag.Error</p>
+            </div>
+        }
+
+        <form asp-action="VerifyTwoFactor" method="post" class="auth-form">
+            <div class="form-group">
+                <label for="code">Verification code</label>
+                <input type="text" id="code" name="code" maxlength="6" placeholder="000000" class="code-input" required autofocus />
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Verify</button>
+        </form>
+
+        <p class="auth-switch">Didn't get a code? <a href="/Account/Login">Try logging in again</a></p>
+    </div>
+</section>

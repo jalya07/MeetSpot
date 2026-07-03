@@ -7,6 +7,7 @@ using MeetSpot.Core.Exceptions;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
 using MeetSpot.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace MeetSpot.Tests.Services;
 
@@ -31,7 +32,10 @@ public class AuthServiceTests
         var emailServiceMock = new Mock<IEmailService>();
         var companyServiceMock = companyService ?? new Mock<ICompanyService>().Object;
 
-        return new AuthService(context, jwtServiceMock.Object, emailServiceMock.Object, companyServiceMock);
+        var configurationMock = new Mock<IConfiguration>();
+        configurationMock.Setup(c => c["AppSettings:FrontendBaseUrl"]).Returns("http://localhost:5156");
+
+        return new AuthService(context, jwtServiceMock.Object, emailServiceMock.Object, companyServiceMock, configurationMock.Object);
     }
 
     [Fact]

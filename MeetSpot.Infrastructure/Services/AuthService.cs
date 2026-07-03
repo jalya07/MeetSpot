@@ -6,6 +6,7 @@ using MeetSpot.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using MeetSpot.Core.Exceptions;
+using Microsoft.Extensions.Configuration;
 
 namespace MeetSpot.Infrastructure.Services;
 
@@ -15,13 +16,15 @@ public class AuthService : IAuthService
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
     private readonly ICompanyService _companyService;
+    private readonly IConfiguration _configuration;
 
-    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService, IEmailService emailService, ICompanyService companyService)
+    public AuthService(MeetSpotAppDbContext context, IJwtService jwtService, IEmailService emailService, ICompanyService companyService, IConfiguration configuration)
     {
         _context = context;
         _jwtService = jwtService;
         _emailService = emailService;
         _companyService = companyService;
+        _configuration = configuration;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -75,7 +78,8 @@ public class AuthService : IAuthService
         user.EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
         await _context.SaveChangesAsync();
 
-        var confirmLink = $"http://localhost:5249/api/auth/confirm-email?token={confirmToken}&email={user.Email}";
+        var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5156";
+        var confirmLink = $"{frontendBaseUrl}/Account/ConfirmEmail?token={confirmToken}&email={user.Email}";
         await _emailService.SendEmailConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", confirmLink);
         return new AuthResponseDto
         {
@@ -223,7 +227,8 @@ public class AuthService : IAuthService
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
         await _context.SaveChangesAsync();
 
-        var resetLink = $"http://localhost:5249/api/auth/reset-password?token={resetToken}&email={email}";
+        var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5156";
+        var resetLink = $"{frontendBaseUrl}/Account/ResetPassword?token={resetToken}&email={email}";
         await _emailService.SendPasswordResetAsync(user.Email, $"{user.FirstName} {user.LastName}", resetLink);
     }
 

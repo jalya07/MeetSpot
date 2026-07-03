@@ -21,10 +21,14 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        if (!ModelState.IsValid)
+        if (request.Password != request.ConfirmPassword)
         {
+            ModelState.AddModelError(string.Empty, "Passwords do not match");
             return View(request);
         }
+
+        if (!ModelState.IsValid)
+            return View(request);
 
         var (success, errors) = await _authApiService.RegisterAsync(request);
 
@@ -35,9 +39,7 @@ public class AccountController : Controller
         }
 
         foreach (var error in errors)
-        {
             ModelState.AddModelError(string.Empty, error);
-        }
 
         return View(request);
     }
@@ -100,8 +102,10 @@ public class AccountController : Controller
 
         if (success)
         {
-            Response.Cookies.Append("AccessToken", accessToken!, new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddHours(1) });
-            Response.Cookies.Append("RefreshToken", refreshToken!, new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddDays(7) });
+            Response.Cookies.Append("AccessToken", accessToken!,
+                new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddHours(1) });
+            Response.Cookies.Append("RefreshToken", refreshToken!,
+                new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddDays(7) });
 
             return RedirectToAction("Index", "Home");
         }
@@ -109,6 +113,85 @@ public class AccountController : Controller
         TempData.Keep("PendingEmail");
         ViewBag.Email = email;
         ViewBag.Error = errors.FirstOrDefault() ?? "Verification failed";
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+    {
+        var (success, errors) = await _authApiService.ForgotPasswordAsync(request);
+
+        if (success)
+        {
+            TempData["SuccessMessage"] = "If this email exists, you'll receive a reset link shortly.";
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        foreach (var error in errors)
+            ModelState.AddModelError(string.Empty, error);
+
+        return View(request);
+    }
+
+    [HttpGet]
+    public IActionResult ForgotPasswordConfirmation()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult ResetPassword(string token, string email)
+    {
+        ViewBag.Token = token;
+        ViewBag.Email = email;
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            ModelState.AddModelError(string.Empty, "Passwords do not match");
+            ViewBag.Token = request.Token;
+            ViewBag.Email = request.Email;
+            return View(request);
+        }
+
+        var (success, errors) = await _authApiService.ResetPasswordAsync(request);
+
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Password reset successfully! You can now log in.";
+            return RedirectToAction("Login");
+        }
+
+        foreach (var error in errors)
+            ModelState.AddModelError(string.Empty, error);
+
+        ViewBag.Token = request.Token;
+        ViewBag.Email = request.Email;
+        return View(request);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmail(string token, string email)
+    {
+        var (success, errors) = await _authApiService.ConfirmEmailAsync(token, email);
+
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Email confirmed successfully! You can now log in.";
+            return RedirectToAction("Login");
+        }
+
+        ViewBag.Error = errors.FirstOrDefault() ?? "Confirmation failed";
         return View();
     }
 }
