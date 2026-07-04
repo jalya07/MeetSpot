@@ -1,0 +1,89 @@
+@model MeetSpot.Web.Services.RoomResponseDto
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<section class="room-details">
+    <div class="room-details-inner">
+
+        <div class="room-gallery">
+            @if (Model.ImageUrls.Count > 0)
+            {
+                <div class="gallery-main">
+                    <img id="mainPhoto" src="@Model.ImageUrls[0]" alt="@Model.Name" />
+                </div>
+                @if (Model.ImageUrls.Count > 1)
+                {
+                    <div class="gallery-thumbs">
+                        @foreach (var (url, index) in Model.ImageUrls.Select((u, i) => (u, i)))
+                        {
+                            <img src="@url" alt="@Model.Name @(index + 1)"
+                                 class="thumb @(index == 0 ? "active" : "")"
+                                 onclick="setMainPhoto(this)" />
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="room-details-content">
+            <div class="room-details-header">
+                <div>
+                    <span class="room-type-badge room-type-@Model.Type.ToLower()">@Model.Type</span>
+                    <h1>@Model.Name</h1>
+                    <p class="room-details-floor">Floor @Model.Floor</p>
+                </div>
+                <div class="room-details-price">
+                    <span class="price-amount">$@Model.PricePerHour</span>
+                    <span class="price-label">per hour</span>
+                </div>
+            </div>
+
+            <p class="room-details-description">@Model.Description</p>
+
+            <div class="room-details-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">👥</span>
+                    <span>Up to @Model.Capacity people</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">🏢</span>
+                    <span>Floor @Model.Floor</span>
+                </div>
+            </div>
+
+            @if (Model.Equipment.Any())
+            {
+                <div class="room-equipment">
+                    <h3>Equipment</h3>
+                    <div class="equipment-list">
+                        @foreach (var item in Model.Equipment)
+                        {
+                            <span class="equipment-tag">@item</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="room-book-box">
+                @if (ViewBag.IsLoggedIn == true)
+                {
+                    <a href="/Booking/Create/@Model.Id" class="btn btn-primary book-btn">Book this room</a>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="btn btn-primary book-btn">Log in to book</a>
+                    <p class="book-hint">Don't have an account? <a href="/Account/Register">Sign up free</a></p>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function setMainPhoto(thumb) {
+        document.getElementById('mainPhoto').src = thumb.src;
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+    }
+</script>
