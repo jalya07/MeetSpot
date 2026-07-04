@@ -44,4 +44,14 @@ public class RoomApiService
 
         return result?.Data ?? new List<RoomResponseDto>();
     }
+    public async Task<RoomResponseDto> GetRoomByIdAsync(int id)
+    {
+        var response = await _httpClient.GetAsync($"api/room/{id}");
+        var json = await response.Content.ReadAsStringAsync();
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var result = JsonSerializer.Deserialize<ApiResponse<RoomResponseDto>>(json, options);
+
+        return result?.Data ?? throw new Exception("Room not found");
+    }
 }

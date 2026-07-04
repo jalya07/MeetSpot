@@ -1,0 +1,101 @@
+@model List<MeetSpot.Web.Services.RoomResponseDto>
+@{
+    ViewData["Title"] = "Browse rooms";
+}
+
+<section class="catalog-hero">
+    <div class="catalog-hero-content">
+        <h1>Find your perfect room</h1>
+        <p>Browse all available meeting spaces and book instantly</p>
+    </div>
+</section>
+
+<section class="catalog-section">
+    <div class="catalog-inner">
+        <aside class="catalog-filters">
+            <h3>Filters</h3>
+            <form method="get" asp-action="Index">
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" name="search" value="@ViewBag.CurrentSearch" placeholder="Room name..." />
+                </div>
+
+                <div class="filter-group">
+                    <label>Type</label>
+                    <select name="type">
+                        <option value="">All types</option>
+                        <option value="standard" selected="@(ViewBag.CurrentType == "standard")">Standard</option>
+                        <option value="vip" selected="@(ViewBag.CurrentType == "vip")">VIP</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Min capacity</label>
+                    <select name="capacity">
+                        <option value="">Any</option>
+                        <option value="2" selected="@(ViewBag.CurrentCapacity == 2)">2+</option>
+                        <option value="5" selected="@(ViewBag.CurrentCapacity == 5)">5+</option>
+                        <option value="10" selected="@(ViewBag.CurrentCapacity == 10)">10+</option>
+                        <option value="20" selected="@(ViewBag.CurrentCapacity == 20)">20+</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%">Apply filters</button>
+                <a href="/Room" class="filter-reset">Clear filters</a>
+            </form>
+        </aside>
+
+        <div class="catalog-grid-wrap">
+            <div class="catalog-header">
+                <p class="catalog-count">@Model.Count room@(Model.Count != 1 ? "s" : "") found</p>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="catalog-grid">
+                    @foreach (var room in Model)
+                    {
+                        <a href="/Room/Details/@room.Id" class="room-card"
+                           data-type="@room.Type.ToLower()"
+                           data-capacity="@room.Capacity"
+                           data-price="@room.PricePerHour">
+                            <div class="room-photo-wrap">
+                                @if (room.ImageUrls.Count > 0)
+                                {
+                                    <img class="room-photo room-photo-primary" src="@room.ImageUrls[0]" alt="@room.Name" />
+                                    @if (room.ImageUrls.Count > 1)
+                                    {
+                                        <img class="room-photo room-photo-secondary" src="@room.ImageUrls[1]" alt="@room.Name" />
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="room-photo-placeholder"></div>
+                                }
+                                <span class="room-type-badge room-type-@room.Type.ToLower()">@room.Type</span>
+                            </div>
+                            <div class="room-card-body">
+                                <div class="room-card-header">
+                                    <h3 class="room-name">@room.Name</h3>
+                                    <span class="room-floor">Floor @room.Floor</span>
+                                </div>
+                                <p class="room-description">@room.Description</p>
+                                <div class="room-meta">
+                                    <span class="room-capacity">@room.Capacity people</span>
+                                    <span class="room-price">$@room.PricePerHour/hr</span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-catalog">
+                    <p>No rooms found matching your filters.</p>
+                    <a href="/Room" class="btn btn-primary">Clear filters</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>

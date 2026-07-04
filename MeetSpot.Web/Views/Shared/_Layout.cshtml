@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/room.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MeetSpot.Web.styles.css" asp-append-version="true" />
+   
 </head>
 <body>
    <header class="site-header">
@@ -86,11 +88,9 @@
         </div>
     </div>
 </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
    <footer class="site-footer">
     <div class="footer-top">
