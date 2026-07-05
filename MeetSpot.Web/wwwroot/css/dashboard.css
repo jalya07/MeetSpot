@@ -256,3 +256,84 @@
         align-items: flex-start;
     }
 }
+/* booking card */
+/* ===== BOOKING CREATE ===== */
+.booking-create {
+    padding: 48px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.booking-create-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.booking-room-photo {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.booking-room-info h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 10px 0 6px;
+}
+
+.booking-room-floor {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+}
+
+.booking-room-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.booking-form-wrap h1 {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 24px;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.booking-price-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-cream);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: var(--color-ink);
+}
+
+.booking-price-preview strong {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-coral);
+}
+
+@media (max-width: 900px) {
+    .booking-create-inner {
+        grid-template-columns: 1fr;
+    }
+    .booking-create {
+        padding: 32px 24px;
+    }
+}

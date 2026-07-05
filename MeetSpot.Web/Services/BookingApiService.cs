@@ -48,4 +48,38 @@ public class BookingApiService
             return new();
         }
     }
+
+    public async Task<(bool Success, List<string> Errors)> CreateBookingAsync(string token, int roomId, string title, DateTime startTime, DateTime endTime)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var bookingData = new
+            {
+                RoomId = roomId,
+                Title = title,
+                StartTime = startTime,
+                EndTime = endTime,
+                ParticipantEmails = new List<string>()
+            };
+
+            var json = JsonSerializer.Serialize(bookingData);
+            var jsonContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/booking", jsonContent);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<object>>(jsonResponse, options);
+
+            return response.IsSuccessStatusCode
+                ? (true, new List<string>())
+                : (false, result?.Errors ?? new List<string> { "Booking failed" });
+        }
+        catch
+        {
+            return (false, new List<string> { "Something went wrong" });
+        }
+    }
 }

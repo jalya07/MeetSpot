@@ -1,0 +1,95 @@
+@model MeetSpot.Web.Services.RoomResponseDto
+@{
+    ViewData["Title"] = "Book " + Model.Name;
+}
+
+<section class="booking-create">
+    <div class="booking-create-inner">
+
+        <div class="booking-room-summary">
+            @if (Model.ImageUrls.Count > 0)
+            {
+                <img src="@Model.ImageUrls[0]" alt="@Model.Name" class="booking-room-photo" />
+            }
+            <div class="booking-room-info">
+                <span class="room-type-badge room-type-@Model.Type.ToLower()">@Model.Type</span>
+                <h2>@Model.Name</h2>
+                <p class="booking-room-floor">Floor @Model.Floor · @Model.Capacity people max</p>
+                <p class="booking-room-price">$@Model.PricePerHour / hour</p>
+
+                @if (Model.Equipment.Any())
+                {
+                    <div class="equipment-list" style="margin-top: 14px;">
+                        @foreach (var item in Model.Equipment)
+                        {
+                            <span class="equipment-tag">@item</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="booking-form-wrap">
+            <h1>Book this room</h1>
+
+            @if (ViewBag.Errors != null)
+            {
+                <div class="auth-errors">
+                    @foreach (var error in ViewBag.Errors as List<string> ?? new())
+                    {
+                        <p>@error</p>
+                    }
+                </div>
+            }
+
+            <form asp-action="Create" asp-route-id="@Model.Id" method="post" class="booking-form">
+                <div class="form-group">
+                    <label>Meeting title</label>
+                    <input type="text" name="title" placeholder="e.g. Weekly team sync" required />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start time</label>
+                        <input type="datetime-local" name="startTime" required />
+                    </div>
+                    <div class="form-group">
+                        <label>End time</label>
+                        <input type="datetime-local" name="endTime" required />
+                    </div>
+                </div>
+
+                <div class="booking-price-preview" id="pricePreview" style="display:none;">
+                    <span>Estimated total:</span>
+                    <strong id="estimatedPrice">$0</strong>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">Confirm booking</button>
+            </form>
+
+            <p style="margin-top: 16px; font-size: 13px; color: #6b7280; text-align: center;">
+                <a href="/Room/Details/@Model.Id">← Back to room details</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<script>
+    const pricePerHour = @Model.PricePerHour;
+
+    function updatePrice() {
+        const start = document.querySelector('[name="startTime"]').value;
+        const end = document.querySelector('[name="endTime"]').value;
+
+        if (start && end) {
+            const hours = (new Date(end) - new Date(start)) / 3600000;
+            if (hours > 0) {
+                document.getElementById('pricePreview').style.display = 'flex';
+                document.getElementById('estimatedPrice').textContent = '$' + (hours * pricePerHour).toFixed(2);
+            }
+        }
+    }
+
+    document.querySelector('[name="startTime"]').addEventListener('change', updatePrice);
+    document.querySelector('[name="endTime"]').addEventListener('change', updatePrice);
+</script>
