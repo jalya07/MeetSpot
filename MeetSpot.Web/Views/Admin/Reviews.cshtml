@@ -1,0 +1,183 @@
+@model List<MeetSpot.Web.Services.ReviewResponseDto>
+@{
+    ViewData["Title"] = "Admin — Reviews";
+    var pendingReviews = Model.Where(r => !r.IsApproved).ToList();
+    var approvedReviews = Model.Where(r => r.IsApproved && !r.IsFeatured).ToList();
+    var featuredReviews = Model.Where(r => r.IsFeatured).ToList();
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link active"><i class="fas fa-star"></i> Reviews</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Reviews moderation</h1>
+
+            <div class="admin-stats-grid" style="margin-bottom: 28px;">
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">⏳</span>
+                    <div>
+                        <p class="admin-stat-number">@pendingReviews.Count</p>
+                        <p class="admin-stat-label">Pending</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">✅</span>
+                    <div>
+                        <p class="admin-stat-number">@approvedReviews.Count</p>
+                        <p class="admin-stat-label">Approved</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">⭐</span>
+                    <div>
+                        <p class="admin-stat-number">@featuredReviews.Count</p>
+                        <p class="admin-stat-label">Featured</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">📝</span>
+                    <div>
+                        <p class="admin-stat-number">@Model.Count</p>
+                        <p class="admin-stat-label">Total</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (pendingReviews.Any())
+            {
+                <h2>⏳ Pending approval (@pendingReviews.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom: 28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Review</th>
+                                <th>Rating</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var review in pendingReviews)
+                            {
+                                <tr>
+                                    <td><strong>@review.UserFirstName @review.UserLastName</strong></td>
+                                    <td style="max-width:300px; color:#6b7280;">@review.Text</td>
+                                    <td>
+                                        @for (int i = 0; i < review.Rating; i++)
+                                        {
+                                            <span style="color:#f59e0b;">★</span>
+                                        }
+                                    </td>
+                                    <td style="color:#6b7280; font-size:13px;">@review.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        <form method="post" action="/Admin/ApproveReview/@review.Id" style="display:inline;">
+                                            <button type="submit" class="admin-action-btn admin-action-btn-success">Approve</button>
+                                        </form>
+                                        <form method="post" action="/Admin/DeleteReview/@review.Id" style="display:inline; margin-left:6px;">
+                                            <button type="submit" class="admin-action-btn admin-action-btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (approvedReviews.Any())
+            {
+                <h2>✅ Approved (@approvedReviews.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom: 28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Review</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var review in approvedReviews)
+                            {
+                                <tr>
+                                    <td><strong>@review.UserFirstName @review.UserLastName</strong></td>
+                                    <td style="max-width:300px; color:#6b7280;">@review.Text</td>
+                                    <td>
+                                        @for (int i = 0; i < review.Rating; i++)
+                                        {
+                                            <span style="color:#f59e0b;">★</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <form method="post" action="/Admin/SetFeatured/@review.Id" style="display:inline;">
+                                            <button type="submit" class="admin-action-btn admin-action-btn-primary">⭐ Feature</button>
+                                        </form>
+                                        <form method="post" action="/Admin/DeleteReview/@review.Id" style="display:inline; margin-left:6px;">
+                                            <button type="submit" class="admin-action-btn admin-action-btn-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (featuredReviews.Any())
+            {
+                <h2>⭐ Featured on Home (@featuredReviews.Count)</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Review</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var review in featuredReviews)
+                            {
+                                <tr>
+                                    <td><strong>@review.UserFirstName @review.UserLastName</strong></td>
+                                    <td style="max-width:300px; color:#6b7280;">@review.Text</td>
+                                    <td>
+                                        @for (int i = 0; i < review.Rating; i++)
+                                        {
+                                            <span style="color:#f59e0b;">★</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <form method="post" action="/Admin/UnfeatureReview/@review.Id" style="display:inline;">
+                                            <button type="submit" class="admin-action-btn admin-action-btn-danger">Unfeature</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-catalog">
+                    <p>No reviews yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

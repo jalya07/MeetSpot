@@ -7,11 +7,14 @@ public class ReviewResponseDto
     public int Id { get; set; }
     public string Text { get; set; } = string.Empty;
     public int Rating { get; set; }
+    public bool IsApproved { get; set; }
+    public bool IsFeatured { get; set; }
     public string UserFirstName { get; set; } = string.Empty;
     public string UserLastName { get; set; } = string.Empty;
     public string? CompanyDomain { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
 
 public class ReviewApiService
 {
@@ -63,5 +66,37 @@ public class ReviewApiService
         {
             return new();
         }
+    }
+    public async Task ApproveReviewAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            await _httpClient.PostAsync($"api/review/{id}/approve", null);
+        }
+        catch { }
+    }
+
+    public async Task DeleteReviewAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            await _httpClient.DeleteAsync($"api/review/{id}");
+        }
+        catch { }
+    }
+
+    public async Task SetFeaturedAsync(string token, int id, bool isFeatured)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            await _httpClient.PostAsync($"api/review/{id}/featured?isFeatured={isFeatured}", null);
+        }
+        catch { }
     }
 }

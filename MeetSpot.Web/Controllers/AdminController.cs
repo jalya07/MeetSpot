@@ -89,4 +89,35 @@ public class AdminController : BaseController
         var reviews = await _reviewApiService.GetAllReviewsAsync(token);
         return View(reviews);
     }
+    [HttpPost]
+    public async Task<IActionResult> ApproveReview(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _reviewApiService.ApproveReviewAsync(token, id);
+        return RedirectToAction("Reviews");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteReview(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _reviewApiService.DeleteReviewAsync(token, id);
+        return RedirectToAction("Reviews");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SetFeatured(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _reviewApiService.SetFeaturedAsync(token, id, true);
+        return RedirectToAction("Reviews");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UnfeatureReview(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _reviewApiService.SetFeaturedAsync(token, id, false);
+        return RedirectToAction("Reviews");
+    }
 }
