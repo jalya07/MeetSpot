@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "My Dashboard";
+    var profile = ViewBag.Profile as MeetSpot.Web.Services.UserProfileDto;
+    var bookings = ViewBag.Bookings as List<MeetSpot.Web.Services.BookingResponseDto> ?? new();
+    var activeBookings = bookings.Where(b => b.Status == "Active").ToList();
+    var pastBookings = bookings.Where(b => b.Status != "Active").ToList();
+}
+
+<section class="dashboard">
+    <div class="dashboard-inner">
+
+        <aside class="dashboard-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    @(profile?.FirstName?.FirstOrDefault().ToString().ToUpper())@(profile?.LastName?.FirstOrDefault().ToString().ToUpper())
+                </div>
+                <h3>@profile?.FirstName @profile?.LastName</h3>
+                <p class="profile-email">@profile?.Email</p>
+                <span class="profile-type-badge">@profile?.Type</span>
+            </div>
+
+            <div class="balance-card">
+                <p class="balance-label">Balance</p>
+                <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
+                <a href="/Balance/TopUp" class="btn btn-primary" style="width:100%; text-align:center; margin-top:12px;">Top up</a>
+            </div>
+
+            <nav class="dashboard-nav">
+                <a href="/Dashboard" class="dashboard-nav-link active">My bookings</a>
+                <a href="/Dashboard/Profile" class="dashboard-nav-link">Profile</a>
+                <a href="/Balance" class="dashboard-nav-link">Transactions</a>
+                <a href="/Subscription" class="dashboard-nav-link">Subscription</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>My bookings</h1>
+                <a href="/Room" class="btn btn-primary">Book a room</a>
+            </div>
+
+            @if (activeBookings.Any())
+            {
+                <h2 class="bookings-section-title">Active bookings</h2>
+                <div class="bookings-list">
+                    @foreach (var booking in activeBookings)
+                    {
+                        <div class="booking-card">
+                            <div class="booking-info">
+                                <h3>@booking.Title</h3>
+                                <p class="booking-room">@booking.RoomName</p>
+                                <p class="booking-time">
+                                    @booking.StartTime.ToString("dd MMM yyyy, HH:mm") —
+                                    @booking.EndTime.ToString("HH:mm")
+                                </p>
+                                <div class="booking-meta">
+                                    <span class="booking-price">$@booking.TotalPrice</span>
+                                    <span class="booking-status booking-status-active">Active</span>
+                                    @if (booking.IsCheckedIn)
+                                    {
+                                        <span class="booking-status booking-status-checkedin">Checked in</span>
+                                    }
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(booking.QrCode))
+                            {
+                                <div class="booking-qr">
+                                    <img src="data:image/png;base64,@booking.QrCode" alt="QR code" />
+                                    <p>Scan to check in</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (pastBookings.Any())
+            {
+                <h2 class="bookings-section-title">Past bookings</h2>
+                <div class="bookings-list">
+                    @foreach (var booking in pastBookings)
+                    {
+                        <div class="booking-card booking-card-past">
+                            <div class="booking-info">
+                                <h3>@booking.Title</h3>
+                                <p class="booking-room">@booking.RoomName</p>
+                                <p class="booking-time">
+                                    @booking.StartTime.ToString("dd MMM yyyy, HH:mm") —
+                                    @booking.EndTime.ToString("HH:mm")
+                                </p>
+                                <div class="booking-meta">
+                                    <span class="booking-price">$@booking.TotalPrice</span>
+                                    <span class="booking-status">@booking.Status</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!bookings.Any())
+            {
+                <div class="empty-dashboard">
+                    <p>You haven't made any bookings yet.</p>
+                    <a href="/Room" class="btn btn-primary">Browse rooms</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>

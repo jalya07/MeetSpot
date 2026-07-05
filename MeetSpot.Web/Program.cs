@@ -9,6 +9,8 @@ builder.Services.AddScoped<AnalyticsApiService>();
 builder.Services.AddScoped<CompanyApiService>();
 builder.Services.AddScoped<ReviewApiService>();
 builder.Services.AddScoped<AuthApiService>();
+builder.Services.AddScoped<BookingApiService>();
+builder.Services.AddScoped<UserApiService>();
 
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {
