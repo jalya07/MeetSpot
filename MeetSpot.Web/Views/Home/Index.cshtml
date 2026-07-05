@@ -6,13 +6,25 @@
     <link rel="stylesheet" href="~/css/home.css" />
 }
 
+@{
+    var heroSlides = ViewBag.HeroSlides as List<MeetSpot.Web.Services.HeroSlideDto> ?? new();
+}
 <section class="hero">
     <div class="hero-slideshow">
-        <div class="hero-slide active" style="background-image: url('/images/hero/hero1.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('/images/hero/hero2.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('/images/hero/hero3.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('/images/hero/hero4.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('/images/hero/hero5.jpg')"></div>
+        @if (heroSlides.Any())
+        {
+            @foreach (var (slide, index) in heroSlides.Select((s, i) => (s, i)))
+            {
+                <div class="hero-slide @(index == 0 ? "active" : "")"
+                     style="background-image: url('@slide.ImageUrl')"></div>
+            }
+        }
+        else
+        {
+            <div class="hero-slide active" style="background-image: url('/images/hero/hero1.jpg')"></div>
+            <div class="hero-slide" style="background-image: url('/images/hero/hero2.jpg')"></div>
+            <div class="hero-slide" style="background-image: url('/images/hero/hero3.jpg')"></div>
+        }
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content">

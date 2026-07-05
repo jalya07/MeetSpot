@@ -19,6 +19,7 @@ public class MeetSpotAppDbContext : DbContext
     public DbSet<ContactMessage> ContactMessages { get; set; }
     public DbSet<RoomImage> RoomImages { get; set; }    
     public DbSet<Review> Reviews { get; set; }
+    public DbSet<HeroSlide> HeroSlides { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -86,5 +87,6 @@ public class MeetSpotAppDbContext : DbContext
             .WithMany(u => u.Reviews)
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
     }
 }

@@ -10,25 +10,28 @@ public class AdminController : BaseController
     private readonly UserApiService _userApiService;
     private readonly BookingApiService _bookingApiService;
     private readonly ReviewApiService _reviewApiService;
+    private readonly HeroSlideApiService _heroSlideApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
         RoomApiService roomApiService,
         UserApiService userApiService,
         BookingApiService bookingApiService,
-        ReviewApiService reviewApiService)
+        ReviewApiService reviewApiService,
+        HeroSlideApiService heroSlideApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
         _userApiService = userApiService;
         _bookingApiService = bookingApiService;
         _reviewApiService = reviewApiService;
+        _heroSlideApiService = heroSlideApiService;
     }
 
     private IActionResult CheckAdmin()
     {
         var token = Request.Cookies["AccessToken"];
-        if (string.IsNullOrEmpty(token)) 
+        if (string.IsNullOrEmpty(token))
             return RedirectToAction("Login", "Account");
         if (ViewBag.UserRole != "Admin")
             return RedirectToAction("Index", "Home");
@@ -50,7 +53,7 @@ public class AdminController : BaseController
     public async Task<IActionResult> Rooms()
     {
         var check = CheckAdmin();
-        if (check != null) 
+        if (check != null)
             return check;
 
         var rooms = await _roomApiService.GetAllRoomsAsync();
@@ -68,7 +71,7 @@ public class AdminController : BaseController
     public async Task<IActionResult> Bookings()
     {
         var check = CheckAdmin();
-        if (check != null) 
+        if (check != null)
             return check;
 
         var token = Request.Cookies["AccessToken"]!;
@@ -79,7 +82,7 @@ public class AdminController : BaseController
     public async Task<IActionResult> Users()
     {
         var check = CheckAdmin();
-        if (check != null) 
+        if (check != null)
             return check;
 
         var token = Request.Cookies["AccessToken"]!;
@@ -90,13 +93,14 @@ public class AdminController : BaseController
     public async Task<IActionResult> Reviews()
     {
         var check = CheckAdmin();
-        if (check != null) 
+        if (check != null)
             return check;
 
         var token = Request.Cookies["AccessToken"]!;
         var reviews = await _reviewApiService.GetAllReviewsAsync(token);
         return View(reviews);
     }
+
     [HttpPost]
     public async Task<IActionResult> ApproveReview(int id)
     {
@@ -140,7 +144,8 @@ public class AdminController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity, decimal pricePerHour, string type)
+    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity,
+        decimal pricePerHour, string type)
     {
         var check = CheckAdmin();
         if (check != null) return check;
@@ -151,5 +156,31 @@ public class AdminController : BaseController
 
         TempData["SuccessMessage"] = "Room updated successfully!";
         return RedirectToAction("Rooms");
-    }  
-} 
+    }
+
+    public async Task<IActionResult> HeroSlides()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var slides = await _heroSlideApiService.GetAllSlidesAsync(token);
+        return View(slides);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddSlide(string imageUrl, int displayOrder, string? caption)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
+        return RedirectToAction("HeroSlides");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteSlide(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _heroSlideApiService.DeleteSlideAsync(token, id);
+        return RedirectToAction("HeroSlides");
+    }
+}
