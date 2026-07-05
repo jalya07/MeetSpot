@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/room.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MeetSpot.Web.styles.css" asp-append-version="true" />
    
 </head>
@@ -20,16 +21,19 @@
         <div class="top-bar-inner">
             <span class="top-bar-tagline">Book a meeting room in seconds</span>
             <div class="top-bar-actions">
-                <a href="#" class="top-bar-link">EN</a>
-                 @if (ViewBag.IsLoggedIn == true)
+                @if (ViewBag.IsLoggedIn == true)
                 {
                     <span class="top-bar-link" style="color: rgba(255,255,255,0.85);">@ViewBag.FullName</span>
                     @if (ViewBag.UserRole == "Admin")
                     {
                         <a href="/Admin/Dashboard" class="top-bar-link">Admin panel</a>
+                        <a href="/Account/Logout" class="top-bar-link top-bar-cta">Log out</a>
                     }
-                    <a href="/Dashboard" class="top-bar-link">My account</a>
-                    <a href="/Account/Logout" class="top-bar-link top-bar-cta">Log out</a>
+                    else
+                    {
+                        <a href="/Dashboard" class="top-bar-link">My account</a>
+                        <a href="/Account/Logout" class="top-bar-link top-bar-cta">Log out</a>
+                    }
                 }
                 else
                 {

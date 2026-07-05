@@ -1,0 +1,66 @@
+@model List<MeetSpot.Web.Services.RoomResponseDto>
+@{
+    ViewData["Title"] = "Admin — Rooms";
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link">📊 Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link active">🏢 Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link">📅 Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link">👥 Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link">⭐ Reviews</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <div class="admin-table-header">
+                <h2>Rooms (@Model.Count)</h2>
+                <a href="/Admin/CreateRoom" class="btn btn-primary admin-action-btn">+ Add room</a>
+            </div>
+
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Floor</th>
+                            <th>Capacity</th>
+                            <th>Price/hr</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        @if (room.ImageUrls.Any())
+                                        {
+                                            <img src="@room.ImageUrls[0]" style="width:40px;height:40px;object-fit:cover;border-radius:6px;" />
+                                        }
+                                        <strong>@room.Name</strong>
+                                    </div>
+                                </td>
+                                <td><span class="admin-badge @(room.Type == "Vip" ? "admin-badge-blue" : "admin-badge-gray")">@room.Type</span></td>
+                                <td>@room.Floor</td>
+                                <td>@room.Capacity</td>
+                                <td>$@room.PricePerHour</td>
+                                <td><span class="admin-badge @(room.IsActive ? "admin-badge-green" : "admin-badge-red")">@(room.IsActive ? "Active" : "Inactive")</span></td>
+                                <td>
+                                    <a href="/Room/Details/@room.Id" class="admin-action-btn admin-action-btn-primary">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

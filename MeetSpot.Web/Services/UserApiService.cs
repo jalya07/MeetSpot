@@ -46,4 +46,27 @@ public class UserApiService
             return null;
         }
     }
+
+    public async Task<List<UserProfileDto>> GetAllUsersAsync(string token)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync("api/user");
+            if (!response.IsSuccessStatusCode) 
+                return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<List<UserProfileDto>>>(json, options);
+
+            return result?.Data ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+    }
 }

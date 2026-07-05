@@ -82,4 +82,28 @@ public class BookingApiService
             return (false, new List<string> { "Something went wrong" });
         }
     }
+
+    public async Task<List<BookingResponseDto>> GetAllBookingsAsync(string token)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync("api/booking");
+            if (!response.IsSuccessStatusCode)
+                return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<List<BookingResponseDto>>>(json, options);
+
+            return result?.Data ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+
+    }
 }

@@ -1,0 +1,166 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var stats = ViewBag.Stats as MeetSpot.Web.Services.PublicStatsDto;
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link active"> <i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Analytics Dashboard</h1>
+
+            <div class="admin-stats-grid">
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@(stats?.TotalBookings ?? 0)</p>
+                        <p class="admin-stat-label">Total bookings</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-building"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@(stats?.TotalRooms ?? 0)</p>
+                        <p class="admin-stat-label">Active rooms</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-users"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@(stats?.ActiveUsers ?? 0)</p>
+                        <p class="admin-stat-label">Active users</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-chart-line"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@(stats?.OccupancyRate ?? 0)%</p>
+                        <p class="admin-stat-label">Occupancy rate</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-charts-grid">
+                <div class="admin-chart-card">
+                    <h2>Bookings this week</h2>
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+                <div class="admin-chart-card">
+                    <h2>Room type distribution</h2>
+                    <canvas id="roomTypeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-charts-grid" style="margin-top: 20px;">
+                <div class="admin-chart-card">
+                    <h2>Occupancy rate</h2>
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+                <div class="admin-quick-links-wrap">
+                    <h2>Quick actions</h2>
+                    <div class="quick-links-grid" style="grid-template-columns: repeat(2,1fr);">
+                        <a href="/Admin/Rooms" class="quick-link-card">
+                            <span><i class="fas fa-building"></i></span>
+                            <p>Manage rooms</p>
+                        </a>
+                        <a href="/Admin/Bookings" class="quick-link-card">
+                            <span><i class="fas fa-calendar-alt"></i></span>
+                            <p>All bookings</p>
+                        </a>
+                        <a href="/Admin/Users" class="quick-link-card">
+                            <span><i class="fas fa-users"></i></span>
+                            <p>Manage users</p>
+                        </a>
+                        <a href="/Admin/Reviews" class="quick-link-card">
+                            <span><i class="fas fa-star"></i></span>
+                            <p>Moderate reviews</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const coral = '#E8674A';
+    const ink = '#1B2B4D';
+    const cream = '#F7F5F1';
+
+    // Bookings chart
+    new Chart(document.getElementById('bookingsChart'), {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Bookings',
+                data: [3, 5, 4, 7, 6, 2, 1],
+                borderColor: coral,
+                backgroundColor: 'rgba(232, 103, 74, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: coral,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Room type chart
+    new Chart(document.getElementById('roomTypeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Standard', 'VIP'],
+            datasets: [{
+                data: [@(stats?.TotalRooms ?? 0) * 60 / 100, @(stats?.TotalRooms ?? 0) * 40 / 100],
+                backgroundColor: [ink, coral],
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Occupancy chart
+    new Chart(document.getElementById('occupancyChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Occupancy %',
+                data: [45, 72, 58, 85, 63, 30, 15],
+                backgroundColor: coral,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+</script>
+}

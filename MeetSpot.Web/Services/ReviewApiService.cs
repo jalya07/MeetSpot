@@ -40,4 +40,28 @@ public class ReviewApiService
             return new();
         }
     }
+    public async Task<List<ReviewResponseDto>> GetAllReviewsAsync(string token)
+    {
+        try
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5249/");
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("api/review");
+            if (!response.IsSuccessStatusCode) 
+                return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<List<ReviewResponseDto>>>(json, options);
+
+            return result?.Data ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+    }
 }
