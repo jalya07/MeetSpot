@@ -54,4 +54,42 @@ public class RoomApiService
 
         return result?.Data ?? throw new Exception("Room not found");
     }
+    public async Task DeleteRoomAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            await _httpClient.DeleteAsync($"api/room/{id}");
+        }
+        catch { }
+    }
+    public async Task<bool> UpdateRoomAsync(string token, int id, object dto)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync($"api/room/{id}", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+    public async Task<bool> CreateRoomAsync(string token, object dto)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"api/room", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
 }

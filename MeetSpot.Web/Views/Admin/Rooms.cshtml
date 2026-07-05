@@ -53,8 +53,13 @@
                                 <td>@room.Capacity</td>
                                 <td>$@room.PricePerHour</td>
                                 <td><span class="admin-badge @(room.IsActive ? "admin-badge-green" : "admin-badge-red")">@(room.IsActive ? "Active" : "Inactive")</span></td>
-                                <td>
+                                <td style="display:flex; gap:8px;">
                                     <a href="/Room/Details/@room.Id" class="admin-action-btn admin-action-btn-primary">View</a>
+                                    <a href="/Admin/EditRoom/@room.Id" class="admin-action-btn" style="background:#dbeafe;color:#2563eb;">Edit</a>
+                                    <form method="post" action="/Admin/DeleteRoom/@room.Id" style="display:inline;">
+                                        <button type="submit" class="admin-action-btn admin-action-btn-danger"
+                                            onclick="return confirm('Delete this room?')">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         }

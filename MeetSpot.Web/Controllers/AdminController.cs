@@ -57,6 +57,14 @@ public class AdminController : BaseController
         return View(rooms);
     }
 
+    [HttpPost]
+    public async Task<IActionResult> DeleteRoom(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _roomApiService.DeleteRoomAsync(token, id);
+        return RedirectToAction("Rooms");
+    }
+
     public async Task<IActionResult> Bookings()
     {
         var check = CheckAdmin();
@@ -120,4 +128,28 @@ public class AdminController : BaseController
         await _reviewApiService.SetFeaturedAsync(token, id, false);
         return RedirectToAction("Reviews");
     }
-}
+
+    [HttpGet]
+    public async Task<IActionResult> EditRoom(int id)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var room = await _roomApiService.GetRoomByIdAsync(id);
+        return View(room);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity, decimal pricePerHour, string type)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var dto = new { name, description, floor, capacity, pricePerHour, type };
+        await _roomApiService.UpdateRoomAsync(token, id, dto);
+
+        TempData["SuccessMessage"] = "Room updated successfully!";
+        return RedirectToAction("Rooms");
+    }  
+} 
