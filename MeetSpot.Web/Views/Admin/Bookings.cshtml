@@ -1,0 +1,66 @@
+@model List<MeetSpot.Web.Services.BookingResponseDto>
+@{
+    ViewData["Title"] = "Admin — Bookings";
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"> <i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"> <i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link active"> <i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"> <i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"> <i class="fas fa-star"></i> Reviews</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <div class="admin-table-header">
+                <h2>All Bookings (@Model.Count)</h2>
+            </div>
+
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Room</th>
+                            <th>Date & Time</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Check-in</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in Model)
+                        {
+                            <tr>
+                                <td><strong>@booking.Title</strong></td>
+                                <td>@booking.RoomName</td>
+                                <td>
+                                    @booking.StartTime.ToString("dd MMM yyyy") <br />
+                                    <span style="color:#6b7280; font-size:12px;">
+                                        @booking.StartTime.ToString("HH:mm") — @booking.EndTime.ToString("HH:mm")
+                                    </span>
+                                </td>
+                                <td>$@booking.TotalPrice</td>
+                                <td>
+                                    <span class="admin-badge @(booking.Status == "Active" ? "admin-badge-green" : booking.Status == "Cancelled" ? "admin-badge-red" : "admin-badge-gray")">
+                                        @booking.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="admin-badge @(booking.IsCheckedIn ? "admin-badge-blue" : "admin-badge-gray")">
+                                        @(booking.IsCheckedIn ? "Yes" : "No")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

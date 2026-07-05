@@ -12,11 +12,11 @@
         <aside class="dashboard-sidebar">
             <div class="profile-card">
                 <div class="profile-avatar">
-                    @(profile?.FirstName?.FirstOrDefault().ToString().ToUpper())@(profile?.LastName?.FirstOrDefault().ToString().ToUpper())
+                   @(profile.FullName != null ? profile.FullName.Substring(0, 1).ToUpper() : "?")
                 </div>
-                <h3>@profile?.FirstName @profile?.LastName</h3>
+                <h3>@profile?.FullName</h3>
                 <p class="profile-email">@profile?.Email</p>
-                <span class="profile-type-badge">@profile?.Type</span>
+                <span class="profile-type-badge">@profile?.UserType</span>
             </div>
 
             <div class="balance-card">
