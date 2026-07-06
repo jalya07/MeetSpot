@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Core.Mappings;
 using MeetSpot.Infrastructure.Services;
+using Microsoft.AspNetCore.Http.Features;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 

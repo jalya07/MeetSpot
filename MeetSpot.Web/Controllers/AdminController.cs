@@ -168,11 +168,56 @@ public class AdminController : BaseController
         return View(slides);
     }
 
+    // [HttpPost]
+    // public async Task<IActionResult> AddSlide(IFormFile imageFile, int displayOrder, string? caption)
+    // {
+    //     var token = Request.Cookies["AccessToken"]!;
+    //
+    //     if (imageFile != null && imageFile.Length > 0)
+    //     {
+    //         using var content = new MultipartFormDataContent();
+    //         using var stream = imageFile.OpenReadStream();
+    //         content.Add(new StreamContent(stream), "file", imageFile.FileName);
+    //
+    //         var imageUrl = await _heroSlideApiService.UploadImageAsync(token, content);
+    //
+    //         if (!string.IsNullOrEmpty(imageUrl))
+    //         {
+    //             await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
+    //         }
+    //     }
+    //
+    //     return RedirectToAction("HeroSlides");
+    // }
     [HttpPost]
-    public async Task<IActionResult> AddSlide(string imageUrl, int displayOrder, string? caption)
+    public async Task<IActionResult> AddSlide(IFormFile imageFile, int displayOrder, string? caption)
     {
         var token = Request.Cookies["AccessToken"]!;
-        await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
+
+        if (imageFile == null || imageFile.Length == 0)
+        {
+            TempData["Error"] = "No file selected";
+            return RedirectToAction("HeroSlides");
+        }
+
+        using var content = new MultipartFormDataContent();
+        using var stream = imageFile.OpenReadStream();
+        var streamContent = new StreamContent(stream);
+        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
+        content.Add(streamContent, "file", imageFile.FileName);
+
+        var imageUrl = await _heroSlideApiService.UploadImageAsync(token, content);
+
+        if (!string.IsNullOrEmpty(imageUrl))
+        {
+            await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
+            TempData["Success"] = "Slide added!";
+        }
+        else
+        {
+            TempData["Error"] = "Upload failed";
+        }
+
         return RedirectToAction("HeroSlides");
     }
 
@@ -183,4 +228,5 @@ public class AdminController : BaseController
         await _heroSlideApiService.DeleteSlideAsync(token, id);
         return RedirectToAction("HeroSlides");
     }
+
 }
