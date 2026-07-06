@@ -58,4 +58,9 @@ public class HomeController : BaseController
     {
         return View();
     }
+
+    public IActionResult About()
+    {
+        return View();
+    }
 }
