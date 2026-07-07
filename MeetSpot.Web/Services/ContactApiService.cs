@@ -3,6 +3,17 @@ using System.Text.Json;
 
 namespace MeetSpot.Web.Services;
 
+public class ContactMessageDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Subject { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public bool IsRead { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
 public class ContactApiService
 {
     private readonly HttpClient _httpClient;
@@ -16,9 +27,9 @@ public class ContactApiService
     {
         try
         {
-            var dto = new
+           var dto = new
             {
-                name = $"{firstName} {lastName}",
+                fullName = $"{firstName} {lastName}",
                 email,
                 subject,
                 message
@@ -31,4 +42,27 @@ public class ContactApiService
         }
         catch { return false; }
     }
+
+    public async Task<List<ContactMessageDto>> GetAllMessagesAsync(string token)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync("api/contact");
+            if (!response.IsSuccessStatusCode) return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<List<ContactMessageDto>>>(json, options);
+
+            return result?.Data ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+    }
+
 }

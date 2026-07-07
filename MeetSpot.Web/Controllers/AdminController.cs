@@ -168,54 +168,46 @@ public class AdminController : BaseController
         return View(slides);
     }
 
-    // [HttpPost]
-    // public async Task<IActionResult> AddSlide(IFormFile imageFile, int displayOrder, string? caption)
-    // {
-    //     var token = Request.Cookies["AccessToken"]!;
-    //
-    //     if (imageFile != null && imageFile.Length > 0)
-    //     {
-    //         using var content = new MultipartFormDataContent();
-    //         using var stream = imageFile.OpenReadStream();
-    //         content.Add(new StreamContent(stream), "file", imageFile.FileName);
-    //
-    //         var imageUrl = await _heroSlideApiService.UploadImageAsync(token, content);
-    //
-    //         if (!string.IsNullOrEmpty(imageUrl))
-    //         {
-    //             await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
-    //         }
-    //     }
-    //
-    //     return RedirectToAction("HeroSlides");
-    // }
     [HttpPost]
-    public async Task<IActionResult> AddSlide(IFormFile imageFile, int displayOrder, string? caption)
+    public async Task<IActionResult> AddSlide(IFormFile? imageFile, string? imageUrl, int displayOrder, string? caption)
     {
         var token = Request.Cookies["AccessToken"]!;
+        string? finalImageUrl = null;
 
-        if (imageFile == null || imageFile.Length == 0)
+        if (imageFile != null && imageFile.Length > 0)
         {
-            TempData["Error"] = "No file selected";
-            return RedirectToAction("HeroSlides");
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(imageFile.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                TempData["Error"] = "Only jpg, png, webp allowed";
+                return RedirectToAction("HeroSlides");
+            }
+
+            var fileName = $"hero_{Guid.NewGuid()}{extension}";
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "hero");
+            Directory.CreateDirectory(uploadsPath);
+
+            var filePath = Path.Combine(uploadsPath, fileName);
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await imageFile.CopyToAsync(stream);
+
+            finalImageUrl = $"/images/hero/{fileName}";
         }
-
-        using var content = new MultipartFormDataContent();
-        using var stream = imageFile.OpenReadStream();
-        var streamContent = new StreamContent(stream);
-        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
-        content.Add(streamContent, "file", imageFile.FileName);
-
-        var imageUrl = await _heroSlideApiService.UploadImageAsync(token, content);
-
-        if (!string.IsNullOrEmpty(imageUrl))
+        else if (!string.IsNullOrEmpty(imageUrl))
         {
-            await _heroSlideApiService.CreateSlideAsync(token, imageUrl, displayOrder, caption);
-            TempData["Success"] = "Slide added!";
+            finalImageUrl = imageUrl;
+        }
+        
+        if (!string.IsNullOrEmpty(finalImageUrl))
+        {
+            await _heroSlideApiService.CreateSlideAsync(token, finalImageUrl, displayOrder, caption);
+            TempData["Success"] = "Slide added successfully!";
         }
         else
         {
-            TempData["Error"] = "Upload failed";
+            TempData["Error"] = "Please provide an image file or URL";
         }
 
         return RedirectToAction("HeroSlides");
@@ -228,5 +220,40 @@ public class AdminController : BaseController
         await _heroSlideApiService.DeleteSlideAsync(token, id);
         return RedirectToAction("HeroSlides");
     }
+
+    public async Task<IActionResult> Messages()
+    {
+        var check = CheckAdmin();
+        if (check != null) 
+            return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var contactApiService = HttpContext.RequestServices.GetRequiredService<ContactApiService>();
+        var messages = await contactApiService.GetAllMessagesAsync(token);
+        return View(messages);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditSlide(int id)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var slides = await _heroSlideApiService.GetAllSlidesAsync(token);
+        var slide = slides.FirstOrDefault(s => s.Id == id);
+        if (slide == null) return NotFound();
+
+        return View(slide);
+    }
+
+[HttpPost]
+public async Task<IActionResult> EditSlide(int id, string imageUrl, int displayOrder, string? caption, bool isActive)
+{
+    var token = Request.Cookies["AccessToken"]!;
+    await _heroSlideApiService.UpdateSlideAsync(token, id, imageUrl, displayOrder, caption, isActive);
+    TempData["Success"] = "Slide updated!";
+    return RedirectToAction("HeroSlides");
+}
 
 }

@@ -1,0 +1,118 @@
+@model List<MeetSpot.Web.Services.ContactMessageDto>
+@{
+    ViewData["Title"] = "Admin — Messages";
+    var unreadMessages = Model.Where(m => !m.IsRead).ToList();
+    var readMessages = Model.Where(m => m.IsRead).ToList();
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+                <a href="/Admin/HeroSlides" class="admin-nav-link"><i class="fas fa-images"></i> Hero Slides</a>
+                <a href="/Admin/Messages" class="admin-nav-link active"><i class="fas fa-envelope"></i> Messages</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Contact Messages</h1>
+
+            <div class="admin-stats-grid" style="margin-bottom: 28px;">
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">📬</span>
+                    <div>
+                        <p class="admin-stat-number">@unreadMessages.Count</p>
+                        <p class="admin-stat-label">Unread</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">📭</span>
+                    <div>
+                        <p class="admin-stat-number">@readMessages.Count</p>
+                        <p class="admin-stat-label">Read</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon">📩</span>
+                    <div>
+                        <p class="admin-stat-number">@Model.Count</p>
+                        <p class="admin-stat-label">Total</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (unreadMessages.Any())
+            {
+                <h2>📬 Unread (@unreadMessages.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom: 28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var msg in unreadMessages)
+                            {
+                                <tr>
+                                    <td><strong>@msg.Name</strong></td>
+                                    <td style="color:#6b7280;">@msg.Email</td>
+                                    <td><strong>@msg.Subject</strong></td>
+                                    <td style="color:#6b7280; max-width:300px;">@msg.Message</td>
+                                    <td style="color:#6b7280; font-size:13px;">@msg.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (readMessages.Any())
+            {
+                <h2>📭 Read (@readMessages.Count)</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var msg in readMessages)
+                            {
+                                <tr style="opacity: 0.7;">
+                                    <td>@msg.Name</td>
+                                    <td style="color:#6b7280;">@msg.Email</td>
+                                    <td>@msg.Subject</td>
+                                    <td style="color:#6b7280; max-width:300px;">@msg.Message</td>
+                                    <td style="color:#6b7280; font-size:13px;">@msg.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-catalog">
+                    <p>No messages yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

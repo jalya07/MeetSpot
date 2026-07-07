@@ -101,4 +101,18 @@ public class HeroSlideApiService
         }
         catch { return null; }
     }
+    public async Task UpdateSlideAsync(string token, int id, string imageUrl, int displayOrder, string? caption, bool isActive)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var dto = new { imageUrl, displayOrder, caption, isActive };
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            await _httpClient.PutAsync($"api/heroslide/{id}", content);
+        }
+        catch { }
+    }
 }
