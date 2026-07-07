@@ -12,6 +12,7 @@ builder.Services.AddScoped<AuthApiService>();
 builder.Services.AddScoped<BookingApiService>();
 builder.Services.AddScoped<UserApiService>();
 builder.Services.AddScoped<HeroSlideApiService>();
+builder.Services.AddScoped<ContactApiService>();
 
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {

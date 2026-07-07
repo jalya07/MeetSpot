@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<section class="contact-hero">
+    <div class="contact-hero-content">
+        <span class="hero-eyebrow" style="color: var(--color-coral);">Get in touch</span>
+        <h1>We'd love to hear from you</h1>
+        <p>Have a question or want to learn more about MeetSpot? Send us a message and we'll get back to you within 24 hours.</p>
+    </div>
+</section>
+
+<section class="contact-section">
+    <div class="contact-inner">
+        <div class="contact-form-wrap">
+            <h2>Send a message</h2>
+
+            @if (TempData["ContactSuccess"] != null)
+            {
+                <div class="auth-success">
+                    <p>@TempData["ContactSuccess"]</p>
+                </div>
+            }
+
+            <form asp-controller="Home" asp-action="Contact" method="post" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" name="firstName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Last name</label>
+                        <input type="text" name="lastName" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" placeholder="e.g. Partnership inquiry" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="message" rows="5" required
+                        style="padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;font-family:inherit;width:100%;resize:vertical;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">Send message</button>
+            </form>
+        </div>
+
+        <div class="contact-info">
+            <h2>Contact info</h2>
+
+            <div class="contact-info-items">
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <h4>Address</h4>
+                        <p>Port Baku Tower 2, Baku, Azerbaijan</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <h4>Email</h4>
+                        <p>hello@meetspot.com</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <h4>Phone</h4>
+                        <p>+994 50 289 6446</p>
+                    </div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h4>Working hours</h4>
+                        <p>Mon — Fri: 9:00 AM — 6:00 PM</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-map">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d24313.220957314308!2d49.85951854999999!3d40.38330995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40307d01b18f0f07%3A0xbfd0fa68c7f65ac2!2zwqvQn9C-0YDRgiDQkdCw0LrRg8K7INCu0LbQvdCw0Y8g0LHQsNGI0L3Rjw!5e0!3m2!1sru!2saz!4v1783418529252!5m2!1sru!2saz"
+                    width="100%"
+                    height="280"
+                    style="border:0;border-radius:14px;"
+                    allowfullscreen=""
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</section>

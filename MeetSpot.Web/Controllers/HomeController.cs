@@ -63,4 +63,20 @@ public class HomeController : BaseController
     {
         return View();
     }
+
+    public IActionResult Contact()
+    {
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Contact(string firstName, string lastName, string email, string subject, string message)
+    {
+        var token = Request.Cookies["AccessToken"];
+
+        var contactApiService = HttpContext.RequestServices.GetRequiredService<ContactApiService>();
+        await contactApiService.SendMessageAsync(firstName, lastName, email, subject, message);
+
+        TempData["ContactSuccess"] = "Your message has been sent! We'll get back to you within 24 hours.";
+        return RedirectToAction("Contact");
+    }
 }
