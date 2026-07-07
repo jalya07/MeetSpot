@@ -144,8 +144,7 @@ public class AdminController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity,
-        decimal pricePerHour, string type)
+    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity,decimal pricePerHour, string type)
     {
         var check = CheckAdmin();
         if (check != null) return check;
@@ -247,13 +246,37 @@ public class AdminController : BaseController
         return View(slide);
     }
 
-[HttpPost]
-public async Task<IActionResult> EditSlide(int id, string imageUrl, int displayOrder, string? caption, bool isActive)
-{
-    var token = Request.Cookies["AccessToken"]!;
-    await _heroSlideApiService.UpdateSlideAsync(token, id, imageUrl, displayOrder, caption, isActive);
-    TempData["Success"] = "Slide updated!";
-    return RedirectToAction("HeroSlides");
-}
+    [HttpPost]
+    public async Task<IActionResult> EditSlide(int id, IFormFile imageFile, int displayOrder, string? caption, bool isActive)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        string? finalImageUrl = null;
 
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(imageFile.FileName).ToLower();
+
+            if (allowedExtensions.Contains(extension))
+            {
+                var fileName = $"hero_{Guid.NewGuid()}{extension}";
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "hero");
+                Directory.CreateDirectory(uploadsPath);
+                var filePath = Path.Combine(uploadsPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await imageFile.CopyToAsync(stream);
+                finalImageUrl = $"/images/hero/{fileName}";
+            }
+        }
+
+        if (!string.IsNullOrEmpty(finalImageUrl))
+        {
+            await _heroSlideApiService.UpdateSlideAsync(token, id, finalImageUrl, displayOrder, caption, isActive);
+            TempData["Success"] = "Slide updated!";
+        }
+        else
+            TempData["Error"] = "Please upload an image file!";
+        
+        return RedirectToAction("HeroSlides");
+    }
 }
