@@ -77,6 +77,7 @@ public class BookingController(
     }
 
     [HttpGet("room/{roomId}/calendar")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ResponseModelHelper<List<BookingResponseDto>>), 200)]
     public async Task<IActionResult> GetRoomCalendar(int roomId, [FromQuery] DateTime date)
     {

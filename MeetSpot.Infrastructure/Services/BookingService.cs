@@ -26,7 +26,6 @@ public class BookingService : IBookingService
 
     public async Task<BookingResponseDto> CreateAsync(CreateBookingDto dto, int userId)
     {
-        // Conflict detection (F6)
         var conflict = await _context.Bookings
             .AnyAsync(b => b.RoomId == dto.RoomId
                 && b.Status == BookingStatus.Active
@@ -44,7 +43,6 @@ public class BookingService : IBookingService
         if (user == null)
             throw new NotFoundException("User not found");
 
-        // Booking rules by role
         var minDaysAhead = user.Type switch
         {
             UserType.Regular => 5,
@@ -53,21 +51,24 @@ public class BookingService : IBookingService
             _ => 5
         };
 
+        if (dto.StartTime.Hour < 8 || dto.StartTime.Hour >= 18)
+            throw new BadRequestException("Bookings are only available between 8:00 and 18:00");
+
+        if (dto.EndTime.Hour > 18 || (dto.EndTime.Hour == 18 && dto.EndTime.Minute > 0))
+            throw new BadRequestException("Bookings must end by 18:00");
+
         if (dto.StartTime < DateTime.UtcNow.AddDays(minDaysAhead))
             throw new BadRequestException($"Your account type requires booking at least {minDaysAhead} days in advance");
 
-        // Calculate price
         var hours = (decimal)(dto.EndTime - dto.StartTime).TotalHours;
         var totalPrice = hours * room.PricePerHour;
 
-        // Check balance
         if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
         {
             if (user.Balance < totalPrice)
                 throw new BadRequestException("Insufficient balance");
         }
 
-        // Generate QR
         var qrContent = $"MEETSPOT-BOOKING-{Guid.NewGuid()}";
         var qrCode = GenerateQrBase64(qrContent);
 
@@ -94,7 +95,6 @@ public class BookingService : IBookingService
 
         _context.Bookings.Add(booking);
 
-        // Deduct balance
         if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
         {
             user.Balance -= totalPrice;
@@ -110,7 +110,6 @@ public class BookingService : IBookingService
 
         await _context.SaveChangesAsync();
 
-        // Send email confirmation
         var bookingDetails = $"<p><b>Room:</b> {room.Name}</p><p><b>Date:</b> {dto.StartTime:dd MMM yyyy}</p><p><b>Time:</b> {dto.StartTime:HH:mm} - {dto.EndTime:HH:mm}</p><p><b>Total:</b> ${totalPrice}</p>";
         await _emailService.SendBookingConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", bookingDetails);
 

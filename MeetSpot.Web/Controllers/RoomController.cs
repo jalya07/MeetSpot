@@ -60,12 +60,12 @@ public class RoomController : BaseController
         {
             var room = await _roomApiService.GetRoomByIdAsync(id);
             var selectedDate = date?.Date ?? DateTime.UtcNow.Date;
-        
-        
+            var token = Request.Cookies["AccessToken"];
+
             var allBookings = new List<BookingResponseDto>();
             for (int i = 0; i < 7; i++)
             {
-                var dayBookings = await _bookingApiService.GetRoomCalendarAsync(id, selectedDate.AddDays(i));
+                var dayBookings = await _bookingApiService.GetRoomCalendarAsync(id, selectedDate.AddDays(i), token);
                 allBookings.AddRange(dayBookings);
             }
 

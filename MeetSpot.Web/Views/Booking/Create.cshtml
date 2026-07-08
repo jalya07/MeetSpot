@@ -96,4 +96,27 @@
 
     document.querySelector('[name="startTime"]').addEventListener('change', updatePrice);
     document.querySelector('[name="endTime"]').addEventListener('change', updatePrice);
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const start = new Date(document.querySelector('[name="startTime"]').value);
+        const end = new Date(document.querySelector('[name="endTime"]').value);
+
+        if (start.getHours() < 8 || start.getHours() >= 18) {
+            e.preventDefault();
+            alert('Start time must be between 8:00 and 18:00');
+            return;
+        }
+
+        if (end.getHours() > 18 || (end.getHours() === 18 && end.getMinutes() > 0)) {
+            e.preventDefault();
+            alert('End time must be by 18:00');
+            return;
+        }
+
+        if (end <= start) {
+            e.preventDefault();
+            alert('End time must be after start time');
+            return;
+        }
+    });
 </script>

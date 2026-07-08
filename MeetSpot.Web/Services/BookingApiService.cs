@@ -106,12 +106,19 @@ public class BookingApiService
         }
 
     }
-    public async Task<List<BookingResponseDto>> GetRoomCalendarAsync(int roomId, DateTime date)
+
+    public async Task<List<BookingResponseDto>> GetRoomCalendarAsync(int roomId, DateTime date, string? token = null)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
             var response = await _httpClient.GetAsync($"api/booking/room/{roomId}/calendar?date={date:yyyy-MM-dd}");
-            if (!response.IsSuccessStatusCode) 
+            if (!response.IsSuccessStatusCode)
                 return new();
 
             var json = await response.Content.ReadAsStringAsync();
