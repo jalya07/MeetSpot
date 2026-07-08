@@ -12,7 +12,7 @@
         <aside class="dashboard-sidebar">
             <div class="profile-card">
                 <div class="profile-avatar">
-                   @(profile.FullName != null ? profile.FullName.Substring(0, 1).ToUpper() : "?")
+                   @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
                 </div>
                 <h3>@profile?.FullName</h3>
                 <p class="profile-email">@profile?.Email</p>

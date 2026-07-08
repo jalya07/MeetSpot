@@ -79,4 +79,12 @@ public class HomeController : BaseController
         TempData["ContactSuccess"] = "Your message has been sent! We'll get back to you within 24 hours.";
         return RedirectToAction("Contact");
     }
+
+    public async Task<IActionResult> RoomAvailability()
+    {
+        var rooms = await _roomApiService.GetAllRoomsAsync();
+        ViewBag.Rooms = rooms;
+        ViewBag.Today = DateTime.UtcNow.Date;
+        return View();
+    }
 }

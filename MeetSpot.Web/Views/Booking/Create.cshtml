@@ -51,11 +51,15 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Start time</label>
-                        <input type="datetime-local" name="startTime" required />
+                        <input type="datetime-local" name="startTime" required 
+                            min="@DateTime.UtcNow.ToString("yyyy-MM-ddT08:00")"
+                            max="@DateTime.UtcNow.AddDays(30).ToString("yyyy-MM-ddT18:00")" />
                     </div>
                     <div class="form-group">
                         <label>End time</label>
-                        <input type="datetime-local" name="endTime" required />
+                        <input type="datetime-local" name="endTime" required 
+                            min="@DateTime.UtcNow.ToString("yyyy-MM-ddT08:00")"
+                            max="@DateTime.UtcNow.AddDays(30).ToString("yyyy-MM-ddT18:00")" />
                     </div>
                 </div>
 

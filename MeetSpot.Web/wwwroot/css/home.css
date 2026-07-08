@@ -1317,3 +1317,164 @@
         font-size: 30px;
     }
 }
+
+/* calendar availability */
+/* ===== ROOM AVAILABILITY ===== */
+.availability-hero {
+    background: linear-gradient(135deg, var(--color-ink) 0%, #2D4470 100%);
+    padding: 60px;
+}
+
+.availability-hero-content {
+    max-width: 600px;
+}
+
+.availability-hero-content h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--color-white);
+    margin: 14px 0 12px;
+}
+
+.availability-hero-content p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+}
+
+.availability-section {
+    padding: 48px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.availability-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.availability-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--color-ink);
+}
+
+.availability-date i {
+    color: var(--color-coral);
+}
+
+.availability-legend {
+    display: flex;
+    gap: 20px;
+}
+
+.availability-grid-wrap {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    overflow: auto;
+}
+
+.availability-grid {
+    display: grid;
+    min-width: 900px;
+}
+
+.avail-header-cell {
+    padding: 12px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-align: center;
+    background: var(--color-cream);
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.avail-room-col {
+    text-align: left;
+    padding-left: 16px;
+}
+
+.avail-room-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    text-decoration: none;
+    background: var(--color-white);
+    transition: background 0.15s ease;
+}
+
+.avail-room-name:hover {
+    background: var(--color-cream);
+}
+
+.avail-room-name img {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.avail-room-name strong {
+    display: block;
+    font-size: 13px;
+    color: var(--color-ink);
+}
+
+.avail-room-name span {
+    display: block;
+    font-size: 11px;
+    color: var(--color-text-muted);
+}
+
+.avail-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.avail-cell-free {
+    color: #16a34a;
+    background: #f0fdf4;
+}
+
+.avail-cell-free:hover {
+    background: #dcfce7;
+}
+
+.avail-cell-booked {
+    color: #dc2626;
+    background: #fef2f2;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .availability-section {
+        padding: 32px 24px;
+    }
+    .availability-hero {
+        padding: 40px 24px;
+    }
+    .availability-controls {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+}

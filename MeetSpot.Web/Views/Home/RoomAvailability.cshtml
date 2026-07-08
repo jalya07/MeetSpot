@@ -1,0 +1,63 @@
+@{
+    ViewData["Title"] = "Room Availability";
+    var rooms = ViewBag.Rooms as List<MeetSpot.Web.Services.RoomResponseDto> ?? new();
+    var today = (DateTime)ViewBag.Today;
+    var hours = Enumerable.Range(8, 11).ToList();
+}
+
+<section class="availability-hero">
+    <div class="availability-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">Live availability</span>
+        <h1>Find a free room right now</h1>
+        <p>See all meeting rooms and their availability at a glance — book instantly with one click</p>
+    </div>
+</section>
+
+<section class="availability-section">
+    <div class="availability-inner">
+        <div class="availability-controls">
+            <div class="availability-date">
+                <i class="fas fa-calendar-day"></i>
+                <strong>@today.ToString("dddd, MMMM dd, yyyy")</strong>
+            </div>
+            <div class="availability-legend">
+                <div class="legend-item"><div class="legend-color legend-free"></div> Available</div>
+                <div class="legend-item"><div class="legend-color legend-booked"></div> Booked</div>
+            </div>
+        </div>
+
+        <div class="availability-grid-wrap">
+            <div class="availability-grid" style="grid-template-columns: 200px repeat(@hours.Count, 1fr);">
+                <div class="avail-header-cell avail-room-col">Room</div>
+                @foreach (var hour in hours)
+                {
+                    <div class="avail-header-cell">@hour:00</div>
+                }
+
+                @foreach (var room in rooms)
+                {
+                    <a href="/Room/Details/@room.Id" class="avail-room-name">
+                        @if (room.ImageUrls.Any())
+                        {
+                            <img src="@room.ImageUrls[0]" alt="@room.Name" />
+                        }
+                        <div>
+                            <strong>@room.Name</strong>
+                            <span>Floor @room.Floor · @room.Capacity ppl</span>
+                        </div>
+                    </a>
+                    @foreach (var hour in hours)
+                    {
+                        <a href="/Room/Calendar/@room.Id" class="avail-cell avail-cell-free">
+                            <span>$@room.PricePerHour</span>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+
+        <p style="text-align:center; color:var(--color-text-muted); font-size:13px; margin-top:16px;">
+            Click any room name to see full details, or click a time slot to view the room calendar
+        </p>
+    </div>
+</section>
