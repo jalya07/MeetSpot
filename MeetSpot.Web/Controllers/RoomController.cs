@@ -6,10 +6,12 @@ namespace MeetSpot.Web.Controllers;
 public class RoomController : BaseController
 {
     private readonly RoomApiService _roomApiService;
+    private readonly BookingApiService _bookingApiService;
 
-    public RoomController(RoomApiService roomApiService)
+    public RoomController(RoomApiService roomApiService, BookingApiService bookingApiService)
     {
         _roomApiService = roomApiService;
+        _bookingApiService = bookingApiService;
     }
 
     public async Task<IActionResult> Index(string? type, int? capacity, string? search)
@@ -38,6 +40,37 @@ public class RoomController : BaseController
         try
         {
             var room = await _roomApiService.GetRoomByIdAsync(id);
+            var today = DateTime.UtcNow.Date;
+            var calendar = await _bookingApiService.GetRoomCalendarAsync(id, today);
+        
+            ViewBag.Calendar = calendar;
+            ViewBag.SelectedDate = today;
+
+            return View(room);
+        }
+        catch
+        {
+            return NotFound();
+        }
+    }
+
+    public async Task<IActionResult> Calendar(int id, DateTime? date)
+    {
+        try
+        {
+            var room = await _roomApiService.GetRoomByIdAsync(id);
+            var selectedDate = date?.Date ?? DateTime.UtcNow.Date;
+        
+        
+            var allBookings = new List<BookingResponseDto>();
+            for (int i = 0; i < 7; i++)
+            {
+                var dayBookings = await _bookingApiService.GetRoomCalendarAsync(id, selectedDate.AddDays(i));
+                allBookings.AddRange(dayBookings);
+            }
+
+            ViewBag.Calendar = allBookings.DistinctBy(b => b.Id).ToList();
+            ViewBag.Today = selectedDate;
             return View(room);
         }
         catch

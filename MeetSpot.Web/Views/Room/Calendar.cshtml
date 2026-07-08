@@ -1,0 +1,81 @@
+@model MeetSpot.Web.Services.RoomResponseDto
+@{
+    ViewData["Title"] = Model.Name + " — Calendar";
+    var calendar = ViewBag.Calendar as List<MeetSpot.Web.Services.BookingResponseDto> ?? new();
+    var today = (DateTime)ViewBag.Today;
+    var hours = Enumerable.Range(8, 11).ToList(); 
+}
+
+<section class="room-calendar-page">
+    <div class="calendar-page-header">
+        <div>
+            <a href="/Room/Details/@Model.Id" style="color:var(--color-coral);font-size:14px;">← Back to room</a>
+            <h1>@Model.Name</h1>
+            <p style="color:var(--color-text-muted);">Floor @Model.Floor · @Model.Capacity people · $@Model.PricePerHour/hr</p>
+        </div>
+        <div class="calendar-date-nav">
+            <a href="/Room/Calendar/@Model.Id?date=@today.AddDays(-7).ToString("yyyy-MM-dd")" class="calendar-nav-btn">← Prev week</a>
+            <span class="calendar-week-label">@today.ToString("MMM dd") — @today.AddDays(6).ToString("MMM dd, yyyy")</span>
+            <a href="/Room/Calendar/@Model.Id?date=@today.AddDays(7).ToString("yyyy-MM-dd")" class="calendar-nav-btn">Next week →</a>
+        </div>
+    </div>
+
+    <div class="calendar-grid-wrap">
+        <div class="calendar-grid">
+            <div class="calendar-time-col">
+                <div class="calendar-day-header"></div>
+                @foreach (var hour in hours)
+                {
+                    <div class="calendar-time-cell">@hour:00</div>
+                }
+            </div>
+
+            @for (int d = 0; d < 7; d++)
+            {
+                var day = today.AddDays(d);
+                var dayBookings = calendar.Where(b => b.StartTime.Date == day.Date).ToList();
+                var isToday = day.Date == DateTime.UtcNow.Date;
+
+                <div class="calendar-day-col @(isToday ? "calendar-today" : "")">
+                    <div class="calendar-day-header">
+                        <span class="day-name">@day.ToString("ddd")</span>
+                        <span class="day-number @(isToday ? "today-circle" : "")">@day.Day</span>
+                    </div>
+
+                    @foreach (var hour in hours)
+                    {
+                        var slotStart = day.Date.AddHours(hour);
+                        var slotEnd = slotStart.AddHours(1);
+
+                        var isBooked = dayBookings.Any(b =>
+                            b.StartTime < slotEnd && b.EndTime > slotStart);
+
+                        if (isBooked)
+                        {
+                            <div class="calendar-cell calendar-cell-booked">
+                                <span>Booked</span>
+                            </div>
+                        }
+                        else if (day.Date < DateTime.UtcNow.Date)
+                        {
+                            <div class="calendar-cell calendar-cell-past"></div>
+                        }
+                        else
+                        {
+                            <a href="/Booking/Create/@Model.Id?start=@slotStart.ToString("yyyy-MM-ddTHH:mm")" 
+                               class="calendar-cell calendar-cell-free">
+                                <span>Free</span>
+                            </a>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="calendar-legend">
+        <div class="legend-item"><div class="legend-color legend-free"></div> Available — click to book</div>
+        <div class="legend-item"><div class="legend-color legend-booked"></div> Booked</div>
+        <div class="legend-item"><div class="legend-color legend-past"></div> Past</div>
+    </div>
+</section>
