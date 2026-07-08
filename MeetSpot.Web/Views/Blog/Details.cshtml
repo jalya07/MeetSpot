@@ -1,0 +1,35 @@
+@model MeetSpot.Web.Services.BlogPostDto
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="blog-detail-hero">
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <div class="blog-detail-image" style="background-image:url('@Model.ImageUrl')"></div>
+    }
+</section>
+
+<section class="blog-detail-section">
+    <div class="blog-detail-inner">
+        <div class="blog-detail-header">
+            <a href="/Blog" class="blog-back">← Back to Blog</a>
+            <p class="blog-card-date">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+            <h1>@Model.Title</h1>
+            <div class="blog-card-author">
+                <div class="blog-author-avatar">@Model.AuthorName.FirstOrDefault()</div>
+                <span>@Model.AuthorName</span>
+            </div>
+        </div>
+
+        <div class="blog-detail-content">
+            @Html.Raw(Model.Content.Replace("\n", "<br/>"))
+        </div>
+
+        <div class="blog-detail-footer">
+            <a href="/Blog" class="btn btn-secondary" 
+               style="border:1px solid var(--color-border);color:var(--color-ink);">← All posts</a>
+            <a href="/Room" class="btn btn-primary">Browse rooms</a>
+        </div>
+    </div>
+</section>

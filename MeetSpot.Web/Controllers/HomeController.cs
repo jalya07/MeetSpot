@@ -47,13 +47,7 @@ public class HomeController : BaseController
     {
         return View();
     }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
-
+    
     public IActionResult Pricing()
     {
         return View();
@@ -88,8 +82,9 @@ public class HomeController : BaseController
         return View();
     }
 
-    [Route("Home/Error/{statusCode}")]
-    public IActionResult Error(int statusCode)
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [Route("Home/Error/{statusCode?}")]
+    public IActionResult Error(int statusCode = 500)
     {
         Response.StatusCode = statusCode;
         return View("Error");
