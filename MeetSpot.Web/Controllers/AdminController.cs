@@ -362,6 +362,9 @@ public class AdminController : BaseController
         var token = Request.Cookies["AccessToken"]!;
         var imageUrls = new List<string>();
 
+        var count = imageFiles?.Count ?? 0;
+        TempData["Debug"] = $"Files received: {count}";
+        
         if (imageFiles != null && imageFiles.Any())
         {
             foreach (var file in imageFiles)

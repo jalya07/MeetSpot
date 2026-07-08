@@ -28,10 +28,12 @@ public class ApiResponse<T>
 public class RoomApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public RoomApiService(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient("MeetSpotAPI");
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<List<RoomResponseDto>> GetAllRoomsAsync()
@@ -101,28 +103,29 @@ public class RoomApiService
     {
         try
         {
-            _httpClient.DefaultRequestHeaders.Authorization =
+            var client = _httpClientFactory.CreateClient("MeetSpotAPI");
+            client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             using var content = new MultipartFormDataContent();
             using var stream = file.OpenReadStream();
             var streamContent = new StreamContent(stream);
-            streamContent.Headers.ContentType = 
+            streamContent.Headers.ContentType =
                 new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
             content.Add(streamContent, "file", file.FileName);
 
-            var response = await _httpClient.PostAsync("api/room/upload-image", content);
+            var response = await client.PostAsync("api/room/upload-image", content);
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var result = JsonSerializer.Deserialize<ApiResponse<string>>(json, options);
 
-            return result?.Data;
+        return result?.Data;
         }
-        catch 
-        { 
-            return null; 
+        catch
+        {
+            return null;
         }
     }
 }

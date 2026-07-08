@@ -1,6 +1,10 @@
 @{
     ViewData["Title"] = "Create Room";
 }
+@if (TempData["Debug"] != null)
+{
+    <p>@TempData["Debug"]</p>
+}
 
 <section class="admin-section">
     <div class="admin-inner">
@@ -59,10 +63,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Room photos (select multiple)</label>
-                        <input type="file" name="imageFiles" accept="image/*" multiple
-                               style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
-                        <span class="form-hint">You can select multiple photos at once</span>
+                        <label>Room photo 1 (main)</label>
+                        <input type="file" name="imageFiles" accept="image/*"
+                            style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
+                    </div>
+                    <div class="form-group">
+                        <label>Room photo 2</label>
+                        <input type="file" name="imageFiles" accept="image/*"
+                            style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
+                    </div>
+                    <div class="form-group">
+                        <label>Room photo 3</label>
+                        <input type="file" name="imageFiles" accept="image/*"
+                            style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
                     </div>
 
                     <div id="imagePreviewGrid" style="display:none; grid-template-columns: repeat(3,1fr); gap:10px; margin-top:12px;"></div>
