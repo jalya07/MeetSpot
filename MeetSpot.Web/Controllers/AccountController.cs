@@ -84,6 +84,7 @@ public class AccountController : BaseController
         }
 
         TempData.Keep("PendingEmail");
+        TempData.Keep("IsAdminLogin");
         ViewBag.Email = email;
         return View();
     }
@@ -92,28 +93,46 @@ public class AccountController : BaseController
     public async Task<IActionResult> VerifyTwoFactor(string code)
     {
         var email = TempData["PendingEmail"] as string;
+        var isAdminLogin = TempData["IsAdminLogin"]?.ToString();
+        System.Console.WriteLine($"=== IsAdminLogin value: '{isAdminLogin}' ===");
+
         if (string.IsNullOrEmpty(email))
-        {
             return RedirectToAction("Login");
-        }
 
         var request = new VerifyTwoFactorRequest { Email = email, Code = code };
         var (success, accessToken, refreshToken, errors) = await _authApiService.VerifyTwoFactorAsync(request);
 
         if (success)
         {
-            Response.Cookies.Append("AccessToken", accessToken!,
-                new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddHours(1) });
-            Response.Cookies.Append("RefreshToken", refreshToken!,
-                new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddDays(7) });
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(accessToken);
+            var role = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
 
-            if (TempData["IsAdminLogin"] != null)
+            if (isAdminLogin == "true" && role != "Admin")
+            {
+                TempData["Error"] = "Access denied. Admin credentials required.";
+                return RedirectToAction("Login", "Admin");
+            }
+
+            Response.Cookies.Append("AccessToken", accessToken!, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+            Response.Cookies.Append("RefreshToken", refreshToken!, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+
+            if (isAdminLogin == "true")
                 return RedirectToAction("Dashboard", "Admin");
 
             return RedirectToAction("Index", "Home");
         }
 
-        TempData.Keep("PendingEmail");
+        TempData["PendingEmail"] = email;
+        TempData["IsAdminLogin"] = isAdminLogin;
         ViewBag.Email = email;
         ViewBag.Error = errors.FirstOrDefault() ?? "Verification failed";
         return View();
