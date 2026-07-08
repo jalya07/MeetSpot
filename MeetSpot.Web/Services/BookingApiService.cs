@@ -106,4 +106,23 @@ public class BookingApiService
         }
 
     }
+    public async Task<List<BookingResponseDto>> GetRoomCalendarAsync(int roomId, DateTime date)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"api/booking/room/{roomId}/calendar?date={date:yyyy-MM-dd}");
+            if (!response.IsSuccessStatusCode) 
+                return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<List<BookingResponseDto>>>(json, options);
+
+            return result?.Data ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+    }
 }

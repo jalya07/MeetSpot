@@ -107,6 +107,9 @@ public class AccountController : BaseController
             Response.Cookies.Append("RefreshToken", refreshToken!,
                 new CookieOptions { HttpOnly = true, Expires = DateTimeOffset.UtcNow.AddDays(7) });
 
+            if (TempData["IsAdminLogin"] != null)
+                return RedirectToAction("Dashboard", "Admin");
+
             return RedirectToAction("Index", "Home");
         }
 

@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<section class="auth-section">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div style="font-size:40px; margin-bottom:12px;">🔐</div>
+            <h1>Admin access</h1>
+            <p>Sign in with your administrator credentials</p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="auth-errors">
+                <p>@TempData["Error"]</p>
+            </div>
+        }
+
+        <form asp-controller="Admin" asp-action="Login" method="post" class="auth-form">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required autofocus />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required />
+            </div>
+            <button type="submit" class="btn btn-primary auth-submit">Sign in as Admin</button>
+        </form>
+
+        <p class="auth-switch"><a href="/Account/Login">← Back to regular login</a></p>
+    </div>
+</section>

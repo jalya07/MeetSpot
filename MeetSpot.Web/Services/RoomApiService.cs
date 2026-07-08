@@ -78,18 +78,51 @@ public class RoomApiService
         }
         catch { return false; }
     }
-    public async Task<bool> CreateRoomAsync(string token, object dto)
+    public async Task<bool> CreateRoomAsync(string token, string name, string description, int floor, int capacity, decimal pricePerHour, string type, List<string> imageUrls, List<string> equipment)
     {
         try
         {
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
+            var dto = new { name, description, floor, capacity, pricePerHour, type, imageUrls, equipment };
             var json = JsonSerializer.Serialize(dto);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync($"api/room", content);
+            var response = await _httpClient.PostAsync("api/room", content);
             return response.IsSuccessStatusCode;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<string?> UploadRoomImageAsync(string token, IFormFile file)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            using var content = new MultipartFormDataContent();
+            using var stream = file.OpenReadStream();
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType = 
+                new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.FileName);
+
+            var response = await _httpClient.PostAsync("api/room/upload-image", content);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<string>>(json, options);
+
+            return result?.Data;
+        }
+        catch 
+        { 
+            return null; 
+        }
     }
 }

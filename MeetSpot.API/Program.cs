@@ -45,7 +45,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtKey))
         };
     });
-
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -102,6 +101,7 @@ if (app.Environment.IsDevelopment())
     // app.MapOpenApi();
 }
 
+app.UseStaticFiles();
 app.MapOpenApi();
 app.MapScalarApiReference();
 app.UseHttpsRedirection();

@@ -11,6 +11,7 @@ public class AdminController : BaseController
     private readonly BookingApiService _bookingApiService;
     private readonly ReviewApiService _reviewApiService;
     private readonly HeroSlideApiService _heroSlideApiService;
+    private readonly AuthApiService _authApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -18,7 +19,8 @@ public class AdminController : BaseController
         UserApiService userApiService,
         BookingApiService bookingApiService,
         ReviewApiService reviewApiService,
-        HeroSlideApiService heroSlideApiService)
+        HeroSlideApiService heroSlideApiService,
+        AuthApiService authApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -26,6 +28,7 @@ public class AdminController : BaseController
         _bookingApiService = bookingApiService;
         _reviewApiService = reviewApiService;
         _heroSlideApiService = heroSlideApiService;
+        _authApiService = authApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -279,4 +282,104 @@ public class AdminController : BaseController
         
         return RedirectToAction("HeroSlides");
     }
+
+    [HttpGet]
+    public IActionResult Login()
+    {
+    if (ViewBag.UserRole == "Admin")
+        return RedirectToAction("Dashboard");
+    return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Login(string email, string password)
+    {
+        var request = new LoginRequest { Email = email, Password = password };
+        var (success, requiresTwoFactor, errors) = await _authApiService.LoginAsync(request);
+
+        if (success && requiresTwoFactor)
+        {
+            TempData["PendingEmail"] = email;
+            TempData["IsAdminLogin"] = true;
+            return RedirectToAction("VerifyTwoFactor", "Account");
+        }
+
+        TempData["Error"] = errors.FirstOrDefault() ?? "Login failed";
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult CreateRoom()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+        return View();
+    }
+
+    // [HttpPost]
+    // public async Task<IActionResult> CreateRoom(string name, string description, int floor, int capacity, decimal pricePerHour, string type, string? caption, List<IFormFile>? imageFiles)
+    // {
+    //     var check = CheckAdmin();
+    //     if (check != null) return check;
+
+    //     var token = Request.Cookies["AccessToken"]!;
+    //     var imageUrls = new List<string>();
+
+    //     if (imageFiles != null && imageFiles.Any())
+    //     {
+    //         foreach (var file in imageFiles)
+    //         {
+    //             if (file.Length > 0)
+    //             {
+    //                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+    //                 var extension = Path.GetExtension(file.FileName).ToLower();
+    //                 if (allowedExtensions.Contains(extension))
+    //                 {
+    //                     var fileName = $"room_{Guid.NewGuid()}{extension}";
+    //                     var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "rooms");
+    //                     Directory.CreateDirectory(uploadsPath);
+    //                     var filePath = Path.Combine(uploadsPath, fileName);
+    //                     using var stream = new FileStream(filePath, FileMode.Create);
+    //                     await file.CopyToAsync(stream);
+    //                     imageUrls.Add($"/images/rooms/{fileName}");
+    //                 }
+    //             }
+    //         }
+    //     }
+        
+    //     var equipment = new List<string>();
+    //     await _roomApiService.CreateRoomAsync(token, name, description, floor, capacity, pricePerHour, type, imageUrls, equipment);
+
+    //     TempData["Success"] = "Room created successfully!";
+    //     return RedirectToAction("Rooms");
+    // }
+    [HttpPost]
+    public async Task<IActionResult> CreateRoom(string name, string description, int floor, int capacity, decimal pricePerHour, string type, List<IFormFile>? imageFiles)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var imageUrls = new List<string>();
+
+        if (imageFiles != null && imageFiles.Any())
+        {
+            foreach (var file in imageFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var imageUrl = await _roomApiService.UploadRoomImageAsync(token, file);
+                    if (!string.IsNullOrEmpty(imageUrl))
+                        imageUrls.Add(imageUrl);
+                }
+            }
+        }
+
+        var equipment = new List<string>();
+        await _roomApiService.CreateRoomAsync(token, name, description, floor, capacity, pricePerHour, type, imageUrls, equipment);
+
+        TempData["Success"] = "Room created successfully!";
+        return RedirectToAction("Rooms");
+    }
 }
+
