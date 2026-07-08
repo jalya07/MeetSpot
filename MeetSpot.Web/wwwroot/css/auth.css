@@ -154,3 +154,22 @@
     letter-spacing: 10px;
     font-weight: 600;
 }
+
+/* review page */
+.star-rating {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.star {
+    font-size: 32px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.star.active,
+.star.hover {
+    color: #f59e0b;
+}

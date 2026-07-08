@@ -23,6 +23,7 @@ builder.Services.AddScoped<RoomApiService>();
 
 var app = builder.Build();
 
+app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

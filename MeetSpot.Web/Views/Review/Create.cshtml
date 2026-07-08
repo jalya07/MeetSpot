@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Write a Review";
+}
+
+<section class="auth-section">
+    <div class="auth-card" style="max-width:560px;">
+        <div class="auth-header">
+            <h1>Share your experience</h1>
+            <p>Help others find the best meeting spaces</p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="auth-errors"><p>@TempData["Error"]</p></div>
+        }
+
+        <form asp-action="Create" method="post" class="auth-form">
+            <div class="form-group">
+                <label>Rating</label>
+                <div class="star-rating" id="starRating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="star" data-value="@i">★</span>
+                    }
+                </div>
+                <input type="hidden" name="rating" id="ratingInput" value="5" />
+            </div>
+
+            <div class="form-group">
+                <label>Your review</label>
+                <textarea name="text" rows="5" required
+                    placeholder="Share your experience with MeetSpot — what did you love? What could be better?"
+                    style="padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;font-family:inherit;width:100%;resize:vertical;box-sizing:border-box;"></textarea>
+                <span class="form-hint">Minimum 20 characters</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-submit">Submit review</button>
+        </form>
+
+        <p class="auth-switch">Your review will appear after moderation by our team.</p>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('ratingInput');
+    
+    function setRating(value) {
+        ratingInput.value = value;
+        stars.forEach((star, index) => {
+            star.classList.toggle('active', index < value);
+        });
+    }
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => setRating(index + 1));
+        star.addEventListener('mouseover', () => {
+            stars.forEach((s, i) => s.classList.toggle('hover', i <= index));
+        });
+    });
+    
+    document.getElementById('starRating').addEventListener('mouseleave', () => {
+        stars.forEach(s => s.classList.remove('hover'));
+    });
+    
+    setRating(5);
+</script>
+}

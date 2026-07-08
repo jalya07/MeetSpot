@@ -99,4 +99,20 @@ public class ReviewApiService
         }
         catch { }
     }
+
+    public async Task<bool> CreateReviewAsync(string token, string text, int rating)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var dto = new { text, rating };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/review", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
 }

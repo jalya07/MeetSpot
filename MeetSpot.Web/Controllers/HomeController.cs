@@ -87,4 +87,11 @@ public class HomeController : BaseController
         ViewBag.Today = DateTime.UtcNow.Date;
         return View();
     }
+
+    [Route("Home/Error/{statusCode}")]
+    public IActionResult Error(int statusCode)
+    {
+        Response.StatusCode = statusCode;
+        return View("Error");
+    }
 }
