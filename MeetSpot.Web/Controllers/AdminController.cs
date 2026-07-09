@@ -147,13 +147,28 @@ public class AdminController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity,decimal pricePerHour, string type)
+    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity, decimal pricePerHour, string type, List<IFormFile>? imageFiles)
     {
         var check = CheckAdmin();
         if (check != null) return check;
 
         var token = Request.Cookies["AccessToken"]!;
-        var dto = new { name, description, floor, capacity, pricePerHour, type };
+
+        var imageUrls = new List<string>();
+        if (imageFiles != null && imageFiles.Any(f => f.Length > 0))
+        {
+            foreach (var file in imageFiles.Where(f => f.Length > 0))
+            {
+                var imageUrl = await _roomApiService.UploadRoomImageAsync(token, file);
+                if (!string.IsNullOrEmpty(imageUrl))
+                    imageUrls.Add(imageUrl);
+            }
+        }
+    
+        var dto = imageUrls.Any()
+            ? new { name, description, floor, capacity, pricePerHour, type, imageUrls = (object)imageUrls }
+            : new { name, description, floor, capacity, pricePerHour, type, imageUrls = (object)new List<string>() };
+
         await _roomApiService.UpdateRoomAsync(token, id, dto);
 
         TempData["SuccessMessage"] = "Room updated successfully!";
