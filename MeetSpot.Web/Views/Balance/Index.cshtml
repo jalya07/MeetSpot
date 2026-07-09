@@ -1,0 +1,170 @@
+@{
+    ViewData["Title"] = "Balance & Transactions";
+    var profile = ViewBag.Profile as MeetSpot.Web.Services.UserProfileDto;
+    var transactions = ViewBag.Transactions as List<MeetSpot.Web.Services.TransactionDto> ?? new();
+}
+@if (TempData["Debug"] != null)
+{
+    <p style="color:blue;font-size:13px;">Debug: @TempData["Debug"]</p>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="auth-errors"><p>@TempData["Error"]</p></div>
+}
+
+<section class="dashboard">
+    <div class="dashboard-inner">
+        <aside class="dashboard-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                </div>
+                <h3>@profile?.FullName</h3>
+                <p class="profile-email">@profile?.Email</p>
+                <span class="profile-type-badge">@profile?.UserType</span>
+            </div>
+
+            <div class="balance-card">
+                <p class="balance-label">Current balance</p>
+                <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
+            </div>
+
+            <nav class="dashboard-nav">
+                <a href="/Dashboard" class="dashboard-nav-link">My bookings</a>
+                <a href="/Dashboard/Profile" class="dashboard-nav-link">Profile</a>
+                <a href="/Balance" class="dashboard-nav-link active">Transactions</a>
+                <a href="/Subscription" class="dashboard-nav-link">Subscription</a>
+                <a href="/Review/Create" class="dashboard-nav-link">Write a review</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1>Balance & Transactions</h1>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:20px;">
+                    <p>@TempData["Success"]</p>
+                </div>
+            }
+
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;margin-bottom:28px;">
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:20px;">Top up balance</h2>
+                <form asp-action="TopUp" method="post" class="auth-form" translate="no">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" name="amount" min="10" max="1000" step="10" value="50" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Quick select</label>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                                <button type="button" class="filter-btn" onclick="setAmount(50)">$50</button>
+                                <button type="button" class="filter-btn" onclick="setAmount(100)">$100</button>
+                                <button type="button" class="filter-btn" onclick="setAmount(200)">$200</button>
+                                <button type="button" class="filter-btn" onclick="setAmount(500)">$500</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Card number</label>
+                        <input type="text" name="cardNumber" placeholder="4242 4242 4242 4242" maxlength="19" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Card holder name</label>
+                        <input type="text" name="cardHolderName" placeholder="John Doe" required />
+                    </div>
+
+                   <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry month</label>
+                            <select name="expiryMonth">
+                                @for (int m = 1; m <= 12; m++)
+                                {
+                                    <option value="@m.ToString("D2")">@m.ToString("D2")</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry year</label>
+                            <select name="expiryYear">
+                                @for (int y = 2026; y <= 2035; y++)
+                                {
+                                    <option value="@(y % 100)">@y</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" name="cvv" placeholder="123" maxlength="3" required />
+                        </div>
+                    </div>
+
+                    <div style="background:var(--color-cream);border-radius:10px;padding:16px;margin-bottom:16px;">
+                        <p style="font-size:13px;color:var(--color-text-muted);">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i> Test mode: use card <strong>4242 4242 4242 4242</strong>, any name, any future date, any CVV
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add funds</button>
+                </form>
+            </div>
+
+            <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">Transaction history</h2>
+
+            @if (transactions.Any())
+            {
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance after</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tx in transactions.OrderByDescending(t => t.CreatedAt))
+                            {
+                                <tr>
+                                    <td>@tx.Description</td>
+                                    <td>
+                                        <span class="admin-badge @(tx.Amount > 0 ? "admin-badge-green" : "admin-badge-red")">
+                                            @tx.Type
+                                        </span>
+                                    </td>
+                                    <td style="font-weight:600;color:@(tx.Amount > 0 ? "#16a34a" : "#dc2626");">
+                                        @(tx.Amount > 0 ? "+" : "")$@Math.Abs(tx.Amount).ToString("F2")
+                                    </td>
+                                    <td>$@tx.BalanceAfter.ToString("F2")</td>
+                                    <td style="color:#6b7280;font-size:13px;">@tx.CreatedAt.ToString("dd MMM yyyy, HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-catalog">
+                    <p>No transactions yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    function setAmount(value) {
+        document.querySelector('[name="amount"]').value = value;
+    }
+</script>
+}
