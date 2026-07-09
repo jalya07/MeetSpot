@@ -17,6 +17,13 @@
             </div>
         }
 
+        @if (TempData["Error"] != null)
+        {
+            <div class="auth-errors">
+                <p>@TempData["Error"]</p>
+            </div>
+        }
+
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="auth-errors">

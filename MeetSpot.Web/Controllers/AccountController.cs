@@ -88,14 +88,11 @@ public class AccountController : BaseController
         ViewBag.Email = email;
         return View();
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> VerifyTwoFactor(string code)
     {
         var email = TempData["PendingEmail"] as string;
-        var isAdminLogin = HttpContext.Session.GetString("IsAdminLogin");
-        HttpContext.Session.Remove("IsAdminLogin");
-        // System.Console.WriteLine($"=== IsAdminLogin value: '{isAdminLogin}' ===");
 
         if (string.IsNullOrEmpty(email))
             return RedirectToAction("Login");
@@ -109,7 +106,18 @@ public class AccountController : BaseController
             var jwt = handler.ReadJwtToken(accessToken);
             var role = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
 
-            if (isAdminLogin == "true" && role != "Admin")
+            var adminCookie = Request.Cookies["AdminLoginAttempt"];
+            Response.Cookies.Delete("AdminLoginAttempt");
+
+        // Admin пытается войти через обычный login
+            if (string.IsNullOrEmpty(adminCookie) && role == "Admin")
+            {
+                TempData["Error"] = "Please use the Admin login page.";
+                return RedirectToAction("Login", "Account");
+            }
+
+        // Обычный пользователь пытается войти через Admin login
+            if (!string.IsNullOrEmpty(adminCookie) && role != "Admin")
             {
                 TempData["Error"] = "Access denied. Admin credentials required.";
                 return RedirectToAction("Login", "Admin");
@@ -126,14 +134,13 @@ public class AccountController : BaseController
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
 
-            if (isAdminLogin == "true")
+            if (!string.IsNullOrEmpty(adminCookie))
                 return RedirectToAction("Dashboard", "Admin");
 
             return RedirectToAction("Index", "Home");
         }
 
         TempData["PendingEmail"] = email;
-        TempData["IsAdminLogin"] = isAdminLogin;
         ViewBag.Email = email;
         ViewBag.Error = errors.FirstOrDefault() ?? "Verification failed";
         return View();
@@ -223,5 +230,6 @@ public class AccountController : BaseController
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
         return RedirectToAction("Index", "Home");
+        
     }
 }

@@ -286,9 +286,20 @@ public class AdminController : BaseController
     [HttpGet]
     public IActionResult Login()
     {
-    if (ViewBag.UserRole == "Admin")
-        return RedirectToAction("Dashboard");
-    return View();
+        var token = Request.Cookies["AccessToken"];
+        if (!string.IsNullOrEmpty(token))
+        {
+            try
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+                var role = jwt.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+                if (role == "Admin")
+                    return RedirectToAction("Dashboard");
+            }
+            catch { }
+        }
+        return View();
     }
 
     [HttpPost]
@@ -300,7 +311,11 @@ public class AdminController : BaseController
         if (success && requiresTwoFactor)
         {
             TempData["PendingEmail"] = email;
-            HttpContext.Session.SetString("IsAdminLogin", "true");
+            Response.Cookies.Append("AdminLoginAttempt", "true", new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(10)
+            });
             return RedirectToAction("VerifyTwoFactor", "Account");
         }
 
