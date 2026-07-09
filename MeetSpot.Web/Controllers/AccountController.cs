@@ -93,8 +93,9 @@ public class AccountController : BaseController
     public async Task<IActionResult> VerifyTwoFactor(string code)
     {
         var email = TempData["PendingEmail"] as string;
-        var isAdminLogin = TempData["IsAdminLogin"]?.ToString();
-        System.Console.WriteLine($"=== IsAdminLogin value: '{isAdminLogin}' ===");
+        var isAdminLogin = HttpContext.Session.GetString("IsAdminLogin");
+        HttpContext.Session.Remove("IsAdminLogin");
+        // System.Console.WriteLine($"=== IsAdminLogin value: '{isAdminLogin}' ===");
 
         if (string.IsNullOrEmpty(email))
             return RedirectToAction("Login");

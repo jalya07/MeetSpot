@@ -300,7 +300,7 @@ public class AdminController : BaseController
         if (success && requiresTwoFactor)
         {
             TempData["PendingEmail"] = email;
-            TempData["IsAdminLogin"] = true;
+            HttpContext.Session.SetString("IsAdminLogin", "true");
             return RedirectToAction("VerifyTwoFactor", "Account");
         }
 
