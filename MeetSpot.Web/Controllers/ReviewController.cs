@@ -29,8 +29,15 @@ public class ReviewController : BaseController
         if (string.IsNullOrEmpty(token))
             return RedirectToAction("Login", "Account");
 
-        await _reviewApiService.CreateReviewAsync(token, text, rating);
-        TempData["Success"] = "Your review has been submitted! It will appear after moderation.";
-        return RedirectToAction("Index", "Dashboard");
+        var (success, error) = await _reviewApiService.CreateReviewAsync(token, text, rating);
+
+        if (success)
+        {
+            TempData["Success"] = "Your review has been submitted! It will appear after moderation.";
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        TempData["Error"] = error ?? "Could not submit review.";
+        return RedirectToAction("Create");
     }
 }

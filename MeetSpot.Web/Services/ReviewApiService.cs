@@ -47,12 +47,10 @@ public class ReviewApiService
     {
         try
         {
-            var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5249/");
-            client.DefaultRequestHeaders.Authorization =
+            _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync("api/review");
+            var response = await _httpClient.GetAsync("api/review");
             if (!response.IsSuccessStatusCode) 
                 return new();
 
@@ -100,7 +98,7 @@ public class ReviewApiService
         catch { }
     }
 
-    public async Task<bool> CreateReviewAsync(string token, string text, int rating)
+    public async Task<(bool Success, string? Error)> CreateReviewAsync(string token, string text, int rating)
     {
         try
         {
@@ -111,8 +109,18 @@ public class ReviewApiService
             var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/review", content);
-            return response.IsSuccessStatusCode;
+
+            if (response.IsSuccessStatusCode) return (true, null);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
+            var error = result?.Errors?.FirstOrDefault() ?? "Something went wrong";
+            return (false, error);
         }
-        catch { return false; }
+        catch
+        {
+            return (false, "Something went wrong");
+        }
     }
 }

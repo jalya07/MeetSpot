@@ -2,6 +2,13 @@
     ViewData["Title"] = "Write a Review";
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="auth-errors">
+        <p>@TempData["Error"]</p>
+    </div>
+}
+
 <section class="auth-section">
     <div class="auth-card" style="max-width:560px;">
         <div class="auth-header">
