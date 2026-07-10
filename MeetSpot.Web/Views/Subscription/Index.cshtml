@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Subscription";
+    var profile = ViewBag.Profile as MeetSpot.Web.Services.UserProfileDto;
+    var subscription = ViewBag.Subscription as MeetSpot.Web.Services.SubscriptionDto;
+}
+
+<section class="dashboard">
+    <div class="dashboard-inner">
+        <aside class="dashboard-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                </div>
+                <h3>@profile?.FullName</h3>
+                <p class="profile-email">@profile?.Email</p>
+                <span class="profile-type-badge">@profile?.UserType</span>
+            </div>
+
+            <div class="balance-card">
+                <p class="balance-label">Balance</p>
+                <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
+            </div>
+
+            <nav class="dashboard-nav">
+                <a href="/Dashboard" class="dashboard-nav-link">My bookings</a>
+                <a href="/Dashboard/Profile" class="dashboard-nav-link">Profile</a>
+                <a href="/Balance" class="dashboard-nav-link">Transactions</a>
+                <a href="/Subscription" class="dashboard-nav-link active">Subscription</a>
+                <a href="/Review/Create" class="dashboard-nav-link">Write a review</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-content">
+            <h1>Subscription</h1>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:20px;"><p>@TempData["Success"]</p></div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="auth-errors" style="margin-bottom:20px;"><p>@TempData["Error"]</p></div>
+            }
+
+            @if (subscription != null && subscription.Status == "Active")
+            {
+                <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;margin-bottom:24px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <div>
+                            <span class="admin-badge admin-badge-green" style="font-size:14px;padding:6px 16px;">
+                                ⭐ Premium Active
+                            </span>
+                            <h2 style="margin-top:12px;font-size:20px;">@subscription.Plan plan</h2>
+                        </div>
+                        <div style="text-align:right;">
+                            <p style="font-size:24px;font-weight:700;color:var(--color-ink);">$@subscription.Price</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:32px;padding:16px;background:var(--color-cream);border-radius:10px;margin-bottom:20px;">
+                        <div>
+                            <p style="font-size:12px;color:var(--color-text-muted);">START DATE</p>
+                            <p style="font-weight:600;">@subscription.StartDate.ToString("MMM dd, yyyy")</p>
+                        </div>
+                        <div>
+                            <p style="font-size:12px;color:var(--color-text-muted);">END DATE</p>
+                            <p style="font-weight:600;">@subscription.EndDate.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    </div>
+                    <form asp-action="Cancel" method="post">
+                        <button type="submit" class="admin-action-btn admin-action-btn-danger"
+                                onclick="return confirm('Cancel your Premium subscription?')"
+                                style="padding:10px 20px;font-size:14px;">
+                            Cancel subscription
+                        </button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="pricing-grid" style="grid-template-columns:repeat(2,1fr);max-width:700px;">
+                    <div class="pricing-card">
+                        <div class="pricing-card-header">
+                            <h2>Monthly</h2>
+                            <p class="pricing-desc">Flexible month-to-month</p>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="price-amount">$19.99</span>
+                            <span class="price-sub">/month</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> Same-day bookings</li>
+                            <li><i class="fas fa-check"></i> VIP room access</li>
+                            <li><i class="fas fa-check"></i> Lower cancellation fees</li>
+                        </ul>
+                        <form asp-action="Subscribe" method="post">
+                            <input type="hidden" name="plan" value="Monthly" />
+                            <button type="submit" class="btn btn-primary pricing-btn">Get Monthly</button>
+                        </form>
+                    </div>
+
+                    <div class="pricing-card pricing-card-featured">
+                        <div class="pricing-badge">Best value</div>
+                        <div class="pricing-card-header">
+                            <h2>Annual</h2>
+                            <p class="pricing-desc">Save 17% with annual billing</p>
+                        </div>
+                        <div class="pricing-price">
+                            <span class="price-amount">$199.99</span>
+                            <span class="price-sub">/year</span>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> Same-day bookings</li>
+                            <li><i class="fas fa-check"></i> VIP room access</li>
+                            <li><i class="fas fa-check"></i> Lower cancellation fees</li>
+                        </ul>
+                        <form asp-action="Subscribe" method="post">
+                            <input type="hidden" name="plan" value="Annual" />
+                            <button type="submit" class="btn btn-primary pricing-btn">Get Annual</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
