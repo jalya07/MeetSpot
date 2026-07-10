@@ -22,6 +22,11 @@ public class ReviewService : IReviewService
         if (user == null)
             throw new NotFoundException("User not found");
 
+        var existingReview = await _context.Reviews
+            .AnyAsync(r => r.UserId == userId);
+        if (existingReview)
+            throw new ConflictException("You have already submitted a review");
+
         var review = new Review
         {
             Text = dto.Text,
