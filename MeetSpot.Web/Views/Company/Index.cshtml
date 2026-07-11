@@ -1,0 +1,120 @@
+@model List<MeetSpot.Web.Services.CompanyResponseDto>
+@{
+    ViewData["Title"] = "Partner Companies";
+}
+
+<section class="blog-hero">
+    <div class="blog-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">Corporate partners</span>
+        <h1>Companies that trust MeetSpot</h1>
+        <p>Leading organizations use MeetSpot to manage their meeting spaces efficiently</p>
+    </div>
+</section>
+
+@if (Model.Any())
+{
+    <!-- SLIDESHOW -->
+    <section class="company-slideshow">
+        <div class="slideshow-track" id="companySlideshowTrack">
+            @foreach (var (company, index) in Model.Select((c, i) => (c, i)))
+            {
+                <div class="company-slide @(index == 0 ? "active" : "")">
+                    <div class="company-slide-logo">
+                        @if (!string.IsNullOrEmpty(company.LogoUrl))
+                        {
+                            <img src="@company.LogoUrl" alt="@company.Name" />
+                        }
+                        else
+                        {
+                            <div class="company-slide-placeholder">@company.Name.FirstOrDefault()</div>
+                        }
+                    </div>
+                    <div class="company-slide-info">
+                        <span class="hero-eyebrow" style="color:var(--color-coral);">Partner company</span>
+                        <h2>@company.Name</h2>
+                        <p class="company-domain"><i class="fas fa-globe"></i> @company.Domain</p>
+                        @if (!string.IsNullOrEmpty(company.Industry))
+                        {
+                            <span class="admin-badge admin-badge-blue" style="margin-bottom:16px;display:inline-block;">@company.Industry</span>
+                        }
+                        <p style="color:var(--color-text-muted);font-size:15px;line-height:1.6;">
+                            @company.Name uses MeetSpot to streamline meeting room bookings across their organization — giving employees instant access to available spaces with zero friction.
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="slideshow-controls">
+            <button class="slideshow-btn" id="slidePrev">←</button>
+            <div class="slideshow-dots" id="slideDots">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <span class="dot @(i == 0 ? "active" : "")" data-index="@i"></span>
+                }
+            </div>
+            <button class="slideshow-btn" id="slideNext">→</button>
+        </div>
+    </section>
+
+    <!-- GRID -->
+    <section class="blog-section">
+        <div class="blog-inner">
+            <h2 style="font-size:24px;font-weight:600;margin-bottom:24px;">All partners</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+                @foreach (var company in Model)
+                {
+                    <div class="company-card">
+                        <div class="company-card-header">
+                            @if (!string.IsNullOrEmpty(company.LogoUrl))
+                            {
+                                <img src="@company.LogoUrl" alt="@company.Name" class="company-logo" />
+                            }
+                            else
+                            {
+                                <div class="company-logo-placeholder">@company.Name.FirstOrDefault()</div>
+                            }
+                        </div>
+                        <div class="company-card-body">
+                            <h3>@company.Name</h3>
+                            <p class="company-domain">@company.Domain</p>
+                            @if (!string.IsNullOrEmpty(company.Industry))
+                            {
+                                <span class="admin-badge admin-badge-blue">@company.Industry</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div style="margin-top:60px;padding:40px;background:var(--color-ink);border-radius:16px;text-align:center;">
+                <h2 style="color:white;font-size:26px;margin-bottom:12px;">Want to bring MeetSpot to your company?</h2>
+                <p style="color:rgba(255,255,255,0.7);margin-bottom:24px;">Get corporate access for your entire team — no balance needed, free cancellations.</p>
+                <a href="/Home/Contact" class="btn btn-primary">Contact us</a>
+            </div>
+        </div>
+    </section>
+}
+
+@section Scripts {
+<script>
+    const slides = document.querySelectorAll('.company-slide');
+    const dots = document.querySelectorAll('.dot');
+    let current = 0;
+
+    function showSlide(index) {
+        slides.forEach(s => s.classList.remove('active'));
+        dots.forEach(d => d.classList.remove('active'));
+        current = (index + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+    }
+
+    document.getElementById('slideNext').addEventListener('click', () => showSlide(current + 1));
+    document.getElementById('slidePrev').addEventListener('click', () => showSlide(current - 1));
+    dots.forEach(dot => dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index))));
+
+    // Auto-slide every 4 seconds
+    setInterval(() => showSlide(current + 1), 4000);
+</script>
+}
