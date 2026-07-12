@@ -78,4 +78,29 @@ public class BlogController(
         await blogService.DeleteAsync(id);
         return Ok(ResponseModelHelper<string>.SuccessResult("Blog post deleted successfully"));
     }
+
+    [HttpPost("upload-image")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(ResponseModelHelper<string>.BadRequestResult("No file provided"));
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extension = Path.GetExtension(file.FileName).ToLower();
+
+        if (!allowedExtensions.Contains(extension))
+            return BadRequest(ResponseModelHelper<string>.BadRequestResult("Only jpg, png, webp allowed"));
+
+        var fileName = $"blog_{Guid.NewGuid()}{extension}";
+        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "blog");
+        Directory.CreateDirectory(uploadsPath);
+
+        var filePath = Path.Combine(uploadsPath, fileName);
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        var imageUrl = $"{Request.Scheme}://{Request.Host}/images/blog/{fileName}";
+        return Ok(ResponseModelHelper<string>.SuccessResult(imageUrl));
+    }
 }

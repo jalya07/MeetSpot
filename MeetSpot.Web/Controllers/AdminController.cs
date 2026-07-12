@@ -12,6 +12,7 @@ public class AdminController : BaseController
     private readonly ReviewApiService _reviewApiService;
     private readonly HeroSlideApiService _heroSlideApiService;
     private readonly AuthApiService _authApiService;
+    private readonly BlogApiService _blogApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -20,7 +21,8 @@ public class AdminController : BaseController
         BookingApiService bookingApiService,
         ReviewApiService reviewApiService,
         HeroSlideApiService heroSlideApiService,
-        AuthApiService authApiService)
+        AuthApiService authApiService,
+        BlogApiService blogApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -29,6 +31,7 @@ public class AdminController : BaseController
         _reviewApiService = reviewApiService;
         _heroSlideApiService = heroSlideApiService;
         _authApiService = authApiService;
+        _blogApiService = blogApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -413,6 +416,59 @@ public class AdminController : BaseController
 
         TempData["Success"] = "Room created successfully!";
         return RedirectToAction("Rooms");
+    }
+
+    public async Task<IActionResult> Blog()
+    {
+        var check = CheckAdmin();
+        if (check != null) 
+            return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var posts = await _blogApiService.GetAllAsync(token);
+        return View(posts);
+    }
+
+    [HttpGet]
+    public IActionResult CreatePost()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreatePost(string title, string content, bool isPublished, IFormFile? imageFile)
+    {
+        var check = CheckAdmin();
+        if (check != null) 
+            return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        string? imageUrl = null;
+
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            Console.WriteLine($"Uploading blog image: {imageFile.FileName}, size: {imageFile.Length} ");
+            imageUrl = await _blogApiService.UploadImageAsync(token, imageFile);
+            Console.WriteLine($" Upload result: {imageUrl} ");
+        }
+        else
+        {
+            Console.WriteLine(" No image file received ");
+        }
+
+        await _blogApiService.CreatePostAsync(token, title, content, imageUrl, isPublished);
+        TempData["Success"] = "Post created!";
+        return RedirectToAction("Blog");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeletePost(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _blogApiService.DeletePostAsync(token, id);
+        return RedirectToAction("Blog");
     }
 }
 

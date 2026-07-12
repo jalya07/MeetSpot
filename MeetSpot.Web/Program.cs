@@ -24,6 +24,11 @@ builder.Services.AddScoped<BlogApiService>();
 builder.Services.AddScoped<BalanceApiService>();
 builder.Services.AddScoped<SubscriptionApiService>();
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB
+});
+
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5249/");
