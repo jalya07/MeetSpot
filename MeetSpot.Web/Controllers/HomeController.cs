@@ -89,4 +89,9 @@ public class HomeController : BaseController
         Response.StatusCode = statusCode;
         return View("Error");
     }
+
+    public IActionResult Industries() => View();
+    public IActionResult HowItWorks() => View();
+    public IActionResult Help() => View();
+    public IActionResult Mentors() => View();
 }

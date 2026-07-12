@@ -1,0 +1,29 @@
+@{ViewData["Title"] = "Help Center";}
+<section class="blog-hero">
+    <div class="blog-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">Help Center</span>
+        <h1>How can we help?</h1>
+        <p>Find answers to common questions about MeetSpot</p>
+    </div>
+</section>
+<section class="blog-section">
+    <div class="blog-inner" style="max-width:700px;margin:0 auto;">
+        @foreach (var (q, a) in new[]{
+            ("How do I book a room?","Go to Rooms, select a room, click 'Book this room', fill in the details and confirm."),
+            ("How do I top up my balance?","Go to Dashboard → Transactions → Top up balance. Enter your card details and amount."),
+            ("Can I cancel a booking?","Yes. Go to Dashboard → My Bookings and click Cancel. Cancellation fees may apply."),
+            ("What is Premium?","Premium gives you same-day bookings, VIP room access and lower cancellation fees."),
+            ("How does QR check-in work?","Show your QR code from Dashboard when you arrive at the room to check in."),
+        })
+        {
+            <div style="margin-bottom:16px;padding:20px;background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;">
+                <h3 style="font-size:15px;font-weight:600;color:var(--color-ink);margin-bottom:6px;">❓ @q</h3>
+                <p style="color:var(--color-text-muted);font-size:14px;">@a</p>
+            </div>
+        }
+        <div style="text-align:center;margin-top:32px;">
+            <p style="color:var(--color-text-muted);margin-bottom:16px;">Still have questions?</p>
+            <a href="/Home/Contact" class="btn btn-primary">Contact us</a>
+        </div>
+    </div>
+</section>

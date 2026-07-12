@@ -1,0 +1,26 @@
+@{ViewData["Title"] = "How It Works";}
+<section class="blog-hero">
+    <div class="blog-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">How it works</span>
+        <h1>Simple. Fast. Reliable.</h1>
+        <p>Three steps from search to seat</p>
+    </div>
+</section>
+<section class="blog-section">
+    <div class="blog-inner" style="max-width:700px;margin:0 auto;">
+        @foreach (var (num, title, desc) in new[]{
+            ("01","Find a room","Browse available spaces by date, time, capacity, or amenities — see what's free in real time."),
+            ("02","Book instantly","Reserve your spot in seconds. Get a QR code and confirmation sent straight to your inbox."),
+            ("03","Walk in and meet","Scan your QR at the door, and the room is yours. No waiting, no confusion.")
+        })
+        {
+            <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:32px;padding:28px;background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;">
+                <span style="font-size:36px;font-weight:800;color:var(--color-coral);flex-shrink:0;">@num</span>
+                <div>
+                    <h3 style="font-size:20px;font-weight:600;color:var(--color-ink);margin-bottom:8px;">@title</h3>
+                    <p style="color:var(--color-text-muted);font-size:15px;line-height:1.6;">@desc</p>
+                </div>
+            </div>
+        }
+    </div>
+</section>

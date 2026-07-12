@@ -143,4 +143,42 @@ public class BlogApiService
             return null; 
         }
     }
+
+    public async Task<bool> UpdatePostAsync(string token, int id, string title, string content, string? imageUrl, bool isPublished)
+{
+    try
+    {
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        var dto = new { title, content, imageUrl, isPublished };
+        var json = JsonSerializer.Serialize(dto);
+        var content2 = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+        var response = await _httpClient.PutAsync($"api/blog/{id}", content2);
+        return response.IsSuccessStatusCode;
+    }
+    catch { return false; }
+}
+
+    public async Task<BlogPostDto?> GetByIdAdminAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync($"api/blog/{id}");
+            if (!response.IsSuccessStatusCode) 
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<BlogPostDto>>(json, options);
+            return result?.Data;
+        }
+        catch 
+        {
+            return null;
+        }
+    }
 }
