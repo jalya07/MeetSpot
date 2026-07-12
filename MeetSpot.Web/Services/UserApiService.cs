@@ -68,4 +68,23 @@ public class UserApiService
             return new();
         }
     }
+
+    public async Task<bool> UpdateProfileAsync(string token, string firstName, string lastName)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var dto = new { firstName, lastName };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync("api/user/me", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

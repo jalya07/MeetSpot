@@ -1,0 +1,83 @@
+@{
+    ViewData["Title"] = "My Profile";
+    var profile = ViewBag.Profile as MeetSpot.Web.Services.UserProfileDto;
+}
+
+<section class="dashboard">
+    <div class="dashboard-inner">
+        <aside class="dashboard-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                </div>
+                <h3>@profile?.FullName</h3>
+                <p class="profile-email">@profile?.Email</p>
+                <span class="profile-type-badge">@profile?.UserType</span>
+            </div>
+
+            <div class="balance-card">
+                <p class="balance-label">Balance</p>
+                <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
+                <a href="/Balance" class="btn btn-primary" style="width:100%;text-align:center;margin-top:12px;">Top up</a>
+            </div>
+
+            <nav class="dashboard-nav">
+                <a href="/Dashboard" class="dashboard-nav-link">My bookings</a>
+                <a href="/Dashboard/Profile" class="dashboard-nav-link active">Profile</a>
+                <a href="/Balance" class="dashboard-nav-link">Transactions</a>
+                <a href="/Subscription" class="dashboard-nav-link">Subscription</a>
+                <a href="/Review/Create" class="dashboard-nav-link">Write a review</a>
+            </nav>
+        </aside>
+
+        <div class="dashboard-content">
+            <h1>My Profile</h1>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:20px;"><p>@TempData["Success"]</p></div>
+            }
+
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;max-width:500px;margin-bottom:24px;">
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:20px;">Edit profile</h2>
+                <form asp-action="Profile" method="post" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First name</label>
+                            <input type="text" name="firstName" 
+                                   value="@profile?.FullName?.Split(' ').FirstOrDefault()" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Last name</label>
+                            <input type="text" name="lastName" 
+                                   value="@profile?.FullName?.Split(' ').LastOrDefault()" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;max-width:500px;">
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">Account info</h2>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--color-border);">
+                        <span style="color:var(--color-text-muted);">Email</span>
+                        <strong>@profile?.Email</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--color-border);">
+                        <span style="color:var(--color-text-muted);">Account type</span>
+                        <strong>@profile?.UserType</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--color-border);">
+                        <span style="color:var(--color-text-muted);">Member since</span>
+                        <strong>@profile?.CreatedAt.ToString("MMM dd, yyyy")</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--color-text-muted);">Balance</span>
+                        <strong style="color:var(--color-coral);">$@profile?.Balance.ToString("F2")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

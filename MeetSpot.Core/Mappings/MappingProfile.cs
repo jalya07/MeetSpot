@@ -33,6 +33,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
             .ForMember(dest => dest.RefreshToken, opt => opt.Ignore());
         CreateMap<User, UserProfileDto>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}".Trim()))
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
             .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()));
         CreateMap<User, UserListItemDto>()
