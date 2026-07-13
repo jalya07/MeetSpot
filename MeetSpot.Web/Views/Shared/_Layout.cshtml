@@ -25,6 +25,11 @@
             <div class="top-bar-actions">
                 @if (ViewBag.IsLoggedIn == true)
                 {
+                    @if (!string.IsNullOrEmpty(ViewBag.AvatarUrl as string))
+                    {
+                        <img src="@ViewBag.AvatarUrl" alt="Avatar"
+                            style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3);" />
+                    }
                     <span class="top-bar-link" style="color: rgba(255,255,255,0.85);">@ViewBag.FullName</span>
                     @if (ViewBag.UserRole == "Admin")
                     {

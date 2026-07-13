@@ -16,6 +16,12 @@ public class UserProfileDto
     public string? AvatarUrl { get; set; }
 }
 
+public class TokenResponseDto
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+}
+
 public class UserApiService
 {
     private readonly HttpClient _httpClient;
@@ -26,7 +32,7 @@ public class UserApiService
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient("MeetSpotAPI");
     }
-
+   
     public async Task<UserProfileDto?> GetProfileAsync(string token)
     {
         try
@@ -117,6 +123,28 @@ public class UserApiService
         catch 
         { 
             return null; 
+        }
+    }
+
+    public async Task<TokenResponseDto?> RefreshTokenAsync(string refreshToken,string accessToken)
+    {
+        try
+        {
+            Console.WriteLine($"=== RefreshToken called: accessToken={accessToken?.Substring(0, 20)}..., refreshToken={refreshToken?.Substring(0, 10)}... ===");
+            var dto = new { accessToken = accessToken, refreshToken };
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/auth/refresh", content);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<TokenResponseDto>>(responseBody, options);
+            return result?.Data;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

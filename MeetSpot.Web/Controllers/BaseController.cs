@@ -21,12 +21,14 @@ public class BaseController : Controller
                 var email = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
                 var role = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
                 var userType = jwt.Claims.FirstOrDefault(c => c.Type == "UserType")?.Value;
+                var avatarUrl = jwt.Claims.FirstOrDefault(c => c.Type == "AvatarUrl")?.Value;
 
                 ViewBag.IsLoggedIn = true;
                 ViewBag.FullName = fullName ?? email;
                 ViewBag.UserEmail = email;
                 ViewBag.UserRole = role;
                 ViewBag.UserType = userType;
+                ViewBag.AvatarUrl = avatarUrl;
             }
             catch
             {

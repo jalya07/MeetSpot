@@ -49,6 +49,27 @@ public class DashboardController : BaseController
             return RedirectToAction("Login", "Account");
 
         await _userApiService.UpdateProfileAsync(token, firstName, lastName);
+
+        //refresh token ctobi moq avtomat perezapustitsa
+        var refreshToken = Request.Cookies["RefreshToken"];
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            var newTokens = await _userApiService.RefreshTokenAsync(token, refreshToken);
+            if (newTokens != null)
+            {
+                Response.Cookies.Append("AccessToken", newTokens.AccessToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
+                Response.Cookies.Append("RefreshToken", newTokens.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
+            }
+        }
+
         TempData["Success"] = "Profile updated successfully!";
         return RedirectToAction("Profile");
     }
@@ -60,11 +81,25 @@ public class DashboardController : BaseController
         if (string.IsNullOrEmpty(token))
             return RedirectToAction("Login", "Account");
 
-        if (avatarFile != null && avatarFile.Length > 0)
+        if (avatarFile == null || avatarFile.Length == 0)
         {
-            await _userApiService.UploadAvatarAsync(token, avatarFile);
-            TempData["Success"] = "Avatar updated! Please log out and log back in to see changes.";
+            TempData["Error"] = "Please select a file.";
+            return RedirectToAction("Profile");
         }
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extension = Path.GetExtension(avatarFile.FileName).ToLower();
+        if (!allowedExtensions.Contains(extension))
+        {
+            TempData["Error"] = "Only JPG, PNG or WEBP files are allowed.";
+            return RedirectToAction("Profile");
+        }
+
+        var result = await _userApiService.UploadAvatarAsync(token, avatarFile);
+        if (result != null)
+            TempData["Success"] = "Avatar updated! Log out and back in to see it everywhere.";
+        else
+            TempData["Error"] = "Failed to upload avatar. Please try again.";
 
         return RedirectToAction("Profile");
     }

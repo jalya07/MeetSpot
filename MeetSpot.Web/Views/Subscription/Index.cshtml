@@ -9,7 +9,15 @@
         <aside class="dashboard-sidebar">
             <div class="profile-card">
                 <div class="profile-avatar">
-                    @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                    @if (!string.IsNullOrEmpty(profile?.AvatarUrl))
+                    {
+                        <img src="@profile.AvatarUrl" alt="Avatar"
+                            style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                    }
                 </div>
                 <h3>@profile?.FullName</h3>
                 <p class="profile-email">@profile?.Email</p>
