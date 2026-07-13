@@ -1,0 +1,72 @@
+@model MeetSpot.Web.Services.BlogPostDto
+@{
+    ViewData["Title"] = "Edit Post";
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+                <a href="/Admin/HeroSlides" class="admin-nav-link"><i class="fas fa-images"></i> Hero Slides</a>
+                <a href="/Admin/Messages" class="admin-nav-link"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="/Admin/Blog" class="admin-nav-link active"><i class="fas fa-blog"></i> Blog</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Edit Post</h1>
+
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:32px;max-width:700px;">
+                <form asp-action="EditPost" asp-route-id="@Model.Id" method="post" 
+                      enctype="multipart/form-data" class="auth-form">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" value="@Model.Title" required />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <div class="form-group">
+                            <label>Current cover image</label>
+                            <img src="@Model.ImageUrl" alt="Cover" 
+                                 style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <label>New cover image (optional)</label>
+                        <input type="file" name="imageFile" accept="image/*"
+                               style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Content</label>
+                        <textarea name="content" rows="12" required
+                            style="padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;font-family:inherit;width:100%;resize:vertical;box-sizing:border-box;">@Model.Content</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                            <input type="checkbox" name="isPublished" value="true" @(Model.IsPublished ? "checked" : "") />
+                            Published
+                        </label>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:8px;">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <a href="/Admin/Blog" class="btn btn-secondary"
+                           style="border:1px solid var(--color-border);color:var(--color-ink);">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

@@ -484,5 +484,53 @@ public class AdminController : BaseController
         await _blogApiService.DeletePostAsync(token, id);
         return RedirectToAction("Blog");
     }
+
+    [HttpGet]
+    public async Task<IActionResult> EditPost(int id)
+    {
+        var check = CheckAdmin();
+        if (check != null) 
+            return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var post = await _blogApiService.GetByIdAdminAsync(token, id);
+        if (post == null) 
+            return NotFound();
+        return View(post);
+    }
+
+    [HttpPost]
+    // [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> EditPost(int id, string title, string content, bool isPublished, IFormFile? imageFile)
+    {
+        var check = CheckAdmin();
+        if (check != null) 
+            return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        string? imageUrl = null;
+
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(imageFile.FileName).ToLower();
+
+            if (allowedExtensions.Contains(extension))
+            {
+                var fileName = $"blog_{Guid.NewGuid()}{extension}";
+                var uploadsPath = Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
+                Directory.CreateDirectory(uploadsPath);
+                var filePath = Path.Combine(uploadsPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await imageFile.CopyToAsync(stream);
+                imageUrl = $"http://localhost:5249/images/blog/{fileName}";
+            }
+        }
+
+        await _blogApiService.UpdatePostAsync(token, id, title, content, imageUrl, isPublished);
+        TempData["Success"] = "Post updated!";
+        return RedirectToAction("Blog");
+    }
 }
 
