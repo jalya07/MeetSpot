@@ -7,12 +7,30 @@
     <div class="dashboard-inner">
         <aside class="dashboard-sidebar">
             <div class="profile-card">
-                <div class="profile-avatar">
-                    @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                <div class="profile-avatar" style="position:relative;cursor:pointer;" 
+                     onclick="document.getElementById('avatarInput').click()">
+                    @if (!string.IsNullOrEmpty(profile?.AvatarUrl))
+                    {
+                        <img src="@profile.AvatarUrl" alt="Avatar"
+                             style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        @(profile?.FullName?.Length > 0 ? profile.FullName[0].ToString().ToUpper() : "?")
+                    }
+                    <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--color-coral);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-camera" style="font-size:9px;color:white;"></i>
+                    </div>
                 </div>
                 <h3>@profile?.FullName</h3>
                 <p class="profile-email">@profile?.Email</p>
                 <span class="profile-type-badge">@profile?.UserType</span>
+
+                <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data" id="avatarForm">
+                    @Html.AntiForgeryToken()
+                    <input type="file" id="avatarInput" name="avatarFile" accept="image/*"
+                           style="display:none;" onchange="document.getElementById('avatarForm').submit();" />
+                </form>
             </div>
 
             <div class="balance-card">
@@ -37,19 +55,24 @@
             {
                 <div class="auth-success" style="margin-bottom:20px;"><p>@TempData["Success"]</p></div>
             }
+            @if (TempData["Error"] != null)
+            {
+                <div class="auth-errors" style="margin-bottom:20px;"><p>@TempData["Error"]</p></div>
+            }
 
             <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;max-width:500px;margin-bottom:24px;">
                 <h2 style="font-size:18px;font-weight:600;margin-bottom:20px;">Edit profile</h2>
                 <form asp-action="Profile" method="post" class="auth-form">
+                    @Html.AntiForgeryToken()
                     <div class="form-row">
                         <div class="form-group">
                             <label>First name</label>
-                            <input type="text" name="firstName" 
+                            <input type="text" name="firstName"
                                    value="@profile?.FullName?.Split(' ').FirstOrDefault()" required />
                         </div>
                         <div class="form-group">
                             <label>Last name</label>
-                            <input type="text" name="lastName" 
+                            <input type="text" name="lastName"
                                    value="@profile?.FullName?.Split(' ').LastOrDefault()" required />
                         </div>
                     </div>

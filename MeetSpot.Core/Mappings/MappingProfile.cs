@@ -35,7 +35,8 @@ public class MappingProfile : Profile
         CreateMap<User, UserProfileDto>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}".Trim()))
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
-            .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()));
+            .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.Type.ToString()))
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl));
         CreateMap<User, UserListItemDto>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => 
                 $"{src.FirstName} {src.LastName}"))

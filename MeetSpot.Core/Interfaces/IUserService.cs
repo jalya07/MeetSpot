@@ -8,4 +8,5 @@ public interface IUserService
     Task<UserProfileDto> UpdateProfileAsync(int userId, UpdateProfileDto dto);
     Task<List<UserListItemDto>> GetAllUsersAsync();
     Task ToggleUserStatusAsync(int userId);
+    Task UpdateAvatarAsync(int userId, string avatarUrl);
 }

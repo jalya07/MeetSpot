@@ -11,4 +11,5 @@ public class UserProfileDto
     public bool IsActive { get; set; }
     public bool IsEmailConfirmed { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? AvatarUrl { get; set; }
 }

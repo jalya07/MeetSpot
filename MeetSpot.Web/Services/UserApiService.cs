@@ -13,14 +13,17 @@ public class UserProfileDto
     public decimal Balance { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? AvatarUrl { get; set; }
 }
 
 public class UserApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public UserApiService(IHttpClientFactory httpClientFactory)
     {
+        _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient("MeetSpotAPI");
     }
 
@@ -85,6 +88,35 @@ public class UserApiService
         catch
         {
             return false;
+        }
+    }
+    public async Task<string?> UploadAvatarAsync(string token, IFormFile file)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient("MeetSpotAPI");
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            using var content = new MultipartFormDataContent();
+            using var stream = file.OpenReadStream();
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.FileName);
+
+            var response = await client.PostAsync("api/user/upload-avatar", content);
+            if (!response.IsSuccessStatusCode) 
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<string>>(json, options);
+            return result?.Data;
+        }
+        catch 
+        { 
+            return null; 
         }
     }
 }

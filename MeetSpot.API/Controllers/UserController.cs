@@ -56,4 +56,33 @@ public class UserController(IUserService userService,IValidator<UpdateProfileDto
         await userService.ToggleUserStatusAsync(id);
         return Ok(ResponseModelHelper<string>.SuccessResult("User status updated successfully"));
     }
+
+    [HttpPost("upload-avatar")]
+    [Authorize]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(ResponseModelHelper<string>.BadRequestResult("No file provided"));
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extension = Path.GetExtension(file.FileName).ToLower();
+
+        if (!allowedExtensions.Contains(extension))
+            return BadRequest(ResponseModelHelper<string>.BadRequestResult("Only jpg, png, webp allowed"));
+
+        var fileName = $"avatar_{Guid.NewGuid()}{extension}";
+        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "avatars");
+        Directory.CreateDirectory(uploadsPath);
+
+        var filePath = Path.Combine(uploadsPath, fileName);
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        var avatarUrl = $"{Request.Scheme}://{Request.Host}/images/avatars/{fileName}";
+
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await userService.UpdateAvatarAsync(userId, avatarUrl);
+
+        return Ok(ResponseModelHelper<string>.SuccessResult(avatarUrl));
+    }
 }

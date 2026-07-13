@@ -65,4 +65,15 @@ public class UserService : IUserService
         user.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateAvatarAsync(int userId, string avatarUrl)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) 
+            throw new NotFoundException("User not found");
+    
+        user.AvatarUrl = avatarUrl;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
 }

@@ -52,4 +52,20 @@ public class DashboardController : BaseController
         TempData["Success"] = "Profile updated successfully!";
         return RedirectToAction("Profile");
     }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadAvatar(IFormFile avatarFile)
+    {
+        var token = Request.Cookies["AccessToken"];
+        if (string.IsNullOrEmpty(token))
+            return RedirectToAction("Login", "Account");
+
+        if (avatarFile != null && avatarFile.Length > 0)
+        {
+            await _userApiService.UploadAvatarAsync(token, avatarFile);
+            TempData["Success"] = "Avatar updated! Please log out and log back in to see changes.";
+        }
+
+        return RedirectToAction("Profile");
+    }
 }
