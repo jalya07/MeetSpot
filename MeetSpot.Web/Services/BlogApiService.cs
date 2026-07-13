@@ -86,7 +86,7 @@ public class BlogApiService
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            var dto = new { title, content, isPublished };
+            var dto = new { title, content, imageUrl, isPublished };
             var json = JsonSerializer.Serialize(dto);
             var content2 = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/blog", content2);

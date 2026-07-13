@@ -20,10 +20,16 @@
 
         <div class="admin-content">
             <h1>Create new post</h1>
+            @if (TempData["Error"] != null)
+            {
+                <div class="auth-errors" style="margin-bottom:16px;">
+                    <p>@TempData["Error"]</p>
+                </div>
+            }
 
             <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:32px;max-width:700px;">
-                <form asp-action="CreatePost" method="post" enctype="multipart/form-data" class="auth-form">
-
+                <form asp-action="CreatePost" method="post" enctype="multipart/form-data" class="auth-form" >
+                    @Html.AntiForgeryToken()
                     <div class="form-group">
                         <label>Title</label>
                         <input type="text" name="title" placeholder="Post title" required />

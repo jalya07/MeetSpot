@@ -449,13 +449,21 @@ public class AdminController : BaseController
 
         if (imageFile != null && imageFile.Length > 0)
         {
-            Console.WriteLine($"Uploading blog image: {imageFile.FileName}, size: {imageFile.Length} ");
-            imageUrl = await _blogApiService.UploadImageAsync(token, imageFile);
-            Console.WriteLine($" Upload result: {imageUrl} ");
-        }
-        else
-        {
-            Console.WriteLine(" No image file received ");
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(imageFile.FileName).ToLower();
+
+            if (allowedExtensions.Contains(extension))
+            {
+                var fileName = $"blog_{Guid.NewGuid()}{extension}";
+                var uploadsPath = Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
+                Directory.CreateDirectory(uploadsPath);
+                var filePath = Path.Combine(uploadsPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await imageFile.CopyToAsync(stream);
+                imageUrl = $"http://localhost:5249/images/blog/{fileName}";
+                Console.WriteLine($"=== imageUrl = {imageUrl} ===");
+            }
         }
 
         await _blogApiService.CreatePostAsync(token, title, content, imageUrl, isPublished);
