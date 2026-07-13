@@ -465,10 +465,16 @@ public class AdminController : BaseController
                 Console.WriteLine($"=== imageUrl = {imageUrl} ===");
             }
         }
+        var (success, error) = await _blogApiService.CreatePostAsync(token, title, content, imageUrl, isPublished);
+    
+        if (success)
+        {
+            TempData["Success"] = "Post created!";
+            return RedirectToAction("Blog");
+        }
 
-        await _blogApiService.CreatePostAsync(token, title, content, imageUrl, isPublished);
-        TempData["Success"] = "Post created!";
-        return RedirectToAction("Blog");
+        TempData["Error"] = error ?? "Could not create post";
+        return View();
     }
 
     [HttpPost]

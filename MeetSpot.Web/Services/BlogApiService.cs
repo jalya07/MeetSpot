@@ -79,7 +79,7 @@ public class BlogApiService
         }
     }
 
-    public async Task<bool> CreatePostAsync(string token, string title, string content,string? imageUrl, bool isPublished)
+    public async Task<(bool Success, string? Error)> CreatePostAsync(string token, string title, string content, string? imageUrl, bool isPublished)
     {
         try
         {
@@ -90,11 +90,18 @@ public class BlogApiService
             var json = JsonSerializer.Serialize(dto);
             var content2 = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("api/blog", content2);
-            return response.IsSuccessStatusCode;
+            
+            if (response.IsSuccessStatusCode) 
+                return (true, null);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
+            return (false, result?.Errors?.FirstOrDefault() ?? "Failed to create post");
         }
         catch
         {
-            return false;
+            return (false, "Something went wrong");
         }
     }
 
