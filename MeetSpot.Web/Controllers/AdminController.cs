@@ -51,8 +51,10 @@ public class AdminController : BaseController
 
         var token = Request.Cookies["AccessToken"]!;
         var stats = await _analyticsApiService.GetPublicStatsAsync();
-
+        var dashboardStats = await _analyticsApiService.GetDashboardStatsAsync(token);
+    
         ViewBag.Stats = stats;
+        ViewBag.DashboardStats = dashboardStats;
         return View();
     }
 

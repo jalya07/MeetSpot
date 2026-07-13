@@ -98,18 +98,22 @@
 @section Scripts {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    var dashboardStats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DashboardStats));
+    var bookingsByDay = dashboardStats?.bookingsByDayOfWeek ?? [0,0,0,0,0,0,0];
+    var occupancyRate = dashboardStats?.occupancyRate ?? 0;
+    var totalRooms = dashboardStats?.totalRooms ?? 0;
+
     const coral = '#E8674A';
     const ink = '#1B2B4D';
-    const cream = '#F7F5F1';
 
-    // Bookings chart
+    // Bookings chart — реальные данные
     new Chart(document.getElementById('bookingsChart'), {
         type: 'line',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             datasets: [{
                 label: 'Bookings',
-                data: [3, 5, 4, 7, 6, 2, 1],
+                data: bookingsByDay,
                 borderColor: coral,
                 backgroundColor: 'rgba(232, 103, 74, 0.1)',
                 tension: 0.4,
@@ -120,9 +124,7 @@
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
-            }
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
     });
 
@@ -132,27 +134,25 @@
         data: {
             labels: ['Standard', 'VIP'],
             datasets: [{
-                data: [@(stats?.TotalRooms ?? 0) * 60 / 100, @(stats?.TotalRooms ?? 0) * 40 / 100],
+                data: [totalRooms * 0.6, totalRooms * 0.4],
                 backgroundColor: [ink, coral],
                 borderWidth: 0,
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { position: 'bottom' }
-            }
+            plugins: { legend: { position: 'bottom' } }
         }
     });
 
-    // Occupancy chart
+    // Occupancy chart — реальные данные
     new Chart(document.getElementById('occupancyChart'), {
         type: 'bar',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             datasets: [{
-                label: 'Occupancy %',
-                data: [45, 72, 58, 85, 63, 30, 15],
+                label: 'Bookings',
+                data: bookingsByDay,
                 backgroundColor: coral,
                 borderRadius: 6,
             }]
@@ -160,9 +160,7 @@
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, max: 100 }
-            }
+            scales: { y: { beginAtZero: true } }
         }
     });
 </script>

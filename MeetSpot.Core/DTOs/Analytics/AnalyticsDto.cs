@@ -9,6 +9,7 @@ public class AnalyticsDto
     public List<RoomPopularityDto> TopRooms { get; set; } = new();
     public List<PeakHourDto> PeakHours { get; set; } = new();
     public double OccupancyRate { get; set; }
+    public int[] BookingsByDayOfWeek { get; set; } = new int[7];
 }
 
 public class RoomPopularityDto

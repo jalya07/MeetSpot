@@ -9,6 +9,12 @@ public class PublicStatsDto
     public int ActiveUsers { get; set; }
     public double OccupancyRate { get; set; }
 }
+public class DashboardStatsDto
+{
+    public int[] BookingsByDayOfWeek { get; set; } = new int[7];
+    public double OccupancyRate { get; set; }
+    public int TotalRooms { get; set; }
+}
 
 public class AnalyticsApiService
 {
@@ -36,5 +42,23 @@ public class AnalyticsApiService
         {
             return null;
         }
+    }
+
+    public async Task<DashboardStatsDto?> GetDashboardStatsAsync(string token)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.GetAsync("api/analytics/dashboard");
+            if (!response.IsSuccessStatusCode) return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var result = JsonSerializer.Deserialize<ApiResponse<DashboardStatsDto>>(json, options);
+            return result?.Data;
+        }
+        catch { return null; }
     }
 }

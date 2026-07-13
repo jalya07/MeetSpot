@@ -55,6 +55,17 @@ public class AnalyticsService : IAnalyticsService
             .Take(5)
             .ToList();
 
+        // Bookings by day of week
+        var bookingsByDay = await _context.Bookings
+            .GroupBy(b => b.StartTime.DayOfWeek)
+            .Select(g => new { Day = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        var bookingsByDayOfWeek = new int[7];
+        foreach (var item in bookingsByDay)
+        {
+            bookingsByDayOfWeek[(int)item.Day] = item.Count;
+        }
         var totalRoomHours = totalRooms * 24 * 30;
         var bookingTimes = await _context.Bookings
             .Where(b => b.Status == BookingStatus.Active || b.Status == BookingStatus.Completed)
@@ -75,7 +86,8 @@ public class AnalyticsService : IAnalyticsService
             TotalRooms = totalRooms,
             TopRooms = topRooms,
             PeakHours = peakHours,
-            OccupancyRate = occupancyRate
+            OccupancyRate = occupancyRate,
+            BookingsByDayOfWeek = bookingsByDayOfWeek
         };
     }
 
