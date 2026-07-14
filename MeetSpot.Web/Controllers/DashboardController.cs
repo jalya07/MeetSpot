@@ -49,7 +49,7 @@ public class DashboardController : BaseController
             return RedirectToAction("Login", "Account");
 
         await _userApiService.UpdateProfileAsync(token, firstName, lastName);
-        TempData["Success"] = "Profile updated! Log out and back in to see name changes.";
+        TempData["Success"] = "Profile updated! Log out and back in to see name changes everywhere.";
         return RedirectToAction("Profile");
     }
 

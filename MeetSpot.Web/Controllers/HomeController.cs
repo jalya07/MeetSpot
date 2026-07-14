@@ -94,4 +94,7 @@ public class HomeController : BaseController
     public IActionResult HowItWorks() => View();
     public IActionResult Help() => View();
     public IActionResult Mentors() => View();
+
+    public IActionResult Terms() => View();
+    public IActionResult Refund() => View();    
 }
