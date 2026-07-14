@@ -98,10 +98,11 @@
 @section Scripts {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var dashboardStats = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DashboardStats));
-    var bookingsByDay = dashboardStats?.bookingsByDayOfWeek ?? [0,0,0,0,0,0,0];
-    var occupancyRate = dashboardStats?.occupancyRate ?? 0;
-    var totalRooms = dashboardStats?.totalRooms ?? 0;
+   var bookingsByDay = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        (ViewBag.DashboardStats as MeetSpot.Web.Services.DashboardStatsDto)?.BookingsByDayOfWeek ?? new int[7]
+    ));
+    var totalRooms = parseInt('@((ViewBag.DashboardStats as MeetSpot.Web.Services.DashboardStatsDto)?.TotalRooms ?? 0)');
+    var occupancyRate = parseFloat('@((ViewBag.DashboardStats as MeetSpot.Web.Services.DashboardStatsDto)?.OccupancyRate ?? 0)');
 
     const coral = '#E8674A';
     const ink = '#1B2B4D';

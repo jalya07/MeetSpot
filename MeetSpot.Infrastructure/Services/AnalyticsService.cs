@@ -55,16 +55,16 @@ public class AnalyticsService : IAnalyticsService
             .Take(5)
             .ToList();
 
-        // Bookings by day of week
-        var bookingsByDay = await _context.Bookings
-            .GroupBy(b => b.StartTime.DayOfWeek)
-            .Select(g => new { Day = g.Key, Count = g.Count() })
+        // Сначала загружаем даты в память
+        var bookingDates = await _context.Bookings
+            .Select(b => b.StartTime)
             .ToListAsync();
 
+        // Потом группируем в памяти
         var bookingsByDayOfWeek = new int[7];
-        foreach (var item in bookingsByDay)
+        foreach (var date in bookingDates)
         {
-            bookingsByDayOfWeek[(int)item.Day] = item.Count;
+            bookingsByDayOfWeek[(int)date.DayOfWeek]++;
         }
         var totalRoomHours = totalRooms * 24 * 30;
         var bookingTimes = await _context.Bookings

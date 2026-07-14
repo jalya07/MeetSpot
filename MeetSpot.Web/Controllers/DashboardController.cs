@@ -49,28 +49,7 @@ public class DashboardController : BaseController
             return RedirectToAction("Login", "Account");
 
         await _userApiService.UpdateProfileAsync(token, firstName, lastName);
-
-        //refresh token ctobi moq avtomat perezapustitsa
-        var refreshToken = Request.Cookies["RefreshToken"];
-        if (!string.IsNullOrEmpty(refreshToken))
-        {
-            var newTokens = await _userApiService.RefreshTokenAsync(token, refreshToken);
-            if (newTokens != null)
-            {
-                Response.Cookies.Append("AccessToken", newTokens.AccessToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = DateTimeOffset.UtcNow.AddHours(1)
-                });
-                Response.Cookies.Append("RefreshToken", newTokens.RefreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                });
-            }
-        }
-
-        TempData["Success"] = "Profile updated successfully!";
+        TempData["Success"] = "Profile updated! Log out and back in to see name changes.";
         return RedirectToAction("Profile");
     }
 
