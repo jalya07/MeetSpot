@@ -77,9 +77,17 @@
                                 <tr>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:10px;">
-                                            <div style="width:32px;height:32px;border-radius:50%;background:#1b2b4d;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
-                                                @user.FullName.FirstOrDefault()
-                                            </div>
+                                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                            {
+                                                <img src="@user.AvatarUrl" alt="@user.FullName"
+                                                    style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div style="width:32px;height:32px;border-radius:50%;background:#1b2b4d;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
+                                                    @user.FullName.FirstOrDefault()
+                                                </div>
+                                            }
                                             <strong>@user.FullName</strong>
                                         </div>
                                     </td>
@@ -115,9 +123,17 @@
                                 <tr>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:10px;">
-                                            <div style="width:32px;height:32px;border-radius:50%;background:#e8674a;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
-                                                @user.FullName.FirstOrDefault()
-                                            </div>
+                                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                            {
+                                                <img src="@user.AvatarUrl" alt="@user.FullName"
+                                                    style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div style="width:32px;height:32px;border-radius:50%;background:#1b2b4d;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
+                                                    @user.FullName.FirstOrDefault()
+                                                </div>
+                                            }
                                             <strong>@user.FullName</strong>
                                         </div>
                                     </td>
@@ -152,9 +168,17 @@
                                 <tr>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:10px;">
-                                            <div style="width:32px;height:32px;border-radius:50%;background:#6b7280;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
-                                                @user.FullName.FirstOrDefault()
-                                            </div>
+                                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                            {
+                                                <img src="@user.AvatarUrl" alt="@user.FullName"
+                                                    style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div style="width:32px;height:32px;border-radius:50%;background:#1b2b4d;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">
+                                                    @user.FullName.FirstOrDefault()
+                                                </div>
+                                            }
                                             <strong>@user.FullName</strong>
                                         </div>
                                     </td>
