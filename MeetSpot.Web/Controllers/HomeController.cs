@@ -12,19 +12,22 @@ public class HomeController : BaseController
     private readonly CompanyApiService _companyApiService;
     private readonly ReviewApiService _reviewApiService;
     private readonly HeroSlideApiService _heroSlideApiService;
+    private readonly BookingApiService _bookingApiService;
 
     public HomeController(
         RoomApiService roomApiService,
         AnalyticsApiService analyticsApiService,
         CompanyApiService companyApiService,
         ReviewApiService reviewApiService,
-        HeroSlideApiService heroSlideApiService)
+        HeroSlideApiService heroSlideApiService,
+        BookingApiService bookingApiService)
     {
         _roomApiService = roomApiService;
         _analyticsApiService = analyticsApiService;
         _companyApiService = companyApiService;
         _reviewApiService = reviewApiService;
         _heroSlideApiService = heroSlideApiService;
+        _bookingApiService = bookingApiService;
     }
 
     public async Task<IActionResult> Index()
@@ -77,8 +80,18 @@ public class HomeController : BaseController
     public async Task<IActionResult> RoomAvailability()
     {
         var rooms = await _roomApiService.GetAllRoomsAsync();
+        var today = DateTime.UtcNow.Date;
+
+        var allBookings = new Dictionary<int, List<MeetSpot.Web.Services.BookingResponseDto>>();
+        foreach (var room in rooms)
+        {
+            var bookings = await _bookingApiService.GetRoomCalendarAsync(room.Id, today);
+            allBookings[room.Id] = bookings;
+        }
+
         ViewBag.Rooms = rooms;
-        ViewBag.Today = DateTime.UtcNow.Date;
+        ViewBag.Today = today;
+        ViewBag.AllBookings = allBookings;
         return View();
     }
 

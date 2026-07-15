@@ -3,6 +3,8 @@
     var rooms = ViewBag.Rooms as List<MeetSpot.Web.Services.RoomResponseDto> ?? new();
     var today = (DateTime)ViewBag.Today;
     var hours = Enumerable.Range(8, 11).ToList();
+    var allBookings = ViewBag.AllBookings as Dictionary<int, List<MeetSpot.Web.Services.BookingResponseDto>>
+        ?? new Dictionary<int, List<MeetSpot.Web.Services.BookingResponseDto>>();
 }
 
 <section class="availability-hero">
@@ -28,6 +30,7 @@
 
         <div class="availability-grid-wrap">
             <div class="availability-grid" style="grid-template-columns: 200px repeat(@hours.Count, 1fr);">
+                
                 <div class="avail-header-cell avail-room-col">Room</div>
                 @foreach (var hour in hours)
                 {
@@ -36,6 +39,10 @@
 
                 @foreach (var room in rooms)
                 {
+                    var roomBookings = allBookings.ContainsKey(room.Id) 
+                        ? allBookings[room.Id] 
+                        : new List<MeetSpot.Web.Services.BookingResponseDto>();
+
                     <a href="/Room/Details/@room.Id" class="avail-room-name">
                         @if (room.ImageUrls.Any())
                         {
@@ -46,18 +53,32 @@
                             <span>Floor @room.Floor · @room.Capacity ppl</span>
                         </div>
                     </a>
+
                     @foreach (var hour in hours)
                     {
-                        <a href="/Room/Calendar/@room.Id" class="avail-cell avail-cell-free">
-                            <span>$@room.PricePerHour</span>
-                        </a>
+                        var slotStart = today.AddHours(hour);
+                        var slotEnd = slotStart.AddHours(1);
+                        var isBooked = roomBookings.Any(b => b.StartTime < slotEnd && b.EndTime > slotStart);
+
+                        @if (isBooked)
+                        {
+                            <div class="avail-cell avail-cell-booked">
+                                <span>Booked</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <a href="/Booking/Create/@room.Id" class="avail-cell avail-cell-free">
+                                <span>$@room.PricePerHour</span>
+                            </a>
+                        }
                     }
                 }
             </div>
         </div>
 
-        <p style="text-align:center; color:var(--color-text-muted); font-size:13px; margin-top:16px;">
-            Click any room name to see full details, or click a time slot to view the room calendar
+        <p style="text-align:center;color:var(--color-text-muted);font-size:13px;margin-top:16px;">
+            Click any room name to see full details · Click a free slot to book instantly
         </p>
     </div>
 </section>
