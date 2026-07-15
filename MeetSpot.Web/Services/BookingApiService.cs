@@ -132,4 +132,20 @@ public class BookingApiService
             return new();
         }
     }
+    public async Task<bool> CancelBookingAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var content = new StringContent("null", System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"api/booking/{id}/cancel", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

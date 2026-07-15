@@ -44,4 +44,29 @@ public class BookingController : BaseController
         ViewBag.Errors = errors;
         return View(room);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> CancelConfirm(int id)
+    {
+        var token = Request.Cookies["AccessToken"];
+        if (string.IsNullOrEmpty(token))
+            return RedirectToAction("Login", "Account");
+
+        await _bookingApiService.CancelBookingAsync(token, id);
+        TempData["Success"] = "Booking cancelled successfully.";
+        return RedirectToAction("Index", "Dashboard");
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var token = Request.Cookies["AccessToken"];
+        if (string.IsNullOrEmpty(token))
+            return RedirectToAction("Login", "Account");
+
+        await _bookingApiService.CancelBookingAsync(token, id);
+        TempData["Success"] = "Booking cancelled successfully.";
+        return RedirectToAction("Index", "Dashboard");
+    }
 }

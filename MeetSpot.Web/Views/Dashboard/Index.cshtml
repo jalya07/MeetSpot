@@ -15,7 +15,7 @@
                     @if (!string.IsNullOrEmpty(profile?.AvatarUrl))
                     {
                         <img src="@profile.AvatarUrl" alt="Avatar"
-                            style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
+                             style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
                     }
                     else
                     {
@@ -68,6 +68,12 @@
                                     {
                                         <span class="booking-status booking-status-checkedin">Checked in</span>
                                     }
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <a href="/Booking/CancelConfirm/@booking.Id" 
+                                       style="background:none;border:1px solid #dc2626;color:#dc2626;padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block;">
+                                        Cancel booking
+                                    </a>
                                 </div>
                             </div>
                             @if (!string.IsNullOrEmpty(booking.QrCode))
