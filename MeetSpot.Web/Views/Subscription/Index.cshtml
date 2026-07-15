@@ -12,7 +12,7 @@
                     @if (!string.IsNullOrEmpty(profile?.AvatarUrl))
                     {
                         <img src="@profile.AvatarUrl" alt="Avatar"
-                            style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
+                             style="width:64px;height:64px;border-radius:50%;object-fit:cover;" />
                     }
                     else
                     {
@@ -50,7 +50,7 @@
                 <div class="auth-errors" style="margin-bottom:20px;"><p>@TempData["Error"]</p></div>
             }
 
-            @if (subscription != null && subscription.Status == "Active")
+            @if (subscription != null && subscription.IsActive)
             {
                 <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;margin-bottom:24px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -75,8 +75,8 @@
                         </div>
                     </div>
                     <form asp-action="Cancel" method="post">
-                        <button type="submit" class="admin-action-btn admin-action-btn-danger"
-                                onclick="return confirm('Cancel your Premium subscription?')"
+                        <button type="button" onclick="openCancelModal()"
+                                class="admin-action-btn admin-action-btn-danger"
                                 style="padding:10px 20px;font-size:14px;">
                             Cancel subscription
                         </button>
@@ -130,4 +130,39 @@
             }
         </div>
     </div>
+    <div id="cancelSubModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;">
+            <div style="font-size:48px;margin-bottom:16px;">⭐</div>
+            <h3 style="font-size:20px;font-weight:600;color:#1b2b4d;margin-bottom:8px;">Cancel Premium?</h3>
+            <p style="color:#6b7280;font-size:14px;margin-bottom:8px;">You will lose access to same-day bookings and VIP rooms.</p>
+            <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Your account will return to Regular after cancellation.</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+                <button onclick="closeCancelModal()"
+                        style="padding:12px 24px;border-radius:8px;border:1px solid #e5e2dc;background:white;font-size:14px;cursor:pointer;">
+                    Keep Premium
+                </button>
+                <form asp-action="Cancel" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            style="padding:12px 24px;border-radius:8px;border:none;background:#dc2626;color:white;font-size:14px;cursor:pointer;">
+                        Yes, cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+    function openCancelModal() {
+        document.getElementById('cancelSubModal').style.display = 'flex';
+    }
+    function closeCancelModal() {
+        document.getElementById('cancelSubModal').style.display = 'none';
+    }
+    document.getElementById('cancelSubModal').addEventListener('click', function(e) {
+        if (e.target === this) closeCancelModal();
+    });
+</script>
+    }
 </section>

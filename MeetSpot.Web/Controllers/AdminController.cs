@@ -170,9 +170,18 @@ public class AdminController : BaseController
             }
         }
     
-        var dto = imageUrls.Any()
-            ? new { name, description, floor, capacity, pricePerHour, type, imageUrls = (object)imageUrls }
-            : new { name, description, floor, capacity, pricePerHour, type, imageUrls = (object)new List<string>() };
+        var dto = new
+        {
+            name,
+            description,
+            floor,
+            capacity,
+            pricePerHour,
+            type,
+            imageUrls = imageUrls.Any() ? imageUrls : null
+        };
+
+        await _roomApiService.UpdateRoomAsync(token, id, dto);
 
         await _roomApiService.UpdateRoomAsync(token, id, dto);
 
