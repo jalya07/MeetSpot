@@ -152,14 +152,21 @@ public class AdminController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditRoom(int id, string name, string description, int floor, int capacity, decimal pricePerHour, string type, List<IFormFile>? imageFiles)
+    public async Task<IActionResult> EditRoom(int id, string name, string description,
+        int floor, int capacity, decimal pricePerHour, string type,
+        List<IFormFile>? imageFiles, List<string>? keepImageUrls)
     {
         var check = CheckAdmin();
         if (check != null) return check;
 
         var token = Request.Cookies["AccessToken"]!;
-
         var imageUrls = new List<string>();
+
+        // Добавляем фото которые пользователь оставил
+        if (keepImageUrls != null)
+            imageUrls.AddRange(keepImageUrls);
+
+        // Добавляем новые фото
         if (imageFiles != null && imageFiles.Any(f => f.Length > 0))
         {
             foreach (var file in imageFiles.Where(f => f.Length > 0))
@@ -169,7 +176,7 @@ public class AdminController : BaseController
                     imageUrls.Add(imageUrl);
             }
         }
-    
+
         var dto = new
         {
             name,
@@ -182,9 +189,6 @@ public class AdminController : BaseController
         };
 
         await _roomApiService.UpdateRoomAsync(token, id, dto);
-
-        await _roomApiService.UpdateRoomAsync(token, id, dto);
-
         TempData["SuccessMessage"] = "Room updated successfully!";
         return RedirectToAction("Rooms");
     }

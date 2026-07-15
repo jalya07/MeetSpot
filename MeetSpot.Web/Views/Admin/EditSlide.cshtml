@@ -22,6 +22,19 @@
         <div class="admin-content">
             <h1>Edit Slide #@Model.Id</h1>
 
+            @if (TempData["Error"] != null)
+            {
+                <div class="auth-errors" style="margin-bottom:16px;">
+                    <p>@TempData["Error"]</p>
+                </div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:16px;">
+                    <p>@TempData["Success"]</p>
+                </div>
+            }
+
             <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:32px;max-width:600px;">
                 
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
@@ -38,6 +51,7 @@
                         <label>Upload new image (optional)</label>
                         <input type="file" name="imageFile" accept="image/*"
                                 style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
+                            <span class="form-hint">JPG, PNG or WEBP only. Leave empty to keep current image.</span>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
