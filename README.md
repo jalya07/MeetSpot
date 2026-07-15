@@ -121,8 +121,14 @@ MeetSpot/
 | Corporate | Same day | No penalty | Not needed |
 | Admin | Anytime | No penalty | N/A |
 
+---
 
+## 🐳 Docker Hub
 
+```bash
+docker pull jalya/meetspot-api
+docker pull jalya/meetspot-web
+```
 ---
 
 ## 🧪 Running Tests
