@@ -13,6 +13,7 @@ public class AdminController : BaseController
     private readonly HeroSlideApiService _heroSlideApiService;
     private readonly AuthApiService _authApiService;
     private readonly BlogApiService _blogApiService;
+    private readonly CompanyApiService _companyApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -22,7 +23,8 @@ public class AdminController : BaseController
         ReviewApiService reviewApiService,
         HeroSlideApiService heroSlideApiService,
         AuthApiService authApiService,
-        BlogApiService blogApiService)
+        BlogApiService blogApiService,
+        CompanyApiService companyApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -32,6 +34,7 @@ public class AdminController : BaseController
         _heroSlideApiService = heroSlideApiService;
         _authApiService = authApiService;
         _blogApiService = blogApiService;
+        _companyApiService = companyApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -546,6 +549,35 @@ public class AdminController : BaseController
         await _blogApiService.UpdatePostAsync(token, id, title, content, imageUrl, isPublished);
         TempData["Success"] = "Post updated!";
         return RedirectToAction("Blog");
+    }
+    
+    public async Task<IActionResult> Companies()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var companies = await _companyApiService.GetAllCompaniesAsync();
+        return View(companies);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateCompany(string name, string domain, string? industry, string? logoUrl)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        await _companyApiService.CreateCompanyAsync(token, name, domain, industry, logoUrl);
+        TempData["Success"] = "Company added!";
+        return RedirectToAction("Companies");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteCompany(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _companyApiService.DeleteCompanyAsync(token, id);
+        return RedirectToAction("Companies");
     }
 }
 

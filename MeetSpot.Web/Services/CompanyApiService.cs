@@ -39,4 +39,34 @@ public class CompanyApiService
             return new();
         }
     }
+    
+    public async Task<bool> CreateCompanyAsync(string token, string name, string domain, string? industry, string? logoUrl)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var dto = new { name, domain, industry, logoUrl };
+            var json = JsonSerializer.Serialize(dto);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/company", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<bool> DeleteCompanyAsync(string token, int id)
+    {
+        try
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.DeleteAsync($"api/company/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+    
 }

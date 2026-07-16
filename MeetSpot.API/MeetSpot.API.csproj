@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MeetSpot.Core\MeetSpot.Core.csproj" />
     <ProjectReference Include="..\MeetSpot.Infrastructure\MeetSpot.Infrastructure.csproj" />
+    <ProjectReference Include="..\MeetSpot.Web\MeetSpot.Web.csproj" />
   </ItemGroup>
 
 </Project>

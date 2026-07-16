@@ -20,6 +20,7 @@ public class MeetSpotAppDbContext : DbContext
     public DbSet<RoomImage> RoomImages { get; set; }    
     public DbSet<Review> Reviews { get; set; }
     public DbSet<HeroSlide> HeroSlides { get; set; }
+    public DbSet<CompanyRequest> CompanyRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1406,6 +1406,23 @@
         "runtime": {
           "bin/placeholder/MeetSpot.Infrastructure.dll": {}
         }
+      },
+      "MeetSpot.Web/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "MeetSpot.Core": "1.0.0",
+          "MeetSpot.Infrastructure": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/MeetSpot.Web.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MeetSpot.Web.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },
@@ -3947,6 +3964,11 @@
       "type": "project",
       "path": "../MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj",
       "msbuildProject": "../MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj"
+    },
+    "MeetSpot.Web/1.0.0": {
+      "type": "project",
+      "path": "../MeetSpot.Web/MeetSpot.Web.csproj",
+      "msbuildProject": "../MeetSpot.Web/MeetSpot.Web.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3955,6 +3977,7 @@
       "FluentValidation.AspNetCore >= 11.3.1",
       "MeetSpot.Core >= 1.0.0",
       "MeetSpot.Infrastructure >= 1.0.0",
+      "MeetSpot.Web >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 10.0.9",
       "Microsoft.AspNetCore.OpenApi >= 10.0.9",
       "Microsoft.AspNetCore.SignalR >= 1.2.11",
@@ -3996,6 +4019,9 @@
             },
             "/Users/jalyahesenli/MeetSpot/MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj": {
               "projectPath": "/Users/jalyahesenli/MeetSpot/MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj"
+            },
+            "/Users/jalyahesenli/MeetSpot/MeetSpot.Web/MeetSpot.Web.csproj": {
+              "projectPath": "/Users/jalyahesenli/MeetSpot/MeetSpot.Web/MeetSpot.Web.csproj"
             }
           }
         }
