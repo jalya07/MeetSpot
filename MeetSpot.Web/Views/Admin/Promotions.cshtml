@@ -1,0 +1,160 @@
+@model List<MeetSpot.Web.Services.PromotionDto>
+@{
+    ViewData["Title"] = "Admin — Promotions";
+    var active = Model.Where(p => p.IsActive && p.EndDate >= DateTime.UtcNow).ToList();
+    var expired = Model.Where(p => !p.IsActive || p.EndDate < DateTime.UtcNow).ToList();
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+                <a href="/Admin/HeroSlides" class="admin-nav-link"><i class="fas fa-images"></i> Hero Slides</a>
+                <a href="/Admin/Messages" class="admin-nav-link"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="/Admin/Blog" class="admin-nav-link"><i class="fas fa-blog"></i> Blog</a>
+                <a href="/Admin/Companies" class="admin-nav-link"><i class="fas fa-building"></i> Companies</a>
+                <a href="/Admin/CompanyRequests" class="admin-nav-link"><i class="fas fa-handshake"></i> Company Requests</a>
+                <a href="/Admin/Promotions" class="admin-nav-link active"><i class="fas fa-tag"></i> Promotions</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Promotions & Discounts</h1>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:16px;"><p>@TempData["Success"]</p></div>
+            }
+
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:28px;margin-bottom:28px;">
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:20px;">Create new promotion</h2>
+                <form asp-action="CreatePromotion" method="post" class="auth-form">
+                    @Html.AntiForgeryToken()
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="title" placeholder="e.g. Summer Sale" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select name="type">
+                                <option value="General">General</option>
+                                <option value="EarlyBird">Early Bird</option>
+                                <option value="OffPeak">Off-Peak</option>
+                                <option value="Corporate">Corporate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" placeholder="e.g. 20% off all bookings this summer" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Discount %</label>
+                            <input type="number" name="discountPercent" min="1" max="99" step="1" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Start date</label>
+                            <input type="datetime-local" name="startDate" required />
+                        </div>
+                        <div class="form-group">
+                            <label>End date</label>
+                            <input type="datetime-local" name="endDate" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create promotion</button>
+                </form>
+            </div>
+
+            @if (active.Any())
+            {
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">🟢 Active (@active.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom:28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Discount</th>
+                                <th>Period</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var promo in active)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@promo.Title</strong>
+                                        @if (!string.IsNullOrEmpty(promo.Description))
+                                        {
+                                            <br/><span style="font-size:12px;color:#6b7280;">@promo.Description</span>
+                                        }
+                                    </td>
+                                    <td><span class="admin-badge admin-badge-blue">@promo.Type</span></td>
+                                    <td><strong style="color:var(--color-coral);font-size:18px;">@promo.DiscountPercent%</strong></td>
+                                    <td style="font-size:13px;color:#6b7280;">
+                                        @promo.StartDate.ToString("dd MMM") — @promo.EndDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        <form method="post" action="/Admin/DeletePromotion/@promo.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="admin-action-btn admin-action-btn-danger"
+                                                    onclick="return confirm('Delete this promotion?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (expired.Any())
+            {
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">⚫ Expired (@expired.Count)</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Discount</th>
+                                <th>Period</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var promo in expired)
+                            {
+                                <tr style="opacity:0.6;">
+                                    <td>@promo.Title</td>
+                                    <td><span class="admin-badge admin-badge-gray">@promo.Type</span></td>
+                                    <td>@promo.DiscountPercent%</td>
+                                    <td style="font-size:13px;color:#6b7280;">
+                                        @promo.StartDate.ToString("dd MMM") — @promo.EndDate.ToString("dd MMM yyyy")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-catalog">
+                    <p>No promotions yet. Create your first one!</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

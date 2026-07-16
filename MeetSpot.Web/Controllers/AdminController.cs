@@ -15,6 +15,7 @@ public class AdminController : BaseController
     private readonly BlogApiService _blogApiService;
     private readonly CompanyApiService _companyApiService;
     private readonly CompanyRequestApiService _companyRequestApiService;
+    private readonly PromotionApiService _promotionApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -26,7 +27,8 @@ public class AdminController : BaseController
         AuthApiService authApiService,
         BlogApiService blogApiService,
         CompanyApiService companyApiService,
-        CompanyRequestApiService companyRequestApiService)
+        CompanyRequestApiService companyRequestApiService,
+        PromotionApiService promotionApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -38,6 +40,7 @@ public class AdminController : BaseController
         _blogApiService = blogApiService;
         _companyApiService = companyApiService;
         _companyRequestApiService = companyRequestApiService;
+        _promotionApiService = promotionApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -609,6 +612,37 @@ public class AdminController : BaseController
         await _companyRequestApiService.RejectAsync(token, id);
         TempData["Success"] = "Company request rejected.";
         return RedirectToAction("CompanyRequests");
+    }
+    
+    public async Task<IActionResult> Promotions()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var promotions = await _promotionApiService.GetAllAsync(token);
+        return View(promotions);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreatePromotion(string title, string? description,
+        decimal discountPercent, DateTime startDate, DateTime endDate, string type)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        await _promotionApiService.CreateAsync(token, title, description, discountPercent, startDate, endDate, type);
+        TempData["Success"] = "Promotion created!";
+        return RedirectToAction("Promotions");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeletePromotion(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _promotionApiService.DeleteAsync(token, id);
+        return RedirectToAction("Promotions");
     }
 }
 
