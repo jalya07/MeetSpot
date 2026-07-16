@@ -25,10 +25,29 @@ public class CompanyController : BaseController
 
     [HttpPost]
     public async Task<IActionResult> Apply(string companyName, string domain,
-        string contactEmail, string? industry, string? message)
+        string contactEmail, string? industry, string? message, IFormFile? logoFile)
     {
+        string? logoUrl = null;
+
+        if (logoFile != null && logoFile.Length > 0)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(logoFile.FileName).ToLower();
+            if (allowedExtensions.Contains(extension))
+            {
+                var fileName = $"logo_{Guid.NewGuid()}{extension}";
+                var uploadsPath = Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "logos");
+                Directory.CreateDirectory(uploadsPath);
+                var filePath = Path.Combine(uploadsPath, fileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await logoFile.CopyToAsync(stream);
+                logoUrl = $"http://localhost:5249/images/logos/{fileName}";
+            }
+        }
+
         var success = await _companyRequestApiService.SendRequestAsync(
-            companyName, domain, contactEmail, industry, null, message);
+            companyName, domain, contactEmail, industry, logoUrl, message);
 
         if (success)
             TempData["Success"] = "Your request has been submitted! We'll review it within 2 business days.";

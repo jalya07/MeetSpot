@@ -109,7 +109,22 @@ public class AuthService : IAuthService
 
         if (!user.TwoFactorEnabled)
         {
-            throw new BadRequestException("Two-factor authentication is required but disabled. Contact support.");
+            var accessToken = _jwtService.GenerateToken(
+                user.Id, user.Email, user.Role.ToString(), user.Type.ToString(),
+                $"{user.FirstName} {user.LastName}", user.AvatarUrl);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            await _context.SaveChangesAsync();
+
+            return new LoginResponseDto
+            {
+                RequiresTwoFactor = false,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                Message = "Login successful"
+            };
         }
 
         var code = _jwtService.GenerateTwoFactorCode();

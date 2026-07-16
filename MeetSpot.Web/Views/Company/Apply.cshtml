@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Partner with MeetSpot";
+}
+
+<section class="blog-hero">
+    <div class="blog-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">Corporate Partnership</span>
+        <h1>Bring MeetSpot to your company</h1>
+        <p>Submit a partnership request and get corporate access for your entire team — no balance needed, free cancellations, same-day bookings.</p>
+    </div>
+</section>
+
+<section class="blog-section">
+    <div class="blog-inner" style="max-width:700px;">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="auth-success" style="margin-bottom:24px;">
+                <p>@TempData["Success"]</p>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="auth-errors" style="margin-bottom:24px;">
+                <p>@TempData["Error"]</p>
+            </div>
+        }
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;">
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">🏢</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">No balance needed</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">Company pays centrally</p>
+            </div>
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">⚡</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Same-day booking</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">No advance booking required</p>
+            </div>
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">✅</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Free cancellations</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">No cancellation fees ever</p>
+            </div>
+        </div>
+
+        <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:32px;">
+            <h2 style="font-size:20px;font-weight:600;margin-bottom:24px;">Submit partnership request</h2>
+            <form asp-action="Apply" method="post" enctype="multipart/form-data" class="auth-form">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Company name</label>
+                    <input type="text" name="companyName" placeholder="e.g. TechCorp Solutions" required />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company domain</label>
+                        <input type="text" name="domain" placeholder="e.g. techcorp.com" required />
+                        <span class="form-hint">Employees with this domain will get Corporate access</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Industry</label>
+                        <input type="text" name="industry" placeholder="e.g. Technology" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Contact email</label>
+                    <input type="email" name="contactEmail" placeholder="hr@techcorp.com" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Company logo (optional)</label>
+                    <input type="file" name="logoFile" accept="image/*"
+                           style="padding:10px;border:1px solid var(--color-border);border-radius:8px;width:100%;box-sizing:border-box;" />
+                    <span class="form-hint">JPG, PNG or WEBP</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Message (optional)</label>
+                    <textarea name="message" rows="4"
+                        placeholder="Tell us about your company and how many employees would use MeetSpot..."
+                        style="padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;font-family:inherit;width:100%;resize:vertical;box-sizing:border-box;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">Submit request</button>
+            </form>
+        </div>
+
+        <div style="margin-top:32px;padding:24px;background:var(--color-cream);border-radius:12px;text-align:center;">
+            <p style="color:var(--color-text-muted);font-size:14px;">
+                After approval, all employees with <strong>your company domain</strong> email addresses 
+                will automatically get Corporate access when they register.
+                We typically review requests within 2 business days.
+            </p>
+        </div>
+    </div>
+</section>

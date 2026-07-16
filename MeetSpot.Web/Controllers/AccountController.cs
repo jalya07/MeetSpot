@@ -54,11 +54,9 @@ public class AccountController : BaseController
     public async Task<IActionResult> Login(LoginRequest request)
     {
         if (!ModelState.IsValid)
-        {
             return View(request);
-        }
 
-        var (success, requiresTwoFactor, errors) = await _authApiService.LoginAsync(request);
+        var (success, requiresTwoFactor, accessToken, refreshToken, errors) = await _authApiService.LoginAsync(request);
 
         if (success && requiresTwoFactor)
         {
@@ -66,10 +64,23 @@ public class AccountController : BaseController
             return RedirectToAction("VerifyTwoFactor");
         }
 
-        foreach (var error in errors)
+        if (success && !requiresTwoFactor && accessToken != null)
         {
-            ModelState.AddModelError(string.Empty, error);
+            Response.Cookies.Append("AccessToken", accessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+            Response.Cookies.Append("RefreshToken", refreshToken!, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+            return RedirectToAction("Index", "Home");
         }
+
+        foreach (var error in errors)
+            ModelState.AddModelError(string.Empty, error);
 
         return View(request);
     }

@@ -345,7 +345,7 @@ public class AdminController : BaseController
     public async Task<IActionResult> Login(string email, string password)
     {
         var request = new LoginRequest { Email = email, Password = password };
-        var (success, requiresTwoFactor, errors) = await _authApiService.LoginAsync(request);
+        var (success, requiresTwoFactor, accessToken, refreshToken, errors) = await _authApiService.LoginAsync(request);
 
         if (success && requiresTwoFactor)
         {

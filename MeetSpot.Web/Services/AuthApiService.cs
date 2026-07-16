@@ -74,7 +74,7 @@ public class AuthApiService
         return (false, result?.Errors ?? new List<string> { "Registration failed" });
     }
 
-    public async Task<(bool Success, bool RequiresTwoFactor, List<string> Errors)> LoginAsync(LoginRequest request)
+    public async Task<(bool Success, bool RequiresTwoFactor, string? AccessToken, string? RefreshToken, List<string> Errors)> LoginAsync(LoginRequest request)
     {
         var json = JsonSerializer.Serialize(request);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -87,11 +87,13 @@ public class AuthApiService
         if (response.IsSuccessStatusCode)
         {
             var result = JsonSerializer.Deserialize<ApiResponse<AuthResponseData>>(responseBody, options);
-            return (true, result?.Data?.RequiresTwoFactor ?? false, new List<string>());
+            return (true, result?.Data?.RequiresTwoFactor ?? false, 
+                result?.Data?.AccessToken, result?.Data?.RefreshToken, 
+                new List<string>());
         }
 
         var errorResult = JsonSerializer.Deserialize<ApiResponse<object>>(responseBody, options);
-        return (false, false, errorResult?.Errors ?? new List<string> { "Login failed" });
+        return (false, false, null, null, errorResult?.Errors ?? new List<string> { "Login failed" });
     }
 
     public async Task<(bool Success, string? AccessToken, string? RefreshToken, List<string> Errors)> VerifyTwoFactorAsync(VerifyTwoFactorRequest request)

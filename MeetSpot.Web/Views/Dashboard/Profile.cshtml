@@ -33,17 +33,23 @@
                 </form>
             </div>
 
-            <div class="balance-card">
-                <p class="balance-label">Balance</p>
-                <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
-                <a href="/Balance" class="btn btn-primary" style="width:100%;text-align:center;margin-top:12px;">Top up</a>
-            </div>
+            @if (ViewBag.UserType != "Corporate")
+            {
+                <div class="balance-card">
+                    <p class="balance-label">Balance</p>
+                    <p class="balance-amount">$@profile?.Balance.ToString("F2")</p>
+                    <a href="/Balance" class="btn btn-primary" style="width:100%;text-align:center;margin-top:12px;">Top up</a>
+                </div>
+            }
 
             <nav class="dashboard-nav">
-                <a href="/Dashboard" class="dashboard-nav-link">My bookings</a>
-                <a href="/Dashboard/Profile" class="dashboard-nav-link active">Profile</a>
-                <a href="/Balance" class="dashboard-nav-link">Transactions</a>
-                <a href="/Subscription" class="dashboard-nav-link">Subscription</a>
+                <a href="/Dashboard" class="dashboard-nav-link active">My bookings</a>
+                <a href="/Dashboard/Profile" class="dashboard-nav-link">Profile</a>
+                @if (ViewBag.UserType != "Corporate")
+                {
+                    <a href="/Balance" class="dashboard-nav-link">Transactions</a>
+                    <a href="/Subscription" class="dashboard-nav-link">Subscription</a>
+                }
                 <a href="/Review/Create" class="dashboard-nav-link">Write a review</a>
             </nav>
         </aside>
