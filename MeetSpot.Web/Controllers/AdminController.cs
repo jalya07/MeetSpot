@@ -14,6 +14,7 @@ public class AdminController : BaseController
     private readonly AuthApiService _authApiService;
     private readonly BlogApiService _blogApiService;
     private readonly CompanyApiService _companyApiService;
+    private readonly CompanyRequestApiService _companyRequestApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -24,7 +25,8 @@ public class AdminController : BaseController
         HeroSlideApiService heroSlideApiService,
         AuthApiService authApiService,
         BlogApiService blogApiService,
-        CompanyApiService companyApiService)
+        CompanyApiService companyApiService,
+        CompanyRequestApiService companyRequestApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -35,6 +37,7 @@ public class AdminController : BaseController
         _authApiService = authApiService;
         _blogApiService = blogApiService;
         _companyApiService = companyApiService;
+        _companyRequestApiService = companyRequestApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -578,6 +581,34 @@ public class AdminController : BaseController
         var token = Request.Cookies["AccessToken"]!;
         await _companyApiService.DeleteCompanyAsync(token, id);
         return RedirectToAction("Companies");
+    }
+
+    public async Task<IActionResult> CompanyRequests()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var requests = await _companyRequestApiService.GetAllAsync(token);
+        return View(requests);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ApproveCompany(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _companyRequestApiService.ApproveAsync(token, id);
+        TempData["Success"] = "Company approved and added!";
+        return RedirectToAction("CompanyRequests");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RejectCompany(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _companyRequestApiService.RejectAsync(token, id);
+        TempData["Success"] = "Company request rejected.";
+        return RedirectToAction("CompanyRequests");
     }
 }
 

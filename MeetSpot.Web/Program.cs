@@ -23,6 +23,7 @@ builder.Services.AddScoped<ContactApiService>();
 builder.Services.AddScoped<BlogApiService>();
 builder.Services.AddScoped<BalanceApiService>();
 builder.Services.AddScoped<SubscriptionApiService>();
+builder.Services.AddScoped<CompanyRequestApiService>();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {

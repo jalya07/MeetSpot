@@ -90,7 +90,7 @@
             <div style="margin-top:60px;padding:40px;background:var(--color-ink);border-radius:16px;text-align:center;">
                 <h2 style="color:white;font-size:26px;margin-bottom:12px;">Want to bring MeetSpot to your company?</h2>
                 <p style="color:rgba(255,255,255,0.7);margin-bottom:24px;">Get corporate access for your entire team — no balance needed, free cancellations.</p>
-                <a href="/Home/Contact" class="btn btn-primary">Contact us</a>
+                <a href="/Company/Apply" class="btn btn-primary">Apply for partnership</a>
             </div>
         </div>
     </section>
@@ -114,7 +114,6 @@
     document.getElementById('slidePrev').addEventListener('click', () => showSlide(current - 1));
     dots.forEach(dot => dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index))));
 
-    // Auto-slide every 4 seconds
     setInterval(() => showSlide(current + 1), 4000);
 </script>
 }
