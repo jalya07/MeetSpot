@@ -25,6 +25,14 @@
                 <h3>@profile?.FullName</h3>
                 <p class="profile-email">@profile?.Email</p>
                 <span class="profile-type-badge">@profile?.UserType</span>
+                
+                @if (ViewBag.UserType == "Corporate")
+                {
+                    var domain = profile?.Email?.Split('@').LastOrDefault();
+                    <p style="font-size:12px;color:var(--color-coral);margin-top:6px;">
+                        <i class="fas fa-building"></i> @domain
+                    </p>
+                }
 
                 <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data" id="avatarForm">
                     @Html.AntiForgeryToken()
