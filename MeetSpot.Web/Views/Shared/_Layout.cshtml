@@ -18,7 +18,7 @@
    
 </head>
 <body>
-   <header class="site-header">
+<header class="site-header">
     <div class="top-bar">
         <div class="top-bar-inner">
             <span class="top-bar-tagline">Book a meeting room in seconds</span>
@@ -28,7 +28,7 @@
                     @if (!string.IsNullOrEmpty(ViewBag.AvatarUrl as string))
                     {
                         <img src="@ViewBag.AvatarUrl" alt="Avatar"
-                            style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3);" />
+                             style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.3);" />
                     }
                     <span class="top-bar-link" style="color: rgba(255,255,255,0.85);">@ViewBag.FullName</span>
                     @if (ViewBag.UserRole == "Admin")
@@ -102,6 +102,11 @@
         </div>
     </div>
 </header>
+<div id="promoBanner" style="display:none;background:var(--color-coral);padding:10px;text-align:center;">
+    <p id="promoText" style="color:white;font-size:14px;font-weight:600;margin:0;"></p>
+</div>
+
+
     <main role="main">
         @RenderBody()
     </main>
@@ -160,5 +165,22 @@
     <script src="~/js/home.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)
-</body>
+    
+    @if (ViewBag.IsLoggedIn == true)
+    {
+        <script>
+        fetch('http://localhost:5249/api/promotion')
+            .then(r => r.json())
+            .then(data => {
+                if (data.data && data.data.length > 0) {
+                    const promo = data.data[0];
+                    document.getElementById('promoText').innerHTML = 
+                        `🎉 ${promo.title} — ${promo.discountPercent}% off all bookings! Valid until ${new Date(promo.endDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`;
+                    document.getElementById('promoBanner').style.display = 'block';
+                }
+            })
+            .catch(() => {});
+    </script>
+    }
+    </body>
 </html>

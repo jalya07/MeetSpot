@@ -80,11 +80,20 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsCheckedIn")
                         .HasColumnType("bit");
+
+                    b.Property<decimal?>("OriginalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("int");
 
                     b.Property<string>("QrCode")
                         .HasColumnType("nvarchar(max)");
@@ -113,6 +122,8 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PromotionId");
 
                     b.HasIndex("RoomId");
 
@@ -680,6 +691,10 @@ namespace MeetSpot.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("MeetSpot.Core.Entities.Booking", b =>
                 {
+                    b.HasOne("MeetSpot.Core.Entities.Promotion", "Promotion")
+                        .WithMany()
+                        .HasForeignKey("PromotionId");
+
                     b.HasOne("MeetSpot.Core.Entities.Room", "Room")
                         .WithMany("Bookings")
                         .HasForeignKey("RoomId")
@@ -691,6 +706,8 @@ namespace MeetSpot.Infrastructure.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Promotion");
 
                     b.Navigation("Room");
 

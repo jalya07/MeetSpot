@@ -1,4 +1,5 @@
 namespace MeetSpot.Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Booking : BaseEntity
 {
@@ -17,6 +18,14 @@ public class Booking : BaseEntity
 
     public int UserId { get; set; }
     public User User { get; set; } = null!;
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal? OriginalPrice { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal? DiscountAmount { get; set; }
+    public int? PromotionId { get; set; }
+    public Promotion? Promotion { get; set; }
 
     public ICollection<BookingParticipant> Participants { get; set; } = new List<BookingParticipant>();
 }

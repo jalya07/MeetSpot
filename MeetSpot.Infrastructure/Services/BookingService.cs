@@ -61,7 +61,21 @@ public class BookingService : IBookingService
             throw new BadRequestException($"Your account type requires booking at least {minDaysAhead} days in advance");
 
         var hours = (decimal)(dto.EndTime - dto.StartTime).TotalHours;
-        var totalPrice = hours * room.PricePerHour;
+        var originalPrice = hours * room.PricePerHour;
+        var totalPrice = originalPrice;
+
+        var now = DateTime.UtcNow;
+        var activePromotion = await _context.Promotions
+            .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+            .OrderByDescending(p => p.DiscountPercent)
+            .FirstOrDefaultAsync();
+
+        decimal discountAmount = 0;
+        if (activePromotion != null)
+        {
+            discountAmount = totalPrice * (activePromotion.DiscountPercent / 100);
+            totalPrice = totalPrice - discountAmount;
+        }
 
         if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
         {
@@ -80,6 +94,9 @@ public class BookingService : IBookingService
             StartTime = dto.StartTime,
             EndTime = dto.EndTime,
             TotalPrice = totalPrice,
+            OriginalPrice = activePromotion != null ? originalPrice : null,
+            DiscountAmount = activePromotion != null ? discountAmount : null,
+            PromotionId = activePromotion?.Id,
             Status = BookingStatus.Active,
             QrCode = qrCode
         };
