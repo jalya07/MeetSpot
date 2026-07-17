@@ -42,6 +42,10 @@
                 </div>
             }
 
+            <div id="bookingPromoBanner" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+                <p id="bookingPromoText" style="color:#92400e;font-size:14px;font-weight:600;margin:0;"><i class="fas fa-bolt"></i> </p>
+            </div>
+
             <form asp-action="Create" asp-route-id="@Model.Id" method="post" class="booking-form">
                 <div class="form-group">
                     <label>Meeting title</label>
@@ -51,27 +55,35 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Start time</label>
-                        <input type="datetime-local" name="startTime" required 
+                        <input type="datetime-local" name="startTime" required
                             min="@DateTime.UtcNow.ToString("yyyy-MM-ddT08:00")"
                             max="@DateTime.UtcNow.AddDays(30).ToString("yyyy-MM-ddT18:00")" />
                     </div>
                     <div class="form-group">
                         <label>End time</label>
-                        <input type="datetime-local" name="endTime" required 
+                        <input type="datetime-local" name="endTime" required
                             min="@DateTime.UtcNow.ToString("yyyy-MM-ddT08:00")"
                             max="@DateTime.UtcNow.AddDays(30).ToString("yyyy-MM-ddT18:00")" />
                     </div>
                 </div>
 
-                <div class="booking-price-preview" id="pricePreview" style="display:none;">
-                    <span>Estimated total:</span>
-                    <strong id="estimatedPrice">$0</strong>
+                <div id="bookingPricePreview" style="display:none;flex-direction:column;gap:8px;background:var(--color-cream);border-radius:10px;padding:16px;margin-bottom:16px;">
+                    <div id="bookingOriginalBlock" style="display:none;align-items:center;gap:8px;">
+                        <span style="color:#6b7280;font-size:14px;">
+                            Original: <span id="bookingOriginalPrice" style="text-decoration:line-through;">$0</span>
+                        </span>
+                        <span id="bookingDiscountBadge" style="background:var(--color-coral);color:white;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:600;">Estimated total:</span>
+                        <strong id="bookingEstimatedPrice" style="font-size:22px;color:var(--color-ink);">$0</strong>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary auth-submit">Confirm booking</button>
             </form>
 
-            <p style="margin-top: 16px; font-size: 13px; color: #6b7280; text-align: center;">
+            <p style="margin-top:16px;font-size:13px;color:#6b7280;text-align:center;">
                 <a href="/Room/Details/@Model.Id">← Back to room details</a>
             </p>
         </div>
@@ -79,7 +91,22 @@
 </section>
 
 <script>
-    const pricePerHour = @Model.PricePerHour;
+    const pricePerHour = parseFloat('@Model.PricePerHour.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)');
+    let activeDiscount = 0;
+
+    fetch('http://localhost:5249/api/promotion')
+        .then(r => r.json())
+        .then(data => {
+            if (data.data && data.data.length > 0) {
+                const promo = data.data[0];
+                activeDiscount = promo.discountPercent;
+                document.getElementById('bookingPromoText').innerHTML =
+                    `🎉 <b>${promo.title}</b> — ${promo.discountPercent}% off this booking! Valid until ${new Date(promo.endDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`;
+                document.getElementById('bookingPromoBanner').style.display = 'block';
+                document.getElementById('bookingDiscountBadge').textContent = `-${promo.discountPercent}%`;
+            }
+        })
+        .catch(() => {});
 
     function updatePrice() {
         const start = document.querySelector('[name="startTime"]').value;
@@ -88,8 +115,17 @@
         if (start && end) {
             const hours = (new Date(end) - new Date(start)) / 3600000;
             if (hours > 0) {
-                document.getElementById('pricePreview').style.display = 'flex';
-                document.getElementById('estimatedPrice').textContent = '$' + (hours * pricePerHour).toFixed(2);
+                const originalPrice = hours * pricePerHour;
+                const discountAmount = originalPrice * (activeDiscount / 100);
+                const finalPrice = originalPrice - discountAmount;
+
+                document.getElementById('bookingPricePreview').style.display = 'flex';
+                document.getElementById('bookingEstimatedPrice').textContent = '$' + finalPrice.toFixed(2);
+
+                if (activeDiscount > 0) {
+                    document.getElementById('bookingOriginalBlock').style.display = 'flex';
+                    document.getElementById('bookingOriginalPrice').textContent = '$' + originalPrice.toFixed(2);
+                }
             }
         }
     }
