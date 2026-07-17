@@ -166,21 +166,20 @@
     @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)
     
-    @if (ViewBag.IsLoggedIn == true)
-    {
-        <script>
+    <script>
+        console.log('IsLoggedIn: @ViewBag.IsLoggedIn');
         fetch('http://localhost:5249/api/promotion')
             .then(r => r.json())
             .then(data => {
+                console.log('Promotions:', data);
                 if (data.data && data.data.length > 0) {
                     const promo = data.data[0];
                     document.getElementById('promoText').innerHTML = 
-                        `🎉 ${promo.title} — ${promo.discountPercent}% off all bookings! Valid until ${new Date(promo.endDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`;
+                        ` ${promo.title} — ${promo.discountPercent}% off!`;
                     document.getElementById('promoBanner').style.display = 'block';
                 }
             })
-            .catch(() => {});
+            .catch(err => console.log('Error:', err));
     </script>
-    }
     </body>
 </html>
