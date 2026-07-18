@@ -181,5 +181,45 @@
             })
             .catch(err => console.log('Error:', err));
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <div id="signalrToast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--color-ink);color:white;padding:16px 20px;border-radius:12px;z-index:9999;max-width:300px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">🔔</span>
+            <div>
+                <p id="toastTitle" style="font-weight:600;font-size:14px;margin:0;"></p>
+                <p id="toastMessage" style="font-size:12px;color:rgba(255,255,255,0.7);margin:0;"></p>
+            </div>
+            <button onclick="document.getElementById('signalrToast').style.display='none'"
+                    style="background:none;border:none;color:white;cursor:pointer;margin-left:auto;font-size:18px;">×</button>
+        </div>
+    </div>
+
+    <script>
+    @if (ViewBag.IsLoggedIn == true)
+    {
+        <text>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5249/hubs/booking")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("BookingCreated", function(data) {
+            const start = new Date(data.startTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+            const end = new Date(data.endTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+
+            document.getElementById('toastTitle').textContent = '🏢 ' + data.roomName;
+            document.getElementById('toastMessage').textContent = start + ' — ' + end;
+
+            const toast = document.getElementById('signalrToast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 5000);
+        });
+
+        connection.start().catch(err => console.log('SignalR:', err));
+        </text>
+    }
+    </script>
     </body>
-</html>
+    </html>
