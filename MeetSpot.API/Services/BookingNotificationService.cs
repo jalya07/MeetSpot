@@ -15,6 +15,7 @@ public class BookingNotificationService : IBookingNotificationService
 
     public async Task NotifyBookingCreated(int roomId, string roomName, DateTime startTime, DateTime endTime)
     {
+        Console.WriteLine($"=== SignalR: Sending BookingCreated for {roomName} ===");
         await _hubContext.Clients.All.SendAsync("BookingCreated", new
         {
             roomId,
