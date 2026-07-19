@@ -2020,3 +2020,30 @@
         font-size: 28px;
     }
 }
+
+@media (max-width: 768px) {
+    .blog-section,
+    .blog-inner {
+        padding: 40px 16px;
+        overflow-x: hidden;
+    }
+    
+    .mentors-hero,
+    .mentors-section {
+        padding: 40px 16px;
+        overflow-x: hidden;
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-hero-content h1 {
+        font-size: 28px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .blog-hero {
+        overflow-x: hidden;
+        padding: 50px 16px;
+    }
+}

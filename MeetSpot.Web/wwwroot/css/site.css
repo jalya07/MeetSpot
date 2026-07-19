@@ -20,6 +20,7 @@ body {
     background: var(--color-cream);
     color: var(--color-ink);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 @media (max-width: 768px) {

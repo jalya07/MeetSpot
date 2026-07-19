@@ -285,3 +285,22 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 768px) {
+    .site-header {
+        overflow-x: hidden;
+    }
+    
+    .top-bar-inner {
+        padding: 0 16px;
+        flex-wrap: wrap;
+    }
+    
+    .main-nav {
+        padding: 0 16px;
+    }
+    
+    .main-nav-links {
+        display: none;
+    }
+}
