@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: meetspot-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - MSSQL_PID=Developer
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - meetspot-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: meetspot-redis
+    networks:
+      - meetspot-network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: MeetSpot.API/Dockerfile
+    container_name: meetspot-api
+    env_file:
+      - .env
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - meetspot-network
+    volumes:
+      - uploads:/app/wwwroot/images
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: MeetSpot.Web/Dockerfile
+    container_name: meetspot-web
+    env_file:
+      - .env
+    depends_on:
+      - api
+    networks:
+      - meetspot-network
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: meetspot-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    networks:
+      - meetspot-network
+    restart: unless-stopped
+
+volumes:
+  sqldata:
+  uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  meetspot-network:
+    driver: bridge

@@ -18,6 +18,8 @@ services:
   redis:
     image: redis:latest
     container_name: meetspot-redis
+    ports:
+      - "6379:6379"
     networks:
       - meetspot-network
 
@@ -26,6 +28,8 @@ services:
       context: .
       dockerfile: MeetSpot.API/Dockerfile
     container_name: meetspot-api
+    ports:
+      - "5249:8080"
     env_file:
       - .env
     depends_on:
@@ -41,6 +45,8 @@ services:
       context: .
       dockerfile: MeetSpot.Web/Dockerfile
     container_name: meetspot-web
+    ports:
+      - "5156:8080"
     env_file:
       - .env
     depends_on:
@@ -48,28 +54,9 @@ services:
     networks:
       - meetspot-network
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: meetspot-caddy
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-      - api
-    networks:
-      - meetspot-network
-
 volumes:
   sqldata:
   uploads:
-  caddy_data:
-  caddy_config:
 
 networks:
   meetspot-network:
