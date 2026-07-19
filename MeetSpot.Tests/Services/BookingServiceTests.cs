@@ -29,6 +29,10 @@ public class BookingServiceTests
         return new BookingService(context, emailServiceMock.Object, notificationServiceMock.Object, mapperMock.Object);
     }
 
+    // Вспомогательный метод — следующий рабочий день в 10:00
+    private DateTime NextWorkDay(int addDays = 0) =>
+        DateTime.UtcNow.AddDays(addDays).Date.AddHours(10);
+
     [Fact]
     public async Task CreateAsync_ShouldThrowConflictException_WhenRoomAlreadyBooked()
     {
@@ -43,8 +47,8 @@ public class BookingServiceTests
         {
             RoomId = room.Id,
             UserId = user.Id,
-            StartTime = DateTime.UtcNow.AddHours(1),
-            EndTime = DateTime.UtcNow.AddHours(2),
+            StartTime = NextWorkDay(1),
+            EndTime = NextWorkDay(1).AddHours(2),
             Status = BookingStatus.Active,
             Title = "Existing"
         });
@@ -56,8 +60,8 @@ public class BookingServiceTests
         {
             Title = "New Booking",
             RoomId = room.Id,
-            StartTime = DateTime.UtcNow.AddHours(1).AddMinutes(30),
-            EndTime = DateTime.UtcNow.AddHours(2).AddMinutes(30),
+            StartTime = NextWorkDay(1).AddMinutes(30),
+            EndTime = NextWorkDay(1).AddHours(2).AddMinutes(30),
             ParticipantEmails = new List<string>()
         };
 
@@ -78,8 +82,8 @@ public class BookingServiceTests
         {
             Title = "Test",
             RoomId = 999,
-            StartTime = DateTime.UtcNow.AddHours(1),
-            EndTime = DateTime.UtcNow.AddHours(2),
+            StartTime = NextWorkDay(1),
+            EndTime = NextWorkDay(1).AddHours(2),
             ParticipantEmails = new List<string>()
         };
 
@@ -102,38 +106,35 @@ public class BookingServiceTests
         {
             Title = "Too soon",
             RoomId = room.Id,
-            StartTime = DateTime.UtcNow.AddHours(1),
-            EndTime = DateTime.UtcNow.AddHours(2),
+            StartTime = NextWorkDay(1),
+            EndTime = NextWorkDay(1).AddHours(2),
             ParticipantEmails = new List<string>()
         };
 
         await Assert.ThrowsAsync<BadRequestException>(() => bookingService.CreateAsync(dto, user.Id));
     }
 
-    // [Fact]
-    // public async Task CreateAsync_ShouldThrowBadRequestException_WhenInsufficientBalance()
-    // {
-    //     var context = GetInMemoryContext();
-    //     var room = new Room { Name = "Room C", Capacity = 5, PricePerHour = 100m, IsActive = true };
-    //     var user = new User { Email = "poor@test.com", FirstName = "Test", LastName = "User", Type = UserType.Premium, Balance = 5m };
-    //     context.Rooms.Add(room);
-    //     context.Users.Add(user);
-    //     await context.SaveChangesAsync();
+    [Fact]
+    public async Task CreateAsync_ShouldThrowBadRequestException_WhenInsufficientBalance()
+    {
+        var context = GetInMemoryContext();
+        var room = new Room { Name = "Room C", Capacity = 5, PricePerHour = 100m, IsActive = true };
+        var user = new User { Email = "poor@test.com", FirstName = "Test", LastName = "User", Type = UserType.Premium, Balance = 5m, Role = UserRole.User };
+        context.Rooms.Add(room);
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-    //     var bookingService = CreateService(context);
+        var bookingService = CreateService(context);
 
-    //     var dto = new CreateBookingDto
-    //     {
-    //         Title = "Expensive booking",
-    //         RoomId = room.Id,
-    //         StartTime = DateTime.UtcNow.AddHours(1),
-    //         EndTime = DateTime.UtcNow.AddHours(3),
-    //         ParticipantEmails = new List<string>()
-    //     };
+        var dto = new CreateBookingDto
+        {
+            Title = "Expensive booking",
+            RoomId = room.Id,
+            StartTime = NextWorkDay(1),
+            EndTime = NextWorkDay(1).AddHours(2),
+            ParticipantEmails = new List<string>()
+        };
 
-    //     var exception = await Record.ExceptionAsync(() => bookingService.CreateAsync(dto, user.Id));
-    //     Assert.NotNull(exception);
-    //     Console.WriteLine($"ACTUAL EXCEPTION TYPE: {exception?.GetType().FullName}");
-    //     Console.WriteLine($"ACTUAL MESSAGE: {exception?.Message}");
-    // }
+        await Assert.ThrowsAsync<BadRequestException>(() => bookingService.CreateAsync(dto, user.Id));
+    }
 }

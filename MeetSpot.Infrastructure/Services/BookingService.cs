@@ -197,7 +197,6 @@ public class BookingService : IBookingService
         var user = booking.User;
         var hoursUntilStart = (booking.StartTime - DateTime.UtcNow).TotalHours;
 
-        // Cancellation rules
         decimal refundAmount = booking.TotalPrice;
         decimal penalty = 0;
 
@@ -217,7 +216,6 @@ public class BookingService : IBookingService
         booking.CancelReason = reason;
         booking.UpdatedAt = DateTime.UtcNow;
 
-        // Refund
         if (user.Type != UserType.Corporate && !isAdmin)
         {
             user.Balance += refundAmount;
