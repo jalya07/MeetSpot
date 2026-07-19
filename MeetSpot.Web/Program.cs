@@ -32,9 +32,15 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB
 });
 
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5249/";
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    throw new InvalidOperationException("ApiBaseUrl is missing. Set it via configuration or environment variables.");
+}
+
 builder.Services.AddHttpClient("MeetSpotAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5249/");
+    client.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
 });
 
 builder.Services.AddScoped<RoomApiService>();
@@ -50,7 +56,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseSession();

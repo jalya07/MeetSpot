@@ -5,6 +5,7 @@ namespace MeetSpot.Web.Controllers;
 
 public class AdminController : BaseController
 {
+    private readonly IConfiguration _configuration;
     private readonly AnalyticsApiService _analyticsApiService;
     private readonly RoomApiService _roomApiService;
     private readonly UserApiService _userApiService;
@@ -19,6 +20,7 @@ public class AdminController : BaseController
     private readonly MentorApiService _mentorApiService;
 
     public AdminController(
+        IConfiguration configuration,
         AnalyticsApiService analyticsApiService,
         RoomApiService roomApiService,
         UserApiService userApiService,
@@ -32,6 +34,7 @@ public class AdminController : BaseController
         PromotionApiService promotionApiService,
         MentorApiService mentorApiService)
     {
+        _configuration = configuration;
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
         _userApiService = userApiService;
@@ -482,13 +485,14 @@ public class AdminController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"blog_{Guid.NewGuid()}{extension}";
-                var uploadsPath = Path.Combine(
+                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
                     Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
+                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await imageFile.CopyToAsync(stream);
-                imageUrl = $"http://localhost:5249/images/blog/{fileName}";
+                imageUrl = $"{publicBaseUrl}/images/blog/{fileName}";
                 Console.WriteLine($"=== imageUrl = {imageUrl} ===");
             }
         }
@@ -545,13 +549,14 @@ public class AdminController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"blog_{Guid.NewGuid()}{extension}";
-                var uploadsPath = Path.Combine(
+                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
                     Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
+                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await imageFile.CopyToAsync(stream);
-                imageUrl = $"http://localhost:5249/images/blog/{fileName}";
+                imageUrl = $"{publicBaseUrl}/images/blog/{fileName}";
             }
         }
 

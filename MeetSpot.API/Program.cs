@@ -29,7 +29,12 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 // JWT
-var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Jwt:Key is missing. Set it via environment variables or user secrets.");
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -79,12 +84,16 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 builder.Services.AddControllers();
 
+var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string>()?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowWeb", policy =>
     {
-        policy.WithOrigins("http://localhost:5156")
-              .AllowAnyMethod()
+        if (corsOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOrigins);
+        }
+        policy.AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
     });
@@ -99,12 +108,19 @@ using (var scope = app.Services.CreateScope())
     
     if (!context.Users.Any(u => u.Role == UserRole.Admin))
     {
+        var adminEmail = builder.Configuration["AdminSeed:Email"] ?? "admin@meetspot.local";
+        var adminPassword = builder.Configuration["AdminSeed:Password"];
+        if (string.IsNullOrWhiteSpace(adminPassword))
+        {
+            throw new InvalidOperationException("AdminSeed:Password is missing. Set a strong initial admin password via environment variables or user secrets.");
+        }
+
         context.Users.Add(new User
         {
             FirstName = "Admin",
             LastName = "MeetSpot",
-            Email = "jalavh@code.edu.az",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            Email = adminEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
             Role = UserRole.Admin,
             Type = UserType.Regular,
             IsEmailConfirmed = true,
@@ -116,14 +132,12 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    // app.MapOpenApi();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseStaticFiles();
 app.UseCors("AllowWeb");
-app.MapOpenApi();
-app.MapScalarApiReference();
-app.UseHttpsRedirection();
 
 // app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();

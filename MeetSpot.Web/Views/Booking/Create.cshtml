@@ -94,7 +94,7 @@
     const pricePerHour = parseFloat('@Model.PricePerHour.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)');
     let activeDiscount = 0;
 
-    fetch('http://localhost:5249/api/promotion')
+    fetch('/api/promotion')
         .then(r => r.json())
         .then(data => {
             if (data.data && data.data.length > 0) {

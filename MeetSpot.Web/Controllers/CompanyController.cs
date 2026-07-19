@@ -5,11 +5,13 @@ namespace MeetSpot.Web.Controllers;
 
 public class CompanyController : BaseController
 {
+    private readonly IConfiguration _configuration;
     private readonly CompanyApiService _companyApiService;
     private readonly CompanyRequestApiService _companyRequestApiService;
 
-    public CompanyController(CompanyApiService companyApiService, CompanyRequestApiService companyRequestApiService)
+    public CompanyController(IConfiguration configuration, CompanyApiService companyApiService, CompanyRequestApiService companyRequestApiService)
     {
+        _configuration = configuration;
         _companyApiService = companyApiService;
         _companyRequestApiService = companyRequestApiService;
     }
@@ -36,13 +38,14 @@ public class CompanyController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"logo_{Guid.NewGuid()}{extension}";
-                var uploadsPath = Path.Combine(
+                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
                     Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "logos");
+                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await logoFile.CopyToAsync(stream);
-                logoUrl = $"http://localhost:5249/images/logos/{fileName}";
+                logoUrl = $"{publicBaseUrl}/images/logos/{fileName}";
             }
         }
 

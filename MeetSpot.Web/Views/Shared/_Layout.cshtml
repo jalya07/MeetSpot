@@ -168,7 +168,7 @@
     
     <script>
         console.log('IsLoggedIn: @ViewBag.IsLoggedIn');
-        fetch('http://localhost:5249/api/promotion')
+        fetch('/api/promotion')
             .then(r => r.json())
             .then(data => {
                 console.log('Promotions:', data);
@@ -202,7 +202,7 @@
         {
             <text>
             connection = new signalR.HubConnectionBuilder()
-                .withUrl("http://localhost:5249/hubs/booking")
+                .withUrl("/hubs/booking")
                 .withAutomaticReconnect()
                 .build();
 
