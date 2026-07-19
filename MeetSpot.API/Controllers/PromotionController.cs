@@ -1,7 +1,6 @@
 using MeetSpot.Core.DTOs.Promotion;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
-using MeetSpot.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/promotion")]
-public class PromotionController : BaseController
+public class PromotionController : ControllerBase
 {
     private readonly IPromotionService _promotionService;
 

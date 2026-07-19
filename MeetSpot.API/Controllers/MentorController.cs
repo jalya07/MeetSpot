@@ -1,7 +1,6 @@
 using MeetSpot.Core.DTOs.Mentor;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
-using MeetSpot.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/mentor")]
-public class MentorController : BaseController
+public class MentorController : ControllerBase
 {
     private readonly IMentorService _mentorService;
 

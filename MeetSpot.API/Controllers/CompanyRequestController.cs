@@ -1,7 +1,6 @@
 using MeetSpot.Core.DTOs.Company;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
-using MeetSpot.Web.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace MeetSpot.API.Controllers;
 
 [ApiController]
 [Route("api/company-request")]
-public class CompanyRequestController : BaseController
+public class CompanyRequestController : ControllerBase
 {
     private readonly ICompanyRequestService _companyRequestService;
 
