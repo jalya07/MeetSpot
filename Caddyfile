@@ -1,0 +1,24 @@
+# Replace example.com with your real domain.
+# Caddy will automatically request TLS when reachable on port 443.
+
+example.com {
+    # tls your-email@example.com
+
+    # API routes go to the API container (internal only)
+    handle_path /api/* {
+        reverse_proxy api:8080
+    }
+
+    # Hub routes go to the API container
+    handle_path /hubs/* {
+        reverse_proxy api:8080
+    }
+
+    # Static uploads served by API
+    handle_path /images/* {
+        reverse_proxy api:8080
+    }
+
+    # Everything else goes to the web frontend
+    reverse_proxy web:8080
+}

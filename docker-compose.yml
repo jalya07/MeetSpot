@@ -6,7 +6,7 @@ services:
     container_name: meetspot-sql
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=CodeWithArjun123
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"
@@ -18,8 +18,6 @@ services:
   redis:
     image: redis:latest
     container_name: meetspot-redis
-    ports:
-      - "6379:6379"
     networks:
       - meetspot-network
 
@@ -28,19 +26,50 @@ services:
       context: .
       dockerfile: MeetSpot.API/Dockerfile
     container_name: meetspot-api
-    ports:
-      - "5249:8080"
+    env_file:
+      - .env
     depends_on:
       - sqlserver
       - redis
-    environment:
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MeetSpotDb;User Id=sa;Password=MeetSpot123!;TrustServerCertificate=True;
-      - Redis__ConnectionString=redis:6379
+    networks:
+      - meetspot-network
+    volumes:
+      - uploads:/app/wwwroot/images
+
+  web:
+    build:
+      context: .
+      dockerfile: MeetSpot.Web/Dockerfile
+    container_name: meetspot-web
+    env_file:
+      - .env
+    depends_on:
+      - api
+    networks:
+      - meetspot-network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: meetspot-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
     networks:
       - meetspot-network
 
 volumes:
   sqldata:
+  uploads:
+  caddy_data:
+  caddy_config:
 
 networks:
   meetspot-network:
