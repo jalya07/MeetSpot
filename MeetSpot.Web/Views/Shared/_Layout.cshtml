@@ -197,29 +197,31 @@
     </div>
 
     <script>
-    @if (ViewBag.IsLoggedIn == true)
-    {
-        <text>
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5249/hubs/booking")
-            .withAutomaticReconnect()
-            .build();
+        var connection;
+        @if (ViewBag.IsLoggedIn == true)
+        {
+            <text>
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:5249/hubs/booking")
+                .withAutomaticReconnect()
+                .build();
 
-        connection.on("BookingCreated", function(data) {
-            const start = new Date(data.startTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
-            const end = new Date(data.endTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+            connection.on("BookingCreated", function(data) {
+                console.log("BookingCreated received:", data);
+                const start = new Date(data.startTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                const end = new Date(data.endTime).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+            
+                document.getElementById('toastTitle').textContent = '🏢 ' + data.roomName;
+                document.getElementById('toastMessage').textContent = start + ' — ' + end;
+            
+                const toast = document.getElementById('signalrToast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 5000);
+            });
 
-            document.getElementById('toastTitle').textContent = '🏢 ' + data.roomName;
-            document.getElementById('toastMessage').textContent = start + ' — ' + end;
-
-            const toast = document.getElementById('signalrToast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 5000);
-        });
-
-        connection.start().catch(err => console.log('SignalR:', err));
-        </text>
-    }
+            connection.start().catch(err => console.log('SignalR:', err));
+            </text>
+        }
     </script>
     </body>
     </html>

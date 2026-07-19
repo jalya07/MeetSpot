@@ -14,8 +14,10 @@ namespace MeetSpot.API.Controllers;
 public class BookingController(
     IBookingService bookingService,
     IValidator<CreateBookingDto> createBookingValidator,
-    IValidator<UpdateBookingDto> updateBookingValidator) : ControllerBase
+    IValidator<UpdateBookingDto> updateBookingValidator,
+    IBookingNotificationService bookingNotificationService) : ControllerBase
 {
+    private readonly IBookingNotificationService _bookingNotificationService = bookingNotificationService;
     private int GetUserId() =>
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -92,5 +94,13 @@ public class BookingController(
     {
         await bookingService.CheckInAsync(id);
         return Ok(ResponseModelHelper<string>.SuccessResult("Check-in successful"));
+    }
+
+    [HttpPost("test-signalr")]
+    [AllowAnonymous]
+    public async Task<IActionResult> TestSignalR()
+    {
+        await _bookingNotificationService.NotifyBookingCreated(1, "Test Room", DateTime.Now, DateTime.Now.AddHours(1));
+        return Ok("Sent!");
     }
 }

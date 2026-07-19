@@ -130,7 +130,9 @@ public class BookingService : IBookingService
         var bookingDetails = $"<p><b>Room:</b> {room.Name}</p><p><b>Date:</b> {dto.StartTime:dd MMM yyyy}</p><p><b>Time:</b> {dto.StartTime:HH:mm} - {dto.EndTime:HH:mm}</p><p><b>Total:</b> ${totalPrice}</p>";
         await _emailService.SendBookingConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", bookingDetails);
 
+        Console.WriteLine($"=== About to call NotifyBookingCreated ===");
         await _notificationService.NotifyBookingCreated(room.Id, room.Name, dto.StartTime, dto.EndTime);
+        Console.WriteLine($"=== NotifyBookingCreated called ===");
 
        var bookingWithDetails = await _context.Bookings
             .Include(b => b.Room)

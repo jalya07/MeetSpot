@@ -25,9 +25,10 @@ public class BookingNotificationService : IBookingNotificationService
             message = $"{roomName} has been booked from {startTime:HH:mm} to {endTime:HH:mm}"
         });
     }
-
+    
     public async Task NotifyBookingCancelled(int roomId, string roomName)
     {
+        
         await _hubContext.Clients.All.SendAsync("BookingCancelled", new
         {
             roomId,
