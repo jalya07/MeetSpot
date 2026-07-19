@@ -21,6 +21,8 @@
                 <a href="/Admin/Companies" class="admin-nav-link"><i class="fas fa-building"></i> Companies</a>
                 <a href="/Admin/CompanyRequests" class="admin-nav-link"><i class="fas fa-handshake"></i> Company Requests</a>
                 <a href="/Admin/Promotions" class="admin-nav-link"><i class="fas fa-tag"></i> Promotions</a>
+                <a href="/Admin/Mentors" class="admin-nav-link"><i class="fas fa-chalkboard-teacher"></i> Mentors</a>
+                <a href="/Admin/MentorRequests" class="admin-nav-link"><i class="fas fa-user-plus"></i> Mentor Requests</a>
             </nav>
         </aside>
 
@@ -29,21 +31,21 @@
 
             <div class="admin-stats-grid" style="margin-bottom: 28px;">
                 <div class="admin-stat-card">
-                    <span class="admin-stat-icon">📬</span>
+                    <span class="admin-stat-icon"><i class="fas fa-envelope-open"></i></span>
                     <div>
                         <p class="admin-stat-number">@unreadMessages.Count</p>
                         <p class="admin-stat-label">Unread</p>
                     </div>
                 </div>
                 <div class="admin-stat-card">
-                    <span class="admin-stat-icon">📭</span>
+                    <span class="admin-stat-icon"><i class="fas fa-envelope"></i></span>
                     <div>
                         <p class="admin-stat-number">@readMessages.Count</p>
                         <p class="admin-stat-label">Read</p>
                     </div>
                 </div>
                 <div class="admin-stat-card">
-                    <span class="admin-stat-icon">📩</span>
+                    <span class="admin-stat-icon"><i class="fas fa-envelope-open-text"></i></span>
                     <div>
                         <p class="admin-stat-number">@Model.Count</p>
                         <p class="admin-stat-label">Total</p>

@@ -1,4 +1,7 @@
-@{ViewData["Title"] = "Mentors Hub";}
+@model List<MeetSpot.Web.Services.MentorDto>
+@{
+    ViewData["Title"] = "Mentors Hub";
+}
 
 <section class="mentors-hero">
     <div class="mentors-hero-content">
@@ -6,115 +9,110 @@
         <h1>Learn from the best in the industry</h1>
         <p>Book a private session with an experienced professional — in a MeetSpot room, face to face.</p>
         <div class="mentors-tags">
-            <span class="mentor-tag active">All</span>
-            <span class="mentor-tag">.NET</span>
-            <span class="mentor-tag">Product</span>
-            <span class="mentor-tag">Design</span>
-            <span class="mentor-tag">Data</span>
-            <span class="mentor-tag">DevOps</span>
+            <span class="mentor-tag active" data-filter="all">All</span>
+            <span class="mentor-tag" data-filter=".NET">.NET</span>
+            <span class="mentor-tag" data-filter="Product">Product</span>
+            <span class="mentor-tag" data-filter="Design">Design</span>
+            <span class="mentor-tag" data-filter="Data">Data</span>
+            <span class="mentor-tag" data-filter="DevOps">DevOps</span>
         </div>
     </div>
 </section>
 
 <section class="mentors-section">
     <div class="mentors-inner">
-        @{
-            var mentors = new[]
-            {
-                new { Name = "Sarah Johnson", Role = "Senior .NET Developer", Company = "TechCorp Solutions", Initials = "SJ", Sessions = 47, Rating = 5, Color = "#1B2B4D", Skills = new[]{"ASP.NET Core", "Clean Architecture", "EF Core"}, Bio = "10+ years building enterprise .NET applications. Helped 40+ developers land their first backend roles." },
-                new { Name = "David Martinez", Role = "Product Manager", Company = "Nova Dynamics", Initials = "DM", Sessions = 32, Rating = 5, Color = "#E8674A", Skills = new[]{"Product Strategy", "Roadmapping", "Agile"}, Bio = "Led products from 0 to 100K users. Expert in turning user feedback into shipping features." },
-                new { Name = "Aysel Yusifova", Role = "UX/UI Designer", Company = "Horizon Studios", Initials = "AY", Sessions = 58, Rating = 5, Color = "#7C3AED", Skills = new[]{"Figma", "Design Systems", "User Research"}, Bio = "Award-winning designer with work featured in 3 international design publications." },
-                new { Name = "James Wilson", Role = "Cloud Architect", Company = "Atlas Financial", Initials = "JW", Sessions = 29, Rating = 4, Color = "#059669", Skills = new[]{"Azure", "Docker", "Microservices"}, Bio = "Architected cloud solutions for 15+ fintech companies. Microsoft Azure certified." },
-                new { Name = "Elena Petrova", Role = "Data Scientist", Company = "Pulse Health", Initials = "EP", Sessions = 41, Rating = 5, Color = "#DC2626", Skills = new[]{"Python", "ML", "Data Viz"}, Bio = "Published researcher in healthcare AI. Makes complex data concepts accessible to everyone." },
-                new { Name = "Omar Hassan", Role = "DevOps Engineer", Company = "Brightline", Initials = "OH", Sessions = 23, Rating = 4, Color = "#D97706", Skills = new[]{"CI/CD", "Kubernetes", "Linux"}, Bio = "Automated deployments for teams of 5 to 500. Zero-downtime deployments are my specialty." },
-            };
+        @if (Model.Any())
+        {
+            <div class="mentors-grid">
+                @foreach (var mentor in Model)
+                {
+                    <div class="mentor-card" data-skills="@string.Join(",", mentor.Skills)">
+                        <div class="mentor-card-top">
+                            <div class="mentor-avatar" style="background:var(--color-ink);">
+                                @if (!string.IsNullOrEmpty(mentor.AvatarUrl))
+                                {
+                                    <img src="@mentor.AvatarUrl" alt="@mentor.FullName"
+                                         style="width:60px;height:60px;border-radius:50%;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    @mentor.FirstName[0].ToString().ToUpper()
+                                }
+                            </div>
+                            <div class="mentor-rating">
+                                @for (int i = 0; i < (int)mentor.Rating; i++)
+                                {
+                                    <span style="color:#F59E0B;">★</span>
+                                }
+                                @for (int i = (int)mentor.Rating; i < 5; i++)
+                                {
+                                    <span style="color:#E5E7EB;">★</span>
+                                }
+                            </div>
+                        </div>
+
+                        <h3 class="mentor-name">@mentor.FullName</h3>
+                        <p class="mentor-role">@mentor.Role</p>
+                        <p class="mentor-company"><i class="fas fa-building" style="color:var(--color-coral);margin-right:6px;"></i>@mentor.Company</p>
+                        <p class="mentor-bio">@mentor.Bio</p>
+
+                        <div class="mentor-skills">
+                            @foreach (var skill in mentor.Skills)
+                            {
+                                <span class="mentor-skill-tag">@skill</span>
+                            }
+                        </div>
+
+                        <div class="mentor-footer">
+                            <span class="mentor-sessions">
+                                <i class="fas fa-video" style="color:var(--color-coral);"></i>
+                                @mentor.SessionsCount sessions
+                            </span>
+                            <a href="/Room" class="btn btn-primary" style="font-size:13px;padding:8px 16px;">
+                                Book session
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
         }
-
-        <div class="mentors-grid">
-            @foreach (var mentor in mentors)
-            {
-                <div class="mentor-card">
-                    <div class="mentor-card-top">
-                        <div class="mentor-avatar" style="background:@mentor.Color;">
-                            @mentor.Initials
-                        </div>
-                        <div class="mentor-rating">
-                            @for (int i = 0; i < mentor.Rating; i++)
-                            {
-                                <span style="color:#F59E0B;">★</span>
-                            }
-                            @for (int i = mentor.Rating; i < 5; i++)
-                            {
-                                <span style="color:#E5E7EB;">★</span>
-                            }
-                        </div>
-                    </div>
-
-                    <h3 class="mentor-name">@mentor.Name</h3>
-                    <p class="mentor-role">@mentor.Role</p>
-                    <p class="mentor-company"><i class="fas fa-building" style="color:var(--color-coral);margin-right:6px;"></i>@mentor.Company</p>
-
-                    <p class="mentor-bio">@mentor.Bio</p>
-
-                    <div class="mentor-skills">
-                        @foreach (var skill in mentor.Skills)
-                        {
-                            <span class="mentor-skill-tag">@skill</span>
-                        }
-                    </div>
-
-                    <div class="mentor-footer">
-                        <span class="mentor-sessions">
-                            <i class="fas fa-video" style="color:var(--color-coral);"></i>
-                            @mentor.Sessions sessions
-                        </span>
-                        <a href="/Room" class="btn btn-primary" style="font-size:13px;padding:8px 16px;">
-                            Book session
-                        </a>
-                    </div>
-                </div>
-            }
-        </div>
+        else
+        {
+            <div class="empty-catalog" style="text-align:center;padding:60px;">
+                <p style="font-size:18px;color:var(--color-text-muted);">No mentors available yet.</p>
+                <p style="color:var(--color-text-muted);">Check back soon!</p>
+            </div>
+        }
 
         <div class="mentors-cta">
             <h2>Want to become a mentor?</h2>
-            <p>Share your expertise with the next generation of professionals. Book a room, set your schedule, and start making an impact.</p>
-            <a href="/Home/Contact" class="btn btn-primary">Apply to mentor</a>
+            <p>Share your expertise with the next generation of professionals.</p>
+            <a href="/Home/BecomeMentor" class="btn btn-primary">Apply to mentor</a>
         </div>
     </div>
+</section>
+
 @section Scripts {
 <script>
     const tags = document.querySelectorAll('.mentor-tag');
     const cards = document.querySelectorAll('.mentor-card');
-
-    const filterMap = {
-        'All': null,
-        '.NET': ['ASP.NET Core', 'Clean Architecture', 'EF Core'],
-        'Product': ['Product Strategy', 'Roadmapping', 'Agile'],
-        'Design': ['Figma', 'Design Systems', 'User Research'],
-        'Data': ['Python', 'ML', 'Data Viz'],
-        'DevOps': ['CI/CD', 'Kubernetes', 'Linux']
-    };
 
     tags.forEach(tag => {
         tag.addEventListener('click', function() {
             tags.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
 
-            const filter = filterMap[this.textContent.trim()];
+            const filter = this.dataset.filter;
 
             cards.forEach(card => {
-                if (!filter) {
+                if (filter === 'all') {
                     card.style.display = 'flex';
                     return;
                 }
-                const skills = Array.from(card.querySelectorAll('.mentor-skill-tag'))
-                    .map(s => s.textContent.trim());
-                const match = skills.some(s => filter.includes(s));
-                card.style.display = match ? 'flex' : 'none';
+                const skills = card.dataset.skills;
+                card.style.display = skills.includes(filter) ? 'flex' : 'none';
             });
         });
     });
 </script>
 }
-</section>

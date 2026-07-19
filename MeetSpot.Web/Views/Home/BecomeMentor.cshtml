@@ -1,0 +1,100 @@
+@{
+    ViewData["Title"] = "Become a Mentor";
+}
+
+<section class="blog-hero">
+    <div class="blog-hero-content">
+        <span class="hero-eyebrow" style="color:var(--color-coral);">Mentors Hub</span>
+        <h1>Become a MeetSpot Mentor</h1>
+        <p>Share your expertise, inspire professionals, and grow your network — all in a MeetSpot meeting room.</p>
+    </div>
+</section>
+
+<section class="blog-section">
+    <div class="blog-inner" style="max-width:700px;">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="auth-success" style="margin-bottom:24px;">
+                <p>@TempData["Success"]</p>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="auth-errors" style="margin-bottom:24px;">
+                <p>@TempData["Error"]</p>
+            </div>
+        }
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;">
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">🏆</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Share expertise</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">Help others grow professionally</p>
+            </div>
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">🤝</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Build network</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">Connect with professionals</p>
+            </div>
+            <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:12px;padding:20px;text-align:center;">
+                <div style="font-size:28px;margin-bottom:8px;">📅</div>
+                <h3 style="font-size:14px;font-weight:600;color:var(--color-ink);margin-bottom:4px;">Flexible schedule</h3>
+                <p style="font-size:12px;color:var(--color-text-muted);">Book rooms on your terms</p>
+            </div>
+        </div>
+
+        <div style="background:var(--color-white);border:1px solid var(--color-border);border-radius:14px;padding:32px;">
+            <h2 style="font-size:20px;font-weight:600;margin-bottom:24px;">Apply to become a mentor</h2>
+            <form asp-action="BecomeMentor" method="post" class="auth-form">
+                @Html.AntiForgeryToken()
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" name="firstName" placeholder="e.g. Sarah" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Last name</label>
+                        <input type="text" name="lastName" placeholder="e.g. Johnson" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="your@email.com" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Current role</label>
+                        <input type="text" name="role" placeholder="e.g. Senior .NET Developer" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" name="company" placeholder="e.g. TechCorp" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Skills (comma separated)</label>
+                    <input type="text" name="skills" placeholder="e.g. ASP.NET Core, EF Core, Docker" />
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn URL (optional)</label>
+                    <input type="text" name="linkedInUrl" placeholder="https://linkedin.com/in/yourprofile" />
+                </div>
+                <div class="form-group">
+                    <label>About you</label>
+                    <textarea name="bio" rows="4"
+                        placeholder="Tell us about your experience and what you'd like to share with mentees..."
+                        style="padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;font-family:inherit;width:100%;resize:vertical;box-sizing:border-box;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit">Submit application</button>
+            </form>
+        </div>
+
+        <div style="margin-top:32px;padding:24px;background:var(--color-cream);border-radius:12px;text-align:center;">
+            <p style="color:var(--color-text-muted);font-size:14px;">
+                We review all applications within 2 business days. 
+                Approved mentors appear on our <a href="/Home/Mentors" style="color:var(--color-coral);">Mentors Hub</a> page.
+            </p>
+        </div>
+    </div>
+</section>

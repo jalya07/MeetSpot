@@ -16,6 +16,7 @@ public class AdminController : BaseController
     private readonly CompanyApiService _companyApiService;
     private readonly CompanyRequestApiService _companyRequestApiService;
     private readonly PromotionApiService _promotionApiService;
+    private readonly MentorApiService _mentorApiService;
 
     public AdminController(
         AnalyticsApiService analyticsApiService,
@@ -28,7 +29,8 @@ public class AdminController : BaseController
         BlogApiService blogApiService,
         CompanyApiService companyApiService,
         CompanyRequestApiService companyRequestApiService,
-        PromotionApiService promotionApiService)
+        PromotionApiService promotionApiService,
+        MentorApiService mentorApiService)
     {
         _analyticsApiService = analyticsApiService;
         _roomApiService = roomApiService;
@@ -41,6 +43,7 @@ public class AdminController : BaseController
         _companyApiService = companyApiService;
         _companyRequestApiService = companyRequestApiService;
         _promotionApiService = promotionApiService;
+        _mentorApiService = mentorApiService;
     }
 
     private IActionResult CheckAdmin()
@@ -643,6 +646,66 @@ public class AdminController : BaseController
         var token = Request.Cookies["AccessToken"]!;
         await _promotionApiService.DeleteAsync(token, id);
         return RedirectToAction("Promotions");
+    }
+
+    public async Task<IActionResult> Mentors()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var mentors = await _mentorApiService.GetAllAsync();
+        return View(mentors);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateMentor(string firstName, string lastName, string role,
+        string company, string? bio, string? skillsInput, decimal rating, int sessions)
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var skills = skillsInput?.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new();
+        await _mentorApiService.CreateAsync(token, firstName, lastName, role, company, bio, skills, rating, sessions);
+        TempData["Success"] = "Mentor added!";
+        return RedirectToAction("Mentors");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteMentor(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _mentorApiService.DeleteAsync(token, id);
+        return RedirectToAction("Mentors");
+    }
+
+    public async Task<IActionResult> MentorRequests()
+    {
+        var check = CheckAdmin();
+        if (check != null) return check;
+
+        var token = Request.Cookies["AccessToken"]!;
+        var requests = await _mentorApiService.GetAllRequestsAsync(token);
+        return View(requests);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ApproveMentor(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _mentorApiService.ApproveRequestAsync(token, id);
+        TempData["Success"] = "Mentor approved and added to Mentors Hub!";
+        return RedirectToAction("MentorRequests");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RejectMentor(int id)
+    {
+        var token = Request.Cookies["AccessToken"]!;
+        await _mentorApiService.RejectRequestAsync(token, id);
+        TempData["Success"] = "Mentor request rejected.";
+        return RedirectToAction("MentorRequests");
     }
 }
 

@@ -25,6 +25,7 @@ builder.Services.AddScoped<BalanceApiService>();
 builder.Services.AddScoped<SubscriptionApiService>();
 builder.Services.AddScoped<CompanyRequestApiService>();
 builder.Services.AddScoped<PromotionApiService>();
+builder.Services.AddScoped<MentorApiService>();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {

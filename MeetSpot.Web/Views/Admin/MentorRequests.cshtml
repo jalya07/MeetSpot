@@ -1,0 +1,174 @@
+@model List<MeetSpot.Web.Services.MentorRequestDto>
+@{
+    ViewData["Title"] = "Admin — Mentor Requests";
+    var pending = Model.Where(r => r.Status == "Pending").ToList();
+    var approved = Model.Where(r => r.Status == "Approved").ToList();
+    var rejected = Model.Where(r => r.Status == "Rejected").ToList();
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+                <a href="/Admin/HeroSlides" class="admin-nav-link"><i class="fas fa-images"></i> Hero Slides</a>
+                <a href="/Admin/Messages" class="admin-nav-link"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="/Admin/Blog" class="admin-nav-link"><i class="fas fa-blog"></i> Blog</a>
+                <a href="/Admin/Companies" class="admin-nav-link"><i class="fas fa-building"></i> Companies</a>
+                <a href="/Admin/CompanyRequests" class="admin-nav-link"><i class="fas fa-handshake"></i> Company Requests</a>
+                <a href="/Admin/Promotions" class="admin-nav-link"><i class="fas fa-tag"></i> Promotions</a>
+                <a href="/Admin/Mentors" class="admin-nav-link"><i class="fas fa-chalkboard-teacher"></i> Mentors</a>
+                <a href="/Admin/MentorRequests" class="admin-nav-link active"><i class="fas fa-user-plus"></i> Mentor Requests</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Mentor Requests</h1>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:16px;"><p>@TempData["Success"]</p></div>
+            }
+
+            <div class="admin-stats-grid" style="margin-bottom:28px;">
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-hourglass-half" style="color:#f59e0b;"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@pending.Count</p>
+                        <p class="admin-stat-label">Pending</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-check" style="color:#16a34a;"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@approved.Count</p>
+                        <p class="admin-stat-label">Approved</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="admin-stat-icon"><i class="fas fa-times" style="color:#dc2626;"></i></span>
+                    <div>
+                        <p class="admin-stat-number">@rejected.Count</p>
+                        <p class="admin-stat-label">Rejected</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (pending.Any())
+            {
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">⏳ Pending (@pending.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom:28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Company</th>
+                                <th>Email</th>
+                                <th>Skills</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var req in pending)
+                            {
+                                <tr>
+                                    <td><strong>@req.FirstName @req.LastName</strong></td>
+                                    <td style="color:var(--color-coral);">@req.Role</td>
+                                    <td style="color:#6b7280;">@req.Company</td>
+                                    <td style="color:#6b7280;font-size:13px;">@req.Email</td>
+                                    <td style="color:#6b7280;font-size:13px;">@req.Skills</td>
+                                    <td style="color:#6b7280;font-size:13px;">@req.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        <div style="display:flex;gap:8px;align-items:center;">
+                                            <form method="post" action="/Admin/ApproveMentor/@req.Id">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="admin-action-btn"
+                                                        style="background:#dcfce7;color:#16a34a;">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <form method="post" action="/Admin/RejectMentor/@req.Id">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="admin-action-btn admin-action-btn-danger">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (approved.Any())
+            {
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;"><i class="fas fa-check" style="color:#16a34a;margin-right:6px;"></i> Approved (@approved.Count)</h2>
+                <div class="admin-table-wrap" style="margin-bottom:28px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Company</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var req in approved)
+                            {
+                                <tr>
+                                    <td><strong>@req.FirstName @req.LastName</strong></td>
+                                    <td style="color:var(--color-coral);">@req.Role</td>
+                                    <td style="color:#6b7280;">@req.Company</td>
+                                    <td style="color:#6b7280;font-size:13px;">@req.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (rejected.Any())
+            {
+                <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;"><i class="fas fa-times" style="color:#dc2626;margin-right:6px;"></i> Rejected (@rejected.Count)</h2>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var req in rejected)
+                            {
+                                <tr style="opacity:0.6;">
+                                    <td>@req.FirstName @req.LastName</td>
+                                    <td style="color:#6b7280;">@req.Role</td>
+                                    <td style="color:#6b7280;font-size:13px;">@req.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-catalog">
+                    <p>No mentor requests yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>

@@ -63,6 +63,7 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IHeroSlideService, HeroSlideService>();
 builder.Services.AddScoped<ICompanyRequestService, CompanyRequestService>();
 builder.Services.AddScoped<IPromotionService, PromotionService>();
+builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddHostedService<BookingAutoReleaseService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddValidatorsFromAssemblyContaining<MeetSpot.Core.Validators.RegisterValidator>();  

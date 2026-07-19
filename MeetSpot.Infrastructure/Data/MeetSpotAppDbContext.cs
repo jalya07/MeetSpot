@@ -22,6 +22,8 @@ public class MeetSpotAppDbContext : DbContext
     public DbSet<HeroSlide> HeroSlides { get; set; }
     public DbSet<CompanyRequest> CompanyRequests { get; set; }
     public DbSet<Promotion> Promotions { get; set; }
+    public DbSet<Mentor> Mentors { get; set; }
+    public DbSet<MentorRequest> MentorRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

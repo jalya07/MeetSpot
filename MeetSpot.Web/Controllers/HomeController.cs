@@ -13,6 +13,7 @@ public class HomeController : BaseController
     private readonly ReviewApiService _reviewApiService;
     private readonly HeroSlideApiService _heroSlideApiService;
     private readonly BookingApiService _bookingApiService;
+    private readonly MentorApiService _mentorApiService;
 
     public HomeController(
         RoomApiService roomApiService,
@@ -20,7 +21,8 @@ public class HomeController : BaseController
         CompanyApiService companyApiService,
         ReviewApiService reviewApiService,
         HeroSlideApiService heroSlideApiService,
-        BookingApiService bookingApiService)
+        BookingApiService bookingApiService,
+        MentorApiService mentorApiService)
     {
         _roomApiService = roomApiService;
         _analyticsApiService = analyticsApiService;
@@ -28,6 +30,7 @@ public class HomeController : BaseController
         _reviewApiService = reviewApiService;
         _heroSlideApiService = heroSlideApiService;
         _bookingApiService = bookingApiService;
+        _mentorApiService = mentorApiService;
     }
 
     public async Task<IActionResult> Index()
@@ -106,8 +109,31 @@ public class HomeController : BaseController
     public IActionResult Industries() => View();
     public IActionResult HowItWorks() => View();
     public IActionResult Help() => View();
-    public IActionResult Mentors() => View();
+
+    public async Task<IActionResult> Mentors()
+    {
+        var mentors = await _mentorApiService.GetAllAsync();
+        return View(mentors);
+    }
 
     public IActionResult Terms() => View();
     public IActionResult Refund() => View();    
+
+    [HttpGet]
+    public IActionResult BecomeMentor() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> BecomeMentor(string firstName, string lastName, string email,
+    string role, string company, string? bio, string? skills, string? linkedInUrl)
+    {
+        var success = await _mentorApiService.SendRequestAsync(
+            firstName, lastName, email, role, company, bio, skills, linkedInUrl);
+
+        if (success)
+            TempData["Success"] = "Your application has been submitted! We'll review it within 2 business days.";
+        else
+            TempData["Error"] = "Something went wrong. Please try again.";
+
+        return RedirectToAction("BecomeMentor");
+    }
 }

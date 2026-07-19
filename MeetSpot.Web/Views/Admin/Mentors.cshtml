@@ -1,0 +1,136 @@
+@model List<MeetSpot.Web.Services.MentorDto>
+@{
+    ViewData["Title"] = "Admin — Mentors";
+}
+
+<section class="admin-section">
+    <div class="admin-inner">
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">Admin Panel</h3>
+            <nav class="admin-nav">
+                <a href="/Admin/Dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="/Admin/Rooms" class="admin-nav-link"><i class="fas fa-building"></i> Rooms</a>
+                <a href="/Admin/Bookings" class="admin-nav-link"><i class="fas fa-calendar-alt"></i> Bookings</a>
+                <a href="/Admin/Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/Admin/Reviews" class="admin-nav-link"><i class="fas fa-star"></i> Reviews</a>
+                <a href="/Admin/HeroSlides" class="admin-nav-link"><i class="fas fa-images"></i> Hero Slides</a>
+                <a href="/Admin/Messages" class="admin-nav-link"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="/Admin/Blog" class="admin-nav-link"><i class="fas fa-blog"></i> Blog</a>
+                <a href="/Admin/Companies" class="admin-nav-link"><i class="fas fa-building"></i> Companies</a>
+                <a href="/Admin/CompanyRequests" class="admin-nav-link"><i class="fas fa-handshake"></i> Company Requests</a>
+                <a href="/Admin/Promotions" class="admin-nav-link"><i class="fas fa-tag"></i> Promotions</a>
+                <a href="/Admin/Mentors" class="admin-nav-link active"><i class="fas fa-chalkboard-teacher"></i> Mentors</a>
+                <a href="/Admin/MentorRequests" class="admin-nav-link"><i class="fas fa-user-plus"></i> Mentor Requests</a>
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <h1>Mentors Hub</h1>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="auth-success" style="margin-bottom:16px;"><p>@TempData["Success"]</p></div>
+            }
+
+            @if (Model.Any())
+            {
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Company</th>
+                                <th>Skills</th>
+                                <th>Rating</th>
+                                <th>Sessions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mentor in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:10px;">
+                                            <div style="width:36px;height:36px;border-radius:50%;background:var(--color-ink);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+                                                @mentor.FirstName[0]
+                                            </div>
+                                            <strong>@mentor.FullName</strong>
+                                        </div>
+                                    </td>
+                                    <td style="color:var(--color-coral);font-weight:600;">@mentor.Role</td>
+                                    <td style="color:#6b7280;">@mentor.Company</td>
+                                    <td>
+                                        @foreach (var skill in mentor.Skills.Take(2))
+                                        {
+                                            <span class="admin-badge admin-badge-blue" style="margin-right:4px;font-size:11px;">@skill</span>
+                                        }
+                                        @if (mentor.Skills.Count > 2)
+                                        {
+                                            <span style="color:#6b7280;font-size:12px;">+@(mentor.Skills.Count - 2)</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span style="color:#F59E0B;font-weight:600;">★ @mentor.Rating</span>
+                                    </td>
+                                    <td style="color:#6b7280;">@mentor.SessionsCount</td>
+                                    <td>
+                                        <div style="display:flex;gap:8px;align-items:center;">
+                                            <button type="button" class="admin-action-btn admin-action-btn-danger"
+                                                    onclick="openDeleteModal('/Admin/DeleteMentor/@mentor.Id')">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-catalog">
+                    <p>No mentors yet. Add your first mentor above!</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">🗑️</div>
+        <h3 style="font-size:20px;font-weight:600;color:#1b2b4d;margin-bottom:8px;">Remove mentor?</h3>
+        <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">This mentor will be removed from the Mentors Hub.</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button onclick="closeDeleteModal()"
+                    style="padding:12px 24px;border-radius:8px;border:1px solid #e5e2dc;background:white;font-size:14px;cursor:pointer;">
+                Cancel
+            </button>
+            <form id="deleteForm" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        style="padding:12px 24px;border-radius:8px;border:none;background:#dc2626;color:white;font-size:14px;cursor:pointer;">
+                    Yes, remove
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openDeleteModal(action) {
+        document.getElementById('deleteForm').action = action;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+}
