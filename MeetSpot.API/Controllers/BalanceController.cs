@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MeetSpot.Core.DTOs.Balance;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
@@ -19,6 +20,7 @@ public class BalanceController(
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpPost("topup")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<TransactionResponseDto>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<TransactionResponseDto>), 400)]
     public async Task<IActionResult> TopUp([FromBody] TopUpBalanceDto dto)

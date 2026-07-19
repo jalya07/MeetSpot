@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MeetSpot.Core.DTOs.Auth;
 using MeetSpot.Core.Helpers;
 using MeetSpot.Core.Interfaces;
@@ -18,6 +19,7 @@ public class AuthController(
     IValidator<VerifyTwoFactorDto> verifyTwoFactorValidator) : ControllerBase
 {
     [HttpPost("register")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 400)]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 409)]
@@ -34,6 +36,7 @@ public class AuthController(
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<LoginResponseDto>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<LoginResponseDto>), 401)]
     public async Task<IActionResult> Login([FromBody] LoginDto dto) 
@@ -49,6 +52,7 @@ public class AuthController(
     }
 
     [HttpPost("verify-2fa")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<AuthResponseDto>), 401)]
     public async Task<IActionResult> VerifyTwoFactor([FromBody] VerifyTwoFactorDto dto)
@@ -82,6 +86,7 @@ public class AuthController(
     }
 
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 404)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
@@ -96,6 +101,7 @@ public class AuthController(
     }
 
     [HttpPost("reset-password")]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 200)]
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)

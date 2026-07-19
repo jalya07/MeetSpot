@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using MeetSpot.Core.DTOs.Booking;
 using MeetSpot.Core.Helpers;
@@ -57,7 +58,8 @@ public class BookingController(
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> Cancel(int id, [FromBody] string? reason)
     {
-        await bookingService.CancelAsync(id, GetUserId(), reason);
+        var isAdmin = User.IsInRole("Admin");
+        await bookingService.CancelAsync(id, GetUserId(), isAdmin, reason);
         return Ok(ResponseModelHelper<string>.SuccessResult("Booking cancelled successfully"));
     }
 
@@ -92,7 +94,8 @@ public class BookingController(
     [ProducesResponseType(typeof(ResponseModelHelper<string>), 400)]
     public async Task<IActionResult> CheckIn(int id)
     {
-        await bookingService.CheckInAsync(id);
+        var isAdmin = User.IsInRole("Admin");
+        await bookingService.CheckInAsync(id, GetUserId(), isAdmin);
         return Ok(ResponseModelHelper<string>.SuccessResult("Check-in successful"));
     }
 
@@ -100,6 +103,9 @@ public class BookingController(
     [AllowAnonymous]
     public async Task<IActionResult> TestSignalR()
     {
+        if (!HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+            return NotFound();
+
         await _bookingNotificationService.NotifyBookingCreated(1, "Test Room", DateTime.Now, DateTime.Now.AddHours(1));
         return Ok("Sent!");
     }

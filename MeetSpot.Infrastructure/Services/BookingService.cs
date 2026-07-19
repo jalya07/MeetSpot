@@ -1,3 +1,4 @@
+using System.Data;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Core.DTOs.Booking;
@@ -26,119 +27,141 @@ public class BookingService : IBookingService
 
     public async Task<BookingResponseDto> CreateAsync(CreateBookingDto dto, int userId)
     {
-        var conflict = await _context.Bookings
-            .AnyAsync(b => b.RoomId == dto.RoomId
-                && b.Status == BookingStatus.Active
-                && b.StartTime < dto.EndTime
-                && b.EndTime > dto.StartTime);
+        await using var transaction = await _context.Database
+            .BeginTransactionAsync(IsolationLevel.Serializable);
 
-        if (conflict)
-            throw new ConflictException("Room is already booked for this time slot");
+        Room? room = null;
+        User? user = null;
+        decimal totalPrice = 0;
+        Booking? booking = null;
 
-        var room = await _context.Rooms.FindAsync(dto.RoomId);
-        if (room == null)
-            throw new NotFoundException("Room not found");
-
-        var user = await _context.Users.FindAsync(userId);
-        if (user == null)
-            throw new NotFoundException("User not found");
-
-        var minDaysAhead = user.Type switch
+        try
         {
-            UserType.Regular => 5,
-            UserType.Corporate => 0,
-            UserType.Premium => 0,
-            _ => 5
-        };
+            var conflict = await _context.Bookings
+                .AnyAsync(b => b.RoomId == dto.RoomId
+                    && b.Status == BookingStatus.Active
+                    && b.StartTime < dto.EndTime
+                    && b.EndTime > dto.StartTime);
 
-        if (dto.StartTime.Hour < 8 || dto.StartTime.Hour >= 18)
-            throw new BadRequestException("Bookings are only available between 8:00 and 18:00");
+            if (conflict)
+                throw new ConflictException("Room is already booked for this time slot");
 
-        if (dto.EndTime.Hour > 18 || (dto.EndTime.Hour == 18 && dto.EndTime.Minute > 0))
-            throw new BadRequestException("Bookings must end by 18:00");
+            room = await _context.Rooms.FindAsync(dto.RoomId);
+            if (room == null)
+                throw new NotFoundException("Room not found");
 
-        if (dto.StartTime < DateTime.UtcNow.AddDays(minDaysAhead))
-            throw new BadRequestException($"Your account type requires booking at least {minDaysAhead} days in advance");
+            user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new NotFoundException("User not found");
 
-        var hours = (decimal)(dto.EndTime - dto.StartTime).TotalHours;
-        var originalPrice = hours * room.PricePerHour;
-        var totalPrice = originalPrice;
-
-        var now = DateTime.UtcNow;
-        var activePromotion = await _context.Promotions
-            .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
-            .OrderByDescending(p => p.DiscountPercent)
-            .FirstOrDefaultAsync();
-
-        decimal discountAmount = 0;
-        if (activePromotion != null)
-        {
-            discountAmount = totalPrice * (activePromotion.DiscountPercent / 100);
-            totalPrice = totalPrice - discountAmount;
-        }
-
-        if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
-        {
-            if (user.Balance < totalPrice)
-                throw new BadRequestException("Insufficient balance");
-        }
-
-        var qrContent = $"MEETSPOT-BOOKING-{Guid.NewGuid()}";
-        var qrCode = GenerateQrBase64(qrContent);
-
-        var booking = new Booking
-        {
-            Title = dto.Title,
-            RoomId = dto.RoomId,
-            UserId = userId,
-            StartTime = dto.StartTime,
-            EndTime = dto.EndTime,
-            TotalPrice = totalPrice,
-            OriginalPrice = activePromotion != null ? originalPrice : null,
-            DiscountAmount = activePromotion != null ? discountAmount : null,
-            PromotionId = activePromotion?.Id,
-            Status = BookingStatus.Active,
-            QrCode = qrCode
-        };
-
-        foreach (var email in dto.ParticipantEmails)
-        {
-            booking.Participants.Add(new BookingParticipant
+            var minDaysAhead = user.Type switch
             {
-                Email = email,
-                Name = email
-            });
-        }
+                UserType.Regular => 5,
+                UserType.Corporate => 0,
+                UserType.Premium => 0,
+                _ => 5
+            };
 
-        _context.Bookings.Add(booking);
+            if (dto.StartTime.Hour < 8 || dto.StartTime.Hour >= 18)
+                throw new BadRequestException("Bookings are only available between 8:00 and 18:00");
 
-        if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
-        {
-            user.Balance -= totalPrice;
-            _context.Transactions.Add(new Transaction
+            if (dto.EndTime.Hour > 18 || (dto.EndTime.Hour == 18 && dto.EndTime.Minute > 0))
+                throw new BadRequestException("Bookings must end by 18:00");
+
+            if (dto.StartTime < DateTime.UtcNow.AddDays(minDaysAhead))
+                throw new BadRequestException($"Your account type requires booking at least {minDaysAhead} days in advance");
+
+            var hours = (decimal)(dto.EndTime - dto.StartTime).TotalHours;
+            var originalPrice = hours * room.PricePerHour;
+            totalPrice = originalPrice;
+
+            var now = DateTime.UtcNow;
+            var activePromotion = await _context.Promotions
+                .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .OrderByDescending(p => p.DiscountPercent)
+                .FirstOrDefaultAsync();
+
+            decimal discountAmount = 0;
+            if (activePromotion != null)
             {
+                discountAmount = totalPrice * (activePromotion.DiscountPercent / 100);
+                totalPrice = totalPrice - discountAmount;
+            }
+
+            if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
+            {
+                if (user.Balance < totalPrice)
+                    throw new BadRequestException("Insufficient balance");
+            }
+
+            var qrContent = $"MEETSPOT-BOOKING-{Guid.NewGuid()}";
+            var qrCode = GenerateQrBase64(qrContent);
+
+            booking = new Booking
+            {
+                Title = dto.Title,
+                RoomId = dto.RoomId,
                 UserId = userId,
-                Amount = -totalPrice,
-                Type = TransactionType.BookingPayment,
-                Description = $"Booking: {dto.Title}",
-                BalanceAfter = user.Balance
-            });
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
+                TotalPrice = totalPrice,
+                OriginalPrice = activePromotion != null ? originalPrice : null,
+                DiscountAmount = activePromotion != null ? discountAmount : null,
+                PromotionId = activePromotion?.Id,
+                Status = BookingStatus.Active,
+                QrCode = qrCode
+            };
+
+            foreach (var email in dto.ParticipantEmails)
+            {
+                booking.Participants.Add(new BookingParticipant
+                {
+                    Email = email,
+                    Name = email
+                });
+            }
+
+            _context.Bookings.Add(booking);
+
+            if (user.Role != UserRole.Admin && user.Type != UserType.Corporate)
+            {
+                user.Balance -= totalPrice;
+                _context.Transactions.Add(new Transaction
+                {
+                    UserId = userId,
+                    Amount = -totalPrice,
+                    Type = TransactionType.BookingPayment,
+                    Description = $"Booking: {dto.Title}",
+                    BalanceAfter = user.Balance
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            throw new ConflictException("Room was booked by another request. Please try again.");
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
 
-        await _context.SaveChangesAsync();
-
-        var bookingDetails = $"<p><b>Room:</b> {room.Name}</p><p><b>Date:</b> {dto.StartTime:dd MMM yyyy}</p><p><b>Time:</b> {dto.StartTime:HH:mm} - {dto.EndTime:HH:mm}</p><p><b>Total:</b> ${totalPrice}</p>";
-        await _emailService.SendBookingConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", bookingDetails);
+        var bookingDetails = $"<p><b>Room:</b> {room!.Name}</p><p><b>Date:</b> {dto.StartTime:dd MMM yyyy}</p><p><b>Time:</b> {dto.StartTime:HH:mm} - {dto.EndTime:HH:mm}</p><p><b>Total:</b> ${totalPrice}</p>";
+        await _emailService.SendBookingConfirmationAsync(user!.Email, $"{user.FirstName} {user.LastName}", bookingDetails);
 
         Console.WriteLine($"=== About to call NotifyBookingCreated ===");
-        await _notificationService.NotifyBookingCreated(room.Id, room.Name, dto.StartTime, dto.EndTime);
+        await _notificationService.NotifyBookingCreated(room!.Id, room.Name, dto.StartTime, dto.EndTime);
         Console.WriteLine($"=== NotifyBookingCreated called ===");
 
        var bookingWithDetails = await _context.Bookings
             .Include(b => b.Room)
             .Include(b => b.User)
             .Include(b => b.Participants)
-            .FirstOrDefaultAsync(b => b.Id == booking.Id);
+            .FirstOrDefaultAsync(b => b.Id == booking!.Id);
 
         return _mapper.Map<BookingResponseDto>(bookingWithDetails!);
     }
@@ -177,7 +200,7 @@ public class BookingService : IBookingService
         return _mapper.Map<BookingResponseDto>(updatedBooking!);
     }
 
-    public async Task CancelAsync(int id, int userId, string? reason)
+    public async Task CancelAsync(int id, int userId, bool isAdmin, string? reason)
     {
         var booking = await _context.Bookings
             .Include(b => b.Room)
@@ -187,7 +210,6 @@ public class BookingService : IBookingService
         if (booking == null)
             throw new NotFoundException("Booking not found");
 
-        var isAdmin = booking.User.Role == UserRole.Admin;
         if (!isAdmin && booking.UserId != userId)
             throw new UnauthorizedException("Unauthorized");
 
@@ -274,7 +296,7 @@ public class BookingService : IBookingService
     return bookings.Select(b => _mapper.Map<BookingResponseDto>(b)).ToList();
     }
 
-    public async Task CheckInAsync(int bookingId)
+    public async Task CheckInAsync(int bookingId, int userId, bool isAdmin)
     {
         var booking = await _context.Bookings
             .Include(b => b.User)
@@ -282,6 +304,9 @@ public class BookingService : IBookingService
 
         if (booking == null)
             throw new NotFoundException("Booking not found");
+
+        if (!isAdmin && booking.UserId != userId)
+            throw new UnauthorizedException("Unauthorized");
 
         if (booking.Status != BookingStatus.Active)
             throw new BadRequestException("Booking is not active");

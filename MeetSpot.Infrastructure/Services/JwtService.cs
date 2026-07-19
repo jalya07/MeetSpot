@@ -53,7 +53,11 @@ public class JwtService : IJwtService
 
     public string GenerateTwoFactorCode()
     {
-        return Random.Shared.Next(100000, 999999).ToString();
+        var bytes = new byte[4];
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        var value = BitConverter.ToUInt32(bytes, 0) % 900000u + 100000u;
+        return value.ToString("D6");
     }
 
     public string GenerateToken(int userId, string email, string role, string userType, string fullName, string? avatarUrl = null)
