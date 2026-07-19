@@ -1,7 +1,17 @@
+using MeetSpot.Web.Middleware;
 using MeetSpot.Web.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Honor X-Forwarded-* from the Caddy reverse proxy so Request.IsHttps and the
+// client IP reflect the original request (TLS is terminated at Caddy).
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -47,6 +57,8 @@ builder.Services.AddScoped<RoomApiService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -57,6 +69,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+
+// Refresh an expired access token from the refresh-token cookie before the
+// action reads it, keeping the user logged in for the refresh-token lifetime.
+app.UseMiddleware<TokenRefreshMiddleware>();
 
 app.UseSession();
 

@@ -63,29 +63,24 @@ public class AuthService : IAuthService
             IsEmailConfirmed = false
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var accessToken = _jwtService.GenerateToken(
-            user.Id, user.Email, user.Role.ToString(), user.Type.ToString(),
-            $"{user.FirstName} {user.LastName}");
-        var refreshToken = _jwtService.GenerateRefreshToken();
-
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-        await _context.SaveChangesAsync();
         var confirmToken = Guid.NewGuid().ToString();
         user.EmailConfirmationToken = confirmToken;
         user.EmailConfirmationTokenExpiry = DateTime.UtcNow.AddHours(24);
+
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
         var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5156";
         var confirmLink = $"{frontendBaseUrl}/Account/ConfirmEmail?token={confirmToken}&email={user.Email}";
         await _emailService.SendEmailConfirmationAsync(user.Email, $"{user.FirstName} {user.LastName}", confirmLink);
+
+        // No access/refresh tokens are issued at registration. The account must
+        // confirm its email and then log in — this prevents using the API before
+        // the email address is verified.
         return new AuthResponseDto
         {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken,
+            AccessToken = string.Empty,
+            RefreshToken = string.Empty,
             Email = user.Email,
             FullName = $"{user.FirstName} {user.LastName}",
             Role = user.Role.ToString(),

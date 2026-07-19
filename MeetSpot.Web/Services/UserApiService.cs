@@ -130,7 +130,6 @@ public class UserApiService
     {
         try
         {
-            Console.WriteLine($"=== RefreshToken called: accessToken={accessToken?.Substring(0, 20)}..., refreshToken={refreshToken?.Substring(0, 10)}... ===");
             var dto = new { accessToken = accessToken, refreshToken };
             var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

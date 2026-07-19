@@ -4,6 +4,7 @@ using MeetSpot.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,7 +13,7 @@ namespace MeetSpot.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(MeetSpotAppDbContext))]
     [Migration("20260719123000_mig_14_heroslides")]
-    partial class mig_14_heroslides : Migration
+    partial class mig_14_heroslides
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

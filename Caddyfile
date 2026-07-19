@@ -1,24 +1,32 @@
-# Replace example.com with your real domain.
-# Caddy will automatically request TLS when reachable on port 443.
+# The site address comes from the DOMAIN env var (set in .env, passed to the
+# caddy container by docker-compose.prod.yml). For a quick deployment without
+# your own domain, use an sslip.io hostname that encodes your server's public
+# IP, e.g. DOMAIN=203.0.113.10.sslip.io — Caddy will auto-provision HTTPS via
+# Let's Encrypt as long as ports 80/443 are reachable.
 
-example.com {
-    # tls your-email@example.com
+{$DOMAIN} {
+    # IMPORTANT: use `handle` (not `handle_path`) so the matched prefix is
+    # preserved. The API controllers are routed under /api/*, the SignalR hub
+    # is mapped at /hubs/booking, and uploaded files are served under /images/*.
+    # Stripping those prefixes would 404 every one of these requests.
 
-    # API routes go to the API container (internal only)
-    handle_path /api/* {
+    # API routes go to the API container
+    handle /api/* {
         reverse_proxy api:8080
     }
 
-    # Hub routes go to the API container
-    handle_path /hubs/* {
+    # SignalR hub routes go to the API container
+    handle /hubs/* {
         reverse_proxy api:8080
     }
 
-    # Static uploads served by API
-    handle_path /images/* {
+    # Static uploads served by the API
+    handle /images/* {
         reverse_proxy api:8080
     }
 
     # Everything else goes to the web frontend
-    reverse_proxy web:8080
+    handle {
+        reverse_proxy web:8080
+    }
 }

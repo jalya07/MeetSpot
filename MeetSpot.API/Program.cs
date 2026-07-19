@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using MeetSpot.Infrastructure.Data;
 using System.Text;
@@ -16,8 +17,18 @@ using MeetSpot.Infrastructure.Services;
 using Microsoft.AspNetCore.Http.Features;
 using Scalar.AspNetCore;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Honor X-Forwarded-* from the Caddy reverse proxy so the real client IP (used
+// by the auth rate limiter) and scheme are seen instead of the proxy's.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add services to the container.
 builder.Services.AddDbContext<MeetSpotAppDbContext>(options =>
@@ -119,7 +130,29 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<MeetSpotAppDbContext>();
-    
+
+    // Apply pending EF Core migrations on startup so a fresh deployment
+    // (empty database) is provisioned automatically. In container setups the
+    // SQL Server instance may still be warming up, so retry for up to ~60s.
+    var migrated = false;
+    for (var attempt = 1; attempt <= 12 && !migrated; attempt++)
+    {
+        try
+        {
+            context.Database.Migrate();
+            migrated = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[startup] Database not ready, applying migrations failed (attempt {attempt}/12): {ex.Message}");
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        }
+    }
+    if (!migrated)
+    {
+        throw new InvalidOperationException("Could not reach the database to apply migrations after multiple attempts.");
+    }
+
     if (!context.Users.Any(u => u.Role == UserRole.Admin))
     {
         var adminEmail = builder.Configuration["AdminSeed:Email"] ?? "admin@meetspot.local";
@@ -143,6 +176,8 @@ using (var scope = app.Services.CreateScope())
         context.SaveChanges();
     }
 }
+
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {

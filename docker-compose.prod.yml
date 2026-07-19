@@ -48,11 +48,17 @@ services:
       - api
     networks:
       - meetspot-network
+    volumes:
+      # Shared with the API so images uploaded via the Web app are served by the API.
+      - uploads:/app/wwwroot/images
     restart: unless-stopped
 
   caddy:
     image: caddy:2-alpine
     container_name: meetspot-caddy
+    environment:
+      # Site address for the Caddyfile ({$DOMAIN}); set in .env.
+      - DOMAIN=${DOMAIN}
     ports:
       - "80:80"
       - "443:443"

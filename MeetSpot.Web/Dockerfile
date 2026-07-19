@@ -6,6 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["MeetSpot.Web/MeetSpot.Web.csproj", "MeetSpot.Web/"]
 COPY ["MeetSpot.Core/MeetSpot.Core.csproj", "MeetSpot.Core/"]
+COPY ["MeetSpot.Infrastructure/MeetSpot.Infrastructure.csproj", "MeetSpot.Infrastructure/"]
 RUN dotnet restore "MeetSpot.Web/MeetSpot.Web.csproj"
 COPY . .
 WORKDIR "/src/MeetSpot.Web"

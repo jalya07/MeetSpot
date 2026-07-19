@@ -236,7 +236,8 @@ public class AdminController : BaseController
             }
 
             var fileName = $"hero_{Guid.NewGuid()}{extension}";
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "hero");
+            var uploadsRoot = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            var uploadsPath = Path.Combine(uploadsRoot, "hero");
             Directory.CreateDirectory(uploadsPath);
 
             var filePath = Path.Combine(uploadsPath, fileName);
@@ -311,7 +312,8 @@ public class AdminController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"hero_{Guid.NewGuid()}{extension}";
-                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "hero");
+                var uploadsRoot = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var uploadsPath = Path.Combine(uploadsRoot, "hero");
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
@@ -362,6 +364,8 @@ public class AdminController : BaseController
             Response.Cookies.Append("AdminLoginAttempt", "true", new CookieOptions
             {
                 HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(10)
             });
             return RedirectToAction("VerifyTwoFactor", "Account");
@@ -485,15 +489,14 @@ public class AdminController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"blog_{Guid.NewGuid()}{extension}";
-                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
-                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
-                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
+                var uploadsRoot = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images");
+                var uploadsPath = Path.Combine(uploadsRoot, "blog");
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await imageFile.CopyToAsync(stream);
-                imageUrl = $"{publicBaseUrl}/images/blog/{fileName}";
-                Console.WriteLine($"=== imageUrl = {imageUrl} ===");
+                imageUrl = $"/images/blog/{fileName}";
             }
         }
         var (success, error) = await _blogApiService.CreatePostAsync(token, title, content, imageUrl, isPublished);
@@ -549,14 +552,14 @@ public class AdminController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"blog_{Guid.NewGuid()}{extension}";
-                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
-                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "blog");
-                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
+                var uploadsRoot = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images");
+                var uploadsPath = Path.Combine(uploadsRoot, "blog");
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await imageFile.CopyToAsync(stream);
-                imageUrl = $"{publicBaseUrl}/images/blog/{fileName}";
+                imageUrl = $"/images/blog/{fileName}";
             }
         }
 

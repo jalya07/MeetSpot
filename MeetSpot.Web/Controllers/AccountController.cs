@@ -69,11 +69,16 @@ public class AccountController : BaseController
             Response.Cookies.Append("AccessToken", accessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                // Outlives the 1h token so the expired token stays available for refresh.
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             Response.Cookies.Append("RefreshToken", refreshToken!, new CookieOptions
             {
                 HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             return RedirectToAction("Index", "Home");
@@ -137,11 +142,16 @@ public class AccountController : BaseController
             Response.Cookies.Append("AccessToken", accessToken!, new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                // Outlives the 1h token so the expired token stays available for refresh.
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             Response.Cookies.Append("RefreshToken", refreshToken!, new CookieOptions
             {
                 HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
 

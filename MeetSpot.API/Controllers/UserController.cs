@@ -78,7 +78,7 @@ public class UserController(IUserService userService,IValidator<UpdateProfileDto
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var avatarUrl = $"{Request.Scheme}://{Request.Host}/images/avatars/{fileName}";
+        var avatarUrl = $"/images/avatars/{fileName}";
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         await userService.UpdateAvatarAsync(userId, avatarUrl);

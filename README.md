@@ -25,54 +25,82 @@ MeetSpot is a full-stack meeting room booking platform built with ASP.NET Core. 
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Local Development
 
 ### Prerequisites
 - .NET 10 SDK
 - Docker Desktop
-- SQL Server (via Docker)
-- Redis (via Docker)
 
-### 1. Start Docker containers
+### 1. Start SQL Server + Redis (dev compose builds & runs everything)
 
 ```bash
-# SQL Server
-docker run -d -p 1433:1433 --name sql \
-  -e ACCEPT_EULA=Y \
-  -e MSSQL_SA_PASSWORD=CodeWithArjun123 \
-  mcr.microsoft.com/azure-sql-edge
-
-# Redis
-docker run -d -p 6379:6379 --name meetspot-redis redis
+cp .env.example .env      # then edit .env with local values
+docker compose up --build
 ```
 
-### 2. Apply migrations
+The API applies EF Core migrations automatically on startup (retrying until SQL
+Server is ready) and seeds an initial admin from `AdminSeed__*` in `.env`.
 
-```bash
-dotnet ef database update \
-  --project MeetSpot.Infrastructure \
-  --startup-project MeetSpot.API
-```
+- **Frontend:** http://localhost:5156
+- **API:** http://localhost:5249
+- **API Docs (Scalar, dev only):** http://localhost:5249/scalar/v1
 
-### 3. Run the projects
+### Running without Docker
 
 ```bash
 # Terminal 1 — API (port 5249)
 dotnet run --project MeetSpot.API
-
 # Terminal 2 — Frontend (port 5156)
 dotnet run --project MeetSpot.Web
 ```
 
-### 4. Open in browser
-- **Frontend:** http://localhost:5156
-- **API Docs (Scalar):** http://localhost:5249/scalar/v1
+Migrations still apply automatically at API startup; no manual `dotnet ef` step
+is required.
 
 ---
 
-## 👤 Default Admin Account
-Email:    jalavh@code.edu.az
-Password: Admin123!
+## 🌐 Production Deployment (Docker Compose + Caddy)
+
+`docker-compose.prod.yml` runs SQL Server, Redis, the API, the Web frontend and
+a **Caddy** reverse proxy that terminates HTTPS (automatic Let's Encrypt certs).
+Internal ports are not published — only Caddy's 80/443 are exposed.
+
+### 1. Point a domain at the server
+Use your own domain, or an [sslip.io](https://sslip.io) hostname that encodes
+the server's public IP (e.g. `203.0.113.10.sslip.io`). Ports **80** and **443**
+must be reachable from the internet for TLS issuance.
+
+### 2. Configure `.env`
+
+```bash
+cp .env.example .env
+```
+
+Set at least: `DOMAIN`, `SQL_SA_PASSWORD` (+ matching password in
+`ConnectionStrings__DefaultConnection`), a 32+ char `Jwt__Key`, the SMTP
+`Email__*` values, `AdminSeed__*`, and the `https://<DOMAIN>` URLs for
+`AppSettings__FrontendBaseUrl`, `Cors__Origins` and `FileStorage__PublicBaseUrl`.
+
+### 3. Launch
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Then open `https://<your-domain>`. Migrations apply and the admin is seeded
+automatically on first boot.
+
+### Database backups
+
+```bash
+SQL_SA_PASSWORD=<pass> ./scripts/backup-sql.sh ./backups
+```
+
+---
+
+## 👤 Admin Account
+The initial admin is seeded from `AdminSeed__Email` / `AdminSeed__Password` in
+`.env` the first time the database is created. Set a strong password there.
 
 ---
 

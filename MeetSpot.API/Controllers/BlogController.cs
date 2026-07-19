@@ -100,7 +100,7 @@ public class BlogController(
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var imageUrl = $"{Request.Scheme}://{Request.Host}/images/blog/{fileName}";
+        var imageUrl = $"/images/blog/{fileName}";
         return Ok(ResponseModelHelper<string>.SuccessResult(imageUrl));
     }
 }

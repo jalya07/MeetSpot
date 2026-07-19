@@ -53,6 +53,9 @@ services:
       - api
     networks:
       - meetspot-network
+    volumes:
+      # Shared with the API so images uploaded via the Web app are served by the API.
+      - uploads:/app/wwwroot/images
 
 volumes:
   sqldata:

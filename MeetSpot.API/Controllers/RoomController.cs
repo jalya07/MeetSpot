@@ -107,7 +107,9 @@ public class RoomController(
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var imageUrl = $"{Request.Scheme}://{Request.Host}/images/rooms/{fileName}";
+        // Root-relative URL so it resolves against the public domain (via the
+        // reverse proxy), not the internal container host the Web app called.
+        var imageUrl = $"/images/rooms/{fileName}";
         return Ok(ResponseModelHelper<string>.SuccessResult(imageUrl));
     }
 }

@@ -62,7 +62,7 @@ public class MentorController : ControllerBase
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var avatarUrl = $"{Request.Scheme}://{Request.Host}/images/mentors/{fileName}";
+        var avatarUrl = $"/images/mentors/{fileName}";
         await _mentorService.UpdateAvatarAsync(id, avatarUrl);
 
         return Ok(ResponseModelHelper<string>.SuccessResult(avatarUrl));

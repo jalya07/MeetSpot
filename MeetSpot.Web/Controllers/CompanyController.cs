@@ -38,14 +38,17 @@ public class CompanyController : BaseController
             if (allowedExtensions.Contains(extension))
             {
                 var fileName = $"logo_{Guid.NewGuid()}{extension}";
-                var uploadsPath = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
-                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images", "logos");
-                var publicBaseUrl = (_configuration["FileStorage:PublicBaseUrl"] ?? _configuration["ApiBaseUrl"] ?? "http://localhost:5249/").TrimEnd('/');
+                // Uploads root is the shared images volume (same volume the API
+                // serves from). Save under the /logos subfolder so the file path
+                // and the public URL agree.
+                var uploadsRoot = _configuration["FileStorage:UploadsPath"] ?? Path.Combine(
+                    Directory.GetCurrentDirectory(), "..", "MeetSpot.API", "wwwroot", "images");
+                var uploadsPath = Path.Combine(uploadsRoot, "logos");
                 Directory.CreateDirectory(uploadsPath);
                 var filePath = Path.Combine(uploadsPath, fileName);
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await logoFile.CopyToAsync(stream);
-                logoUrl = $"{publicBaseUrl}/images/logos/{fileName}";
+                logoUrl = $"/images/logos/{fileName}";
             }
         }
 
