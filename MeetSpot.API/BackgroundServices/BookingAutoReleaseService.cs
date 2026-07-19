@@ -22,7 +22,15 @@ public class BookingAutoReleaseService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await CheckAndReleaseBookings();
+            try
+            {
+                await CheckAndReleaseBookings();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Booking auto-release tick failed");
+            }
+
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
