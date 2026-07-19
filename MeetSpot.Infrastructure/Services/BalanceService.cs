@@ -5,6 +5,7 @@ using MeetSpot.Core.Entities;
 using MeetSpot.Core.Exceptions;
 using MeetSpot.Core.Interfaces;
 using MeetSpot.Infrastructure.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace MeetSpot.Infrastructure.Services;
 
@@ -12,11 +13,13 @@ public class BalanceService : IBalanceService
 {
     private readonly MeetSpotAppDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
 
-    public BalanceService(MeetSpotAppDbContext context, IMapper mapper)
+    public BalanceService(MeetSpotAppDbContext context, IMapper mapper, IConfiguration configuration)
     {
         _context = context;
         _mapper = mapper;
+        _configuration = configuration;
     }
 
     public async Task<TransactionResponseDto> TopUpAsync(int userId, TopUpBalanceDto dto)
@@ -29,7 +32,9 @@ public class BalanceService : IBalanceService
         if (dto.Amount <= 0)
             throw new BadRequestException("Amount must be greater than 0");
 
-        // Fake Stripe — просто имитация, без реальной обработки карты
+        if (!bool.TryParse(_configuration["Balance:EnableFakeTopUp"], out var enableFakeTopUp) || !enableFakeTopUp)
+            throw new BadRequestException("Balance top-up is not enabled. Configure a real payment provider first.");
+
         user.Balance += dto.Amount;
 
         var transaction = new Transaction

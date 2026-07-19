@@ -48,13 +48,7 @@
                 <input type="password" id="ConfirmPassword" name="ConfirmPassword" required />
             </div>
 
-            <div class="form-group">
-                <label for="UserType">Account type</label>
-                <select id="UserType" name="UserType">
-                    <option value="Regular">Regular — pay as you go</option>
-                    <option value="Corporate">Corporate — company account</option>
-                </select>
-            </div>
+            <input type="hidden" id="UserType" name="UserType" value="Regular" />
 
             <button type="submit" class="btn btn-primary auth-submit">Create account</button>
         </form>

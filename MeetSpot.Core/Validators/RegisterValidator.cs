@@ -29,7 +29,7 @@ public class RegisterValidator : AbstractValidator<RegisterDto>
 
         RuleFor(x => x.UserType)
             .NotEmpty()
-            .Must(t => t == "Regular" || t == "Corporate" || t == "Premium")
-            .WithMessage("UserType must be Regular, Corporate or Premium");
+            .Must(t => t == "Regular")
+            .WithMessage("Self-registration is only available for Regular accounts");
     }
 }
